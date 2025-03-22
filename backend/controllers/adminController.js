@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 import validator from "validator";
 import { v2 as cloudinary } from "cloudinary";
 import userModel from "../models/userModel.js";
-
+import mongoose from "mongoose";
 // API to log in an admin
 const loginAdmin = async (req, res) => {
     try {
@@ -108,17 +108,18 @@ const appointmentCancel = async (req, res) => {
 // API to delete a doctor
 const deleteDoctor = async (req, res) => {
     try {
-        const { id } = req.params; // Get doctor ID from the route parameter
+        const { id } = req.params;
 
-        // Find the doctor by ID
-        const doctor = await doctorModel.findById(id);
-
-        if (!doctor) {
-            return res.status(404).json({ success: false, message: "Doctor not found" });
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ success: false, message: "Invalid Doctor ID" });
         }
 
-        // Delete the doctor
-        await doctorModel.findByIdAndDelete(id);
+        // Try deleting the doctor and capture the result
+        const deletedDoctor = await doctorModel.findByIdAndDelete(id);
+
+        if (!deletedDoctor) {
+            return res.status(404).json({ success: false, message: "Doctor not found" });
+        }
 
         res.status(200).json({ success: true, message: "Doctor deleted successfully" });
     } catch (error) {
@@ -126,7 +127,6 @@ const deleteDoctor = async (req, res) => {
         res.status(500).json({ success: false, message: "Server error" });
     }
 };
-
 // API to get all appointments
 const appointmentsAdmin = async (req, res) => {
     try {
@@ -171,16 +171,16 @@ const allDoctors = async (req, res) => {
         // Fetch all doctors from the database
         const doctors = await doctorModel.find();
 
+        // Return response in the expected format
         res.status(200).json({
             success: true,
-            data: doctors,
+            doctors, // Use 'doctors' key for the list
         });
     } catch (error) {
         console.error("Error fetching all doctors:", error);
         res.status(500).json({ success: false, message: "Server error" });
     }
 };
-
 // Export all admin functions
 export {
     loginAdmin,
