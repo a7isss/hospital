@@ -2,39 +2,14 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AdminContext } from '../../context/AdminContext';
 
 const DoctorsList = () => {
-  const { doctors, changeAvailability, aToken, getAllDoctors } = useContext(AdminContext);
+  const { doctors, changeAvailability, getAllDoctors, deleteDoctor } = useContext(AdminContext);
   const [loading, setLoading] = useState(true); // Loading state
 
-  // Fetch doctors whenever aToken changes
+  // Fetch doctors when the component mounts
   useEffect(() => {
     setLoading(true);
     getAllDoctors().finally(() => setLoading(false));
-  }, [aToken]);
-
-  // Function to delete a doctor
-  const deleteDoctor = async (doctorId) => {
-    if (window.confirm('Are you sure you want to delete this doctor?')) {
-      try {
-        const response = await fetch(`/api/admin/delete-doctor/${doctorId}`, {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${aToken}`, // Pass admin token
-          },
-        });
-
-        if (response.ok) {
-          alert('Doctor deleted successfully!');
-          getAllDoctors(); // Refresh the list after deletion
-        } else {
-          const { message } = await response.json();
-          alert(`Failed to delete the doctor: ${message}`);
-        }
-      } catch (error) {
-        console.error(error);
-        alert('An error occurred. Please try again later.');
-      }
-    }
-  };
+  }, [getAllDoctors]);
 
   return (
       <div className="m-5 max-h-[90vh] overflow-y-scroll">
