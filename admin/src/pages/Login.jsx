@@ -24,9 +24,13 @@ const Login = () => {
     console.log("Username:", username); // Updated log to reflect username
     console.log("Password:", password);
     console.log("Origin:", window.location.origin);
+    console.log("Sending login request with:", { username, password });
     if (state === 'Admin') {
 
-      const { data } = await axios.post(backendUrl + '/api/admin/login', { username, password }) // Updated to send username
+      const { data } = await axios.post(backendUrl + '/api/admin/login', 
+        { username, password }, // Request body
+        { headers: { 'Content-Type': 'application/json' } } // Headers
+      ); // Updated to send username
       if (data.success) {
         setAToken(data.aToken); // Use data.aToken
         localStorage.setItem('aToken', data.aToken); // Use data.aToken
