@@ -108,21 +108,23 @@ const appointmentCancel = async (req, res) => {
 // API to delete a doctor
 const deleteDoctor = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id: doctorId } = req.params; // Extract doctor ID from request parameters
+        console.log(`Delete request received for doctor ID: ${doctorId}`); // Debugging
 
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ success: false, message: "Invalid Doctor ID" });
-        }
-
-        const deletedDoctor = await doctorModel.findByIdAndDelete(id);
-
-        if (!deletedDoctor) {
+        // Find doctor by ID
+        const doctor = await doctorModel.findById(doctorId);
+        if (!doctor) {
             return res.status(404).json({ success: false, message: "Doctor not found" });
         }
 
+        // Delete the doctor from the database
+        await doctorModel.findByIdAndDelete(doctorId);
+        console.log(`Doctor with ID ${doctorId} deleted successfully`); // Debugging
+
+        // Respond with success
         res.status(200).json({ success: true, message: "Doctor deleted successfully" });
     } catch (error) {
-        console.error("Error deleting doctor:", error);
+        console.error("Error deleting doctor:", error); // Debugging
         res.status(500).json({ success: false, message: "Server error" });
     }
 };

@@ -48,29 +48,32 @@ const AdminContextProvider = (props) => {
             toast.error(error.response?.data?.message || error.message);
         }
     };
-
-    // Delete a doctor using API
+    //delete a doctor using api
     const deleteDoctor = async (doctorId) => {
         if (window.confirm("Are you sure you want to delete this doctor?")) {
             try {
+                console.log(`Deleting doctor with ID: ${doctorId}`); // Debugging
+
                 const { data } = await axios.delete(`${backendUrl}/api/admin/delete-doctor/${doctorId}`, {
                     headers: {
-                        Authorization: `Bearer ${aToken}`,
+                        Authorization: `Bearer ${aToken}`, // Check if this token is valid
                     },
                 });
 
                 if (data.success) {
+                    console.log("Doctor deleted successfully:", data); // Debugging
                     toast.success("Doctor deleted successfully!");
-                    getAllDoctors(); // Refresh doctors list
+                    getAllDoctors(); // Refresh doctors list after successful deletion
                 } else {
+                    console.warn("Delete doctor failed:", data.message); // Debugging
                     toast.error(data.message);
                 }
             } catch (error) {
-                toast.error(error.response?.data?.message || error.message);
+                console.error("Error deleting doctor:", error); // Debugging
+                toast.error(error.response?.data?.message || "An error occurred. Please try again later.");
             }
         }
     };
-
     // Change doctor availability using API
     const changeAvailability = async (docId) => {
         try {

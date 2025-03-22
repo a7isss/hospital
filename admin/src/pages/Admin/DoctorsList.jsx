@@ -9,7 +9,7 @@ const DoctorsList = () => {
   useEffect(() => {
     setLoading(true);
     getAllDoctors().finally(() => setLoading(false));
-  }, [getAllDoctors]);
+  }, []); // Prevent unnecessary renders
 
   return (
       <div className="m-5 max-h-[90vh] overflow-y-scroll">
