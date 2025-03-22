@@ -29,14 +29,7 @@ app.use((req, res, next) => {
 });
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.error(`Blocked by CORS: ${origin}`);
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: '*', // Allow all origins
     credentials: true, // Allow cookies or authorization headers
   })
 );
