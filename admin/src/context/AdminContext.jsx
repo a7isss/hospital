@@ -23,15 +23,15 @@ const AdminContextProvider = (props) => {
     const [doctors, setDoctors] = useState([]);
     const [dashData, setDashData] = useState(false);
 
-    // Axios Interceptor to Add aToken to All Requests
+    // Axios Interceptor to Add Authorization Header to All Requests
     useEffect(() => {
         const requestInterceptor = axios.interceptors.request.use(
             (config) => {
                 const token = localStorage.getItem("aToken"); // Retrieve the token from localStorage
                 console.log("Outgoing Request URL:", config.url); // Debug: Log URL of request
                 if (token) {
-                    config.headers["aToken"] = token; // Add the token to the headers
-                    console.log("Token added to headers:", token);
+                    config.headers["Authorization"] = `Bearer ${token}`; // Add the token to the Authorization header
+                    console.log("Authorization header added:", `Bearer ${token}`);
                 } else {
                     console.warn("No token found in localStorage");
                 }
@@ -145,7 +145,7 @@ const AdminContextProvider = (props) => {
         }
     };
 
-    // Debug the submit process (external implementation might interact via API for login)
+    // Submit Login API
     const submitLogin = async (username, password) => {
         console.log("Submitting login with credentials:", { username, password });
         try {
@@ -181,11 +181,7 @@ const AdminContextProvider = (props) => {
         submitLogin, // Added for handling login
     };
 
-    return (
-        <AdminContext.Provider value={value}>
-            {props.children}
-        </AdminContext.Provider>
-    );
+    return <AdminContext.Provider value={value}>{props.children}</AdminContext.Provider>;
 };
 
 export default AdminContextProvider;
