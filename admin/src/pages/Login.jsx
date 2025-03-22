@@ -8,7 +8,7 @@ const Login = () => {
 
   const [state, setState] = useState('Admin')
 
-  const [email, setEmail] = useState('')
+  const [username, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL
@@ -18,7 +18,12 @@ const Login = () => {
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
-
+    // Debug log for the POST request
+    console.log("Sending POST request:");
+    console.log("State:", state);
+    console.log("Email:", email);
+    console.log("Password:", password);
+    console.log("Origin:", window.location.origin);
     if (state === 'Admin') {
 
       const { data } = await axios.post(backendUrl + '/api/admin/login', { email, password })
