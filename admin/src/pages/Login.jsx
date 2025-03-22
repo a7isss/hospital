@@ -28,8 +28,8 @@ const Login = () => {
 
       const { data } = await axios.post(backendUrl + '/api/admin/login', { username, password }) // Updated to send username
       if (data.success) {
-        setAToken(data.token)
-        localStorage.setItem('aToken', data.token)
+        setAToken(data.aToken); // Use data.aToken
+        localStorage.setItem('aToken', data.aToken); // Use data.aToken
       } else {
         toast.error(data.message)
       }
