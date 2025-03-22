@@ -20,18 +20,6 @@ const allowedOrigins = [
   "https://admin.lahm.sa"
   // CORS configuration
 ];
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true, // Allow cookies or authorization headers
-  })
-);
 
 // middlewares
 app.use(express.json())
