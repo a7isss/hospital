@@ -18,19 +18,19 @@ const DoctorsList = () => {
         const response = await fetch(`/api/admin/delete-doctor/${doctorId}`, {
           method: 'DELETE',
           headers: {
-            Authorization: `Bearer ${aToken}`,
+            Authorization: `Bearer ${aToken}`, // Pass admin token
           },
         });
 
         if (response.ok) {
           alert('Doctor deleted successfully!');
-          getAllDoctors(); // Refresh the list
+          getAllDoctors(); // Refresh the list after deletion
         } else {
-          const { message } = await response.json(); // Parse API error response
+          const { message } = await response.json();
           alert(`Failed to delete the doctor: ${message}`);
         }
       } catch (error) {
-        console.error('Error deleting doctor:', error);
+        console.error(error);
         alert('An error occurred. Please try again later.');
       }
     }

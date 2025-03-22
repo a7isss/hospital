@@ -114,7 +114,6 @@ const deleteDoctor = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid Doctor ID" });
         }
 
-        // Try deleting the doctor and capture the result
         const deletedDoctor = await doctorModel.findByIdAndDelete(id);
 
         if (!deletedDoctor) {
