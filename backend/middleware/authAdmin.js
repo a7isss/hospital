@@ -1,4 +1,5 @@
 // admin authentication middleware
+import jwt from 'jsonwebtoken';
 const authAdmin = async (req, res, next) => {
     try {
         // Extract the token from the headers (case-insensitive, handle Bearer tokens)
