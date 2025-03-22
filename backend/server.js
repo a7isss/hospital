@@ -18,7 +18,6 @@ const allowedOrigins = [
   "https://ph-hpgz.vercel.app",
   "https://www.lahm.sa",
   "https://admin.lahm.sa"
-  // CORS configuration
 ];
 
 // middlewares
@@ -28,12 +27,19 @@ app.use((req, res, next) => {
   console.log('Path:', req.path);
   next();
 });
-app.options("*", cors());
-app.use((req, res, next) => {
-  console.log('Incoming Request Origin:', req.headers.origin);
-  console.log('Request Path:', req.path);
-  next();
-});
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.error(`Blocked by CORS: ${origin}`);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true, // Allow cookies or authorization headers
+  })
+);
 
 // api endpoints
 app.use("/api/user", userRouter)
