@@ -6,6 +6,7 @@ import connectCloudinary from "./config/cloudinary.js"
 import userRouter from "./routes/userRoute.js"
 import doctorRouter from "./routes/doctorRoute.js"
 import adminRouter from "./routes/adminRoute.js"
+import axios from 'axios'
 
 // app config
 const app = express()
@@ -41,6 +42,16 @@ app.use("/api/doctor", doctorRouter)
 
 app.get("/", (req, res) => {
   res.send("API Working")
+});
+
+axios.get('/api/protected-route', {
+  headers: {
+    aToken: localStorage.getItem('aToken') // Send the token from localStorage
+  }
+}).then(response => {
+  console.log(response.data);
+}).catch(error => {
+  console.error(error);
 });
 
 app.listen(port, () => console.log(`Server started on PORT:${port}`))
