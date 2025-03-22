@@ -31,7 +31,9 @@ const loginAdmin = async (req, res) => {
             process.env.JWT_SECRET, // Secret key
             { expiresIn: "1d" } // Token expiration
         );
-
+        
+        // Debug log for the generated token
+        console.log("Generated Token (aToken):", aToken);
         // Send the token in the response
         res.status(200).json({ success: true, aToken });
     } catch (error) {
