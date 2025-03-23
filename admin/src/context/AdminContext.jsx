@@ -2,6 +2,7 @@ import axios from "axios";
 import { createContext, useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
+// Create Admin Context
 export const AdminContext = createContext();
 
 const AdminContextProvider = ({ children }) => {
@@ -12,101 +13,90 @@ const AdminContextProvider = ({ children }) => {
     const [appointments, setAppointments] = useState([]);
     const [doctors, setDoctors] = useState([]);
     const [dashData, setDashData] = useState(null);
-    import axios from "axios";
-    import { createContext, useState, useEffect } from "react";
-    import { toast } from "react-toastify";
+    const [services, setServices] = useState([]); // New state for services
 
-    export const AdminContext = createContext();
-
-    const AdminContextProvider = ({ children }) => {
-        const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
-        // States
-        const [services, setServices] = useState([]); // New state for services
-
-        // Set up Axios interceptor
-        useEffect(() => {
-            const requestInterceptor = axios.interceptors.request.use(
-                (config) => {
-                    const token = localStorage.getItem("aToken");
-                    if (token) {
-                        config.headers["Authorization"] = `Bearer ${token}`;
-                    }
-                    return config;
-                },
-                (error) => Promise.reject(error)
-            );
-
-            return () => {
-                axios.interceptors.request.eject(requestInterceptor);
-            };
-        }, []);
-
-        // Load all services from the backend
-        const getAllServices = async () => {
-            try {
-                const { data } = await axios.get(`${backendUrl}/api/admin/services`, {
-                    headers: {
-                        Authorization: `Bearer ${aToken}`,
-                    },
-                });
-
-                if (data.success) {
-                    setServices(data.services);
-                    console.log("Services fetched successfully:", data.services); // Debugging
-                } else {
-                    toast.error(data.message);
+    // Set up Axios interceptor
+    useEffect(() => {
+        const requestInterceptor = axios.interceptors.request.use(
+            (config) => {
+                const token = localStorage.getItem("aToken");
+                if (token) {
+                    config.headers["Authorization"] = `Bearer ${token}`;
                 }
-            } catch (error) {
-                console.error("Error fetching services:", error); // Debugging
-                toast.error(error.response?.data?.message || "Failed to fetch services.");
-            }
-        };
+                return config;
+            },
+            (error) => Promise.reject(error)
+        );
 
-        // Add a new service
-        const addService = async (serviceData) => {
+        return () => {
+            axios.interceptors.request.eject(requestInterceptor);
+        };
+    }, []);
+
+    // Fetch all services from the backend
+    const getAllServices = async () => {
+        try {
+            const { data } = await axios.get(`${backendUrl}/api/admin/services`, {
+                headers: {
+                    Authorization: `Bearer ${aToken}`,
+                },
+            });
+
+            if (data.success) {
+                setServices(data.services);
+                console.log("Services fetched successfully:", data.services); // Debugging
+            } else {
+                toast.error(data.message);
+            }
+        } catch (error) {
+            console.error("Error fetching services:", error); // Debugging
+            toast.error(error.response?.data?.message || "Failed to fetch services.");
+        }
+    };
+
+    // Add a new service
+    const addService = async (serviceData) => {
+        try {
+            const { data } = await axios.post(`${backendUrl}/api/admin/add-service`, serviceData, {
+                headers: {
+                    Authorization: `Bearer ${aToken}`,
+                },
+            });
+
+            if (data.success) {
+                toast.success("Service added successfully!");
+                getAllServices(); // Refresh the services list
+            } else {
+                toast.error(data.message);
+            }
+        } catch (error) {
+            console.error("Error adding service:", error); // Debugging
+            toast.error(error.response?.data?.message || "Failed to add service.");
+        }
+    };
+
+    // Delete a service
+    const deleteService = async (serviceId) => {
+        if (window.confirm("Are you sure you want to delete this service?")) {
             try {
-                const { data } = await axios.post(`${backendUrl}/api/admin/add-service`, serviceData, {
+                const { data } = await axios.delete(`${backendUrl}/api/admin/delete-service/${serviceId}`, {
                     headers: {
                         Authorization: `Bearer ${aToken}`,
                     },
                 });
 
                 if (data.success) {
-                    toast.success("Service added successfully!");
+                    toast.success("Service deleted successfully!");
                     getAllServices(); // Refresh the services list
                 } else {
                     toast.error(data.message);
                 }
             } catch (error) {
-                console.error("Error adding service:", error); // Debugging
-                toast.error(error.response?.data?.message || "Failed to add service.");
+                console.error("Error deleting service:", error); // Debugging
+                toast.error(error.response?.data?.message || "Failed to delete service.");
             }
-        };
-
-        // Delete a service
-        const deleteService = async (serviceId) => {
-            if (window.confirm("Are you sure you want to delete this service?")) {
-                try {
-                    const { data } = await axios.delete(`${backendUrl}/api/admin/delete-service/${serviceId}`, {
-                        headers: {
-                            Authorization: `Bearer ${aToken}`,
-                        },
-                    });
-
-                    if (data.success) {
-                        toast.success("Service deleted successfully!");
-                        getAllServices(); // Refresh the services list
-                    } else {
-                        toast.error(data.message);
-                    }
-                } catch (error) {
-                    console.error("Error deleting service:", error); // Debugging
-                    toast.error(error.response?.data?.message || "Failed to delete service.");
-                }
-            }
-        };
-
+        }
+    };
 
     // Fetch all doctors
     const getAllDoctors = async () => {
@@ -155,8 +145,6 @@ const AdminContextProvider = ({ children }) => {
     const deleteDoctor = async (doctorId) => {
         if (window.confirm("Are you sure you want to delete this doctor?")) {
             try {
-                console.log(`Deleting doctor with ID: ${doctorId}`); // Debugging
-
                 const { data } = await axios.delete(`${backendUrl}/api/admin/delete-doctor/${doctorId}`, {
                     headers: {
                         Authorization: `Bearer ${aToken}`, // Admin token
@@ -164,7 +152,6 @@ const AdminContextProvider = ({ children }) => {
                 });
 
                 if (data.success) {
-                    console.log("Doctor deleted successfully:", data); // Debugging
                     toast.success("Doctor deleted successfully!");
                     getAllDoctors(); // Refresh doctors
                 } else {
@@ -204,13 +191,15 @@ const AdminContextProvider = ({ children }) => {
     const cancelAppointment = async (appointmentId) => {
         if (window.confirm("Are you sure you want to cancel this appointment?")) {
             try {
-                console.log(`Canceling appointment with ID: ${appointmentId}`); // Debugging
-
-                const { data } = await axios.post(`${backendUrl}/api/admin/cancel-appointment`, { appointmentId }, {
-                    headers: {
-                        Authorization: `Bearer ${aToken}`, // Admin token
-                    },
-                });
+                const { data } = await axios.post(
+                    `${backendUrl}/api/admin/cancel-appointment`,
+                    { appointmentId },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${aToken}`, // Admin token
+                        },
+                    }
+                );
 
                 if (data.success) {
                     toast.success("Appointment canceled successfully!");
@@ -241,7 +230,6 @@ const AdminContextProvider = ({ children }) => {
                 getAllServices,
                 addService,
                 deleteService,
-// Added this function
             }}
         >
             {children}
