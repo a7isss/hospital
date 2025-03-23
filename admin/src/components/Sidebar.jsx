@@ -1,4 +1,10 @@
 import React, { useContext } from 'react';
+import { DoctorContext } from '../context/DoctorContext';
+import { AdminContext } from '../context/AdminContext';
+import { NavLink } from 'react-router-dom';
+import { assets } from '../assets/assets'; // Adjust the path if necessary
+
+
 const Sidebar = () => {
     const { dToken } = useContext(DoctorContext);
     const { aToken } = useContext(AdminContext);
