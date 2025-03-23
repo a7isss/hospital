@@ -7,6 +7,10 @@ export const AdminContext = createContext();
 
 const AdminContextProvider = ({ children }) => {
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
+    const value = {
+        setAToken, // Expose setAToken in the context
+        // Other states and functions
+    };
 
     // States
     const [aToken, setAToken] = useState(localStorage.getItem("aToken") || "");
@@ -191,6 +195,10 @@ const AdminContextProvider = ({ children }) => {
             localStorage.removeItem('aToken'); // Clear the token from storage
             setAToken(''); // Clear the token from state
         };
+    const login = (token) => {
+        localStorage.setItem('aToken', token); // Save token to localStorage
+        setAToken(token); // Update state
+    };
 
     // Cancel an appointment
     const cancelAppointment = async (appointmentId) => {
@@ -236,6 +244,7 @@ const AdminContextProvider = ({ children }) => {
                 getAllServices,
                 addService,
                 deleteService,
+                login,
             }}
         >
             {children}
