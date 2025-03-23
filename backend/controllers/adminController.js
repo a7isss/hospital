@@ -26,7 +26,7 @@ const loginAdmin = async (req, res) => {
             return res.status(401).json({ success: false, message: "Invalid password" });
         }
 // Fetch all services
-        export const getAllServices = async (req, res) => {
+        const getAllServices = async (req, res) => {
             try {
                 const services = await Service.find(); // Fetch all services from the database
                 res.status(200).json({ success: true, services });
@@ -35,43 +35,39 @@ const loginAdmin = async (req, res) => {
                 res.status(500).json({ success: false, message: 'Failed to fetch services' });
             }
         };
-// add service
-        export const addService = async (req, res) => {
+
+// Add a new service
+        const addService = async (req, res) => {
             const { name, description, category, price, duration } = req.body;
 
-            // Validation for required fields
             if (!name || !description || !category || !price || !duration) {
                 return res.status(400).json({ success: false, message: "All fields are required" });
             }
 
             try {
-                // Handle the uploaded file: get the URL from Cloudinary
-                const image = req.file?.path; // Multer adds the file info to `req.file`
+                const image = req.file?.path; // Multer adds file info to req.file
 
-                // Create a new service and save it to the database
                 const newService = new Service({
                     name,
                     description,
                     category,
                     price,
                     duration,
-                    image, // Add the image URL from Cloudinary
+                    image,
                 });
 
                 await newService.save();
-
                 res.status(201).json({ success: true, message: "Service added successfully", service: newService });
             } catch (error) {
                 console.error("Error adding service:", error);
                 res.status(500).json({ success: false, message: "Failed to add service" });
             }
         };
-        // Delete a service
-        export const deleteService = async (req, res) => {
+// Delete a service
+        const deleteService = async (req, res) => {
             const { id } = req.params;
 
             try {
-                // Delete the service by ID
                 const deletedService = await Service.findByIdAndDelete(id);
 
                 if (!deletedService) {
@@ -84,7 +80,6 @@ const loginAdmin = async (req, res) => {
                 res.status(500).json({ success: false, message: 'Failed to delete service' });
             }
         };
-
         // Generate a JWT token named aToken
         const aToken = jwt.sign(
             { username, role: "admin" }, // Payload
@@ -250,5 +245,8 @@ export {
     addDoctor,
     allDoctors,
     adminDashboard,
-    deleteDoctor
+    deleteDoctor,
+    getAllServices,
+    addService,
+    deleteService
 };
