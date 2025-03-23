@@ -1,3 +1,4 @@
+import React, { useContext } from 'react';
 const Sidebar = () => {
     const { dToken } = useContext(DoctorContext);
     const { aToken } = useContext(AdminContext);
