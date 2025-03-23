@@ -12,6 +12,84 @@ const AdminContextProvider = ({ children }) => {
     const [appointments, setAppointments] = useState([]);
     const [doctors, setDoctors] = useState([]);
     const [dashData, setDashData] = useState(null);
+    import axios from "axios";
+    import { createContext, useState, useEffect } from "react";
+    import { toast } from "react-toastify";
+
+    export const AdminContext = createContext();
+
+    const AdminContextProvider = ({ children }) => {
+        const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+        // States
+        const [aToken, setAToken] = useState(localStorage.getItem("aToken") || "");
+        const [services, setServices] = useState([]); // New state for services
+
+        // Load all services from the backend
+        const getAllServices = async () => {
+            try {
+                const { data } = await axios.get(`${backendUrl}/api/admin/services`, {
+                    headers: {
+                        Authorization: `Bearer ${aToken}`,
+                    },
+                });
+
+                if (data.success) {
+                    setServices(data.services);
+                    console.log("Services fetched successfully:", data.services); // Debugging
+                } else {
+                    toast.error(data.message);
+                }
+            } catch (error) {
+                console.error("Error fetching services:", error); // Debugging
+                toast.error(error.response?.data?.message || "Failed to fetch services.");
+            }
+        };
+
+        // Add a new service
+        const addService = async (serviceData) => {
+            try {
+                const { data } = await axios.post(`${backendUrl}/api/admin/add-service`, serviceData, {
+                    headers: {
+                        Authorization: `Bearer ${aToken}`,
+                    },
+                });
+
+                if (data.success) {
+                    toast.success("Service added successfully!");
+                    getAllServices(); // Refresh the services list
+                } else {
+                    toast.error(data.message);
+                }
+            } catch (error) {
+                console.error("Error adding service:", error); // Debugging
+                toast.error(error.response?.data?.message || "Failed to add service.");
+            }
+        };
+
+        // Delete a service
+        const deleteService = async (serviceId) => {
+            if (window.confirm("Are you sure you want to delete this service?")) {
+                try {
+                    const { data } = await axios.delete(`${backendUrl}/api/admin/delete-service/${serviceId}`, {
+                        headers: {
+                            Authorization: `Bearer ${aToken}`,
+                        },
+                    });
+
+                    if (data.success) {
+                        toast.success("Service deleted successfully!");
+                        getAllServices(); // Refresh the services list
+                    } else {
+                        toast.error(data.message);
+                    }
+                } catch (error) {
+                    console.error("Error deleting service:", error); // Debugging
+                    toast.error(error.response?.data?.message || "Failed to delete service.");
+                }
+            }
+        };
+
 
     // Set up Axios interceptor
     useEffect(() => {
@@ -160,7 +238,11 @@ const AdminContextProvider = ({ children }) => {
                 getDashData,
                 deleteDoctor,
                 changeAvailability,
-                cancelAppointment, // Added this function
+                cancelAppointment,
+                getAllServices,
+                addService,
+                deleteService,
+// Added this function
             }}
         >
             {children}

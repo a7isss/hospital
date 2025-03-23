@@ -6,7 +6,11 @@ import {
   addDoctor,
   allDoctors,
   adminDashboard,
-  deleteDoctor // Correctly imported from adminController.js
+  deleteDoctor,
+  getAllServices, // Import from adminController.js
+  addService,     // Import from adminController.js
+  deleteService   // Import from adminController.js
+                  // Correctly imported from adminController.js
 } from '../controllers/adminController.js';
 import { changeAvailablity } from '../controllers/doctorController.js'; // Only import changeAvailablity from doctorController.js
 import authAdmin from '../middleware/authAdmin.js';
@@ -64,5 +68,33 @@ adminRouter.delete("/delete-doctor/:id", authAdmin, (req, res, next) => {
   console.log("DELETE /delete-doctor/:id route hit"); // Debugging
   next();
 }, deleteDoctor);
+/* ------------------------------------------
+   New Service Management Routes:
+------------------------------------------ */
+
+// Fetch all services
+adminRouter.get("/services", authAdmin, (req, res, next) => {
+  console.log("GET /services route hit");
+  next();
+}, getAllServices);
+
+// Add a new service (with image upload)
+adminRouter.post(
+    "/add-service",
+    authAdmin,
+    upload.single("image"), // Multer middleware for handling file upload
+    (req, res, next) => {
+      console.log("POST /add-service route hit");
+      next();
+    },
+    addService
+);
+
+
+// Delete a service
+adminRouter.delete("/delete-service/:id", authAdmin, (req, res, next) => {
+  console.log("DELETE /delete-service/:id route hit");
+  next();
+}, deleteService);
 
 export default adminRouter;

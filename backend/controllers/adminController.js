@@ -6,6 +6,7 @@ import bcrypt from "bcrypt";
 import validator from "validator";
 import { v2 as cloudinary } from "cloudinary";
 import userModel from "../models/userModel.js";
+import Service from "../models/serviceModel";
 import mongoose from "mongoose";
 // API to log in an admin
 const loginAdmin = async (req, res) => {
@@ -24,6 +25,65 @@ const loginAdmin = async (req, res) => {
         if (password !== process.env.ADMIN_PASSWORD) {
             return res.status(401).json({ success: false, message: "Invalid password" });
         }
+// Fetch all services
+        export const getAllServices = async (req, res) => {
+            try {
+                const services = await Service.find(); // Fetch all services from the database
+                res.status(200).json({ success: true, services });
+            } catch (error) {
+                console.error('Error fetching services:', error);
+                res.status(500).json({ success: false, message: 'Failed to fetch services' });
+            }
+        };
+// add service
+        export const addService = async (req, res) => {
+            const { name, description, category, price, duration } = req.body;
+
+            // Validation for required fields
+            if (!name || !description || !category || !price || !duration) {
+                return res.status(400).json({ success: false, message: "All fields are required" });
+            }
+
+            try {
+                // Handle the uploaded file: get the URL from Cloudinary
+                const image = req.file?.path; // Multer adds the file info to `req.file`
+
+                // Create a new service and save it to the database
+                const newService = new Service({
+                    name,
+                    description,
+                    category,
+                    price,
+                    duration,
+                    image, // Add the image URL from Cloudinary
+                });
+
+                await newService.save();
+
+                res.status(201).json({ success: true, message: "Service added successfully", service: newService });
+            } catch (error) {
+                console.error("Error adding service:", error);
+                res.status(500).json({ success: false, message: "Failed to add service" });
+            }
+        };
+        // Delete a service
+        export const deleteService = async (req, res) => {
+            const { id } = req.params;
+
+            try {
+                // Delete the service by ID
+                const deletedService = await Service.findByIdAndDelete(id);
+
+                if (!deletedService) {
+                    return res.status(404).json({ success: false, message: 'Service not found' });
+                }
+
+                res.status(200).json({ success: true, message: 'Service deleted successfully' });
+            } catch (error) {
+                console.error('Error deleting service:', error);
+                res.status(500).json({ success: false, message: 'Failed to delete service' });
+            }
+        };
 
         // Generate a JWT token named aToken
         const aToken = jwt.sign(
