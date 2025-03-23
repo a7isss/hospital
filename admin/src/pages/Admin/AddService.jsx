@@ -4,44 +4,49 @@ import { AdminContext } from '../../context/AdminContext';
 
 const AddService = () => {
     const { addService } = useContext(AdminContext); // Import addService context function
-    const [serviceName, setServiceName] = useState(''); // Service name
-    const [description, setDescription] = useState(''); // Service description
-    const [category, setCategory] = useState('General'); // Service category
-    const [price, setPrice] = useState(''); // Service price
-    const [duration, setDuration] = useState(''); // Service duration
+    const [serviceName, setServiceName] = useState(""); // Service name
+    const [description, setDescription] = useState(""); // Service description
+    const [category, setCategory] = useState("General"); // Service category
+    const [price, setPrice] = useState(""); // Service price
+    const [duration, setDuration] = useState(""); // Service duration
+    const [image, setImage] = useState(null); // Service image file
 
     // Handler for submitting the service form
     const onSubmitHandler = (event) => {
         event.preventDefault();
 
         // Validation
-        if (!serviceName || !description || !category || !price || !duration) {
-            return toast.error('All fields are required!');
+        if (!serviceName || !description || !category || !price || !duration || !image) {
+            return toast.error("All fields, including the image, are required!");
         }
 
         if (isNaN(price) || price <= 0) {
-            return toast.error('Price must be a positive number!');
+            return toast.error("Price must be a positive number!");
         }
 
+        // Prepare the data for upload
+        const formData = new FormData();
+        formData.append("name", serviceName);
+        formData.append("description", description);
+        formData.append("category", category);
+        formData.append("price", Number(price));
+        formData.append("duration", duration);
+        formData.append("image", image); // Append the image file
+
         // Call the context function to add the service
-        addService({
-            name: serviceName,
-            description,
-            category,
-            price: Number(price),
-            duration,
-        });
+        addService(formData);
 
         // Reset input fields after successful submission
-        setServiceName('');
-        setDescription('');
-        setCategory('General');
-        setPrice('');
-        setDuration('');
+        setServiceName("");
+        setDescription("");
+        setCategory("General");
+        setPrice("");
+        setDuration("");
+        setImage(null); // Clear file input
     };
 
     return (
-        <form onSubmit={onSubmitHandler} className="m-5 w-full">
+        <form onSubmit={onSubmitHandler} className="m-5 w-full" encType="multipart/form-data">
             <p className="mb-3 text-lg font-medium">Add Service</p>
 
             <div className="bg-white px-8 py-8 border rounded w-full max-w-4xl">
@@ -67,7 +72,6 @@ const AddService = () => {
                             <option value="Consultation">Consultation</option>
                             <option value="Testing">Testing</option>
                             <option value="Procedures">Procedures</option>
-                            {/* Add more categories as needed */}
                         </select>
                     </div>
 
@@ -96,17 +100,23 @@ const AddService = () => {
                 {/* Description Section */}
                 <label className="mt-6 block">Description</label>
                 <textarea
+                    rows={4}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Write a description of the service"
-                    className="border p-2 rounded w-full h-20 mt-2"
+                    placeholder="Enter a short description of this service"
+                    className="border p-2 rounded w-full"
                 />
 
-                {/* Submit Button */}
-                <button
-                    type="submit"
-                    className="bg-blue-500 text-white px-5 py-2 rounded mt-6 w-full"
-                >
+                {/* File Input Section */}
+                <label className="mt-6 block">Service Image</label>
+                <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setImage(e.target.files[0])}
+                    className="border p-2 rounded w-full"
+                />
+
+                <button className="bg-primary text-white w-full py-2 rounded-md text-base mt-6">
                     Add Service
                 </button>
             </div>

@@ -42,19 +42,18 @@ const AdminContextProvider = ({ children }) => {
         try {
             const { data } = await axios.get(`${backendUrl}/api/admin/services`, {
                 headers: {
-                    Authorization: `Bearer ${aToken}`,
+                    Authorization: `Bearer ${aToken}` // Auth token
                 },
             });
 
             if (data.success) {
-                setServices(data.services);
-                console.log("Services fetched successfully:", data.services); // Debugging
+                setServices(data.services); // Update the services state
             } else {
-                toast.error(data.message);
+                toast.error(data.message || "Failed to fetch services.");
             }
         } catch (error) {
-            console.error("Error fetching services:", error); // Debugging
-            toast.error(error.response?.data?.message || "Failed to fetch services.");
+            console.error("Error fetching services:", error);
+            toast.error(error.response?.data?.message || "An error occurred while fetching services.");
         }
     };
 
@@ -63,7 +62,8 @@ const AdminContextProvider = ({ children }) => {
         try {
             const { data } = await axios.post(`${backendUrl}/api/admin/add-service`, serviceData, {
                 headers: {
-                    Authorization: `Bearer ${aToken}`,
+                    Authorization: `Bearer ${aToken}`, // Authorization token
+                    "Content-Type": "multipart/form-data", // Correct Content-Type for FormData
                 },
             });
 
@@ -71,14 +71,13 @@ const AdminContextProvider = ({ children }) => {
                 toast.success("Service added successfully!");
                 getAllServices(); // Refresh the services list
             } else {
-                toast.error(data.message);
+                toast.error(data.message || "Failed to add service.");
             }
         } catch (error) {
-            console.error("Error adding service:", error); // Debugging
-            toast.error(error.response?.data?.message || "Failed to add service.");
+            console.error("Error adding service:", error);
+            toast.error(error.response?.data?.message || "An error occurred while adding the service.");
         }
     };
-
     // Delete a service
     const deleteService = async (serviceId) => {
         if (window.confirm("Are you sure you want to delete this service?")) {
