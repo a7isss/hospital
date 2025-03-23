@@ -186,10 +186,7 @@ const AdminContextProvider = ({ children }) => {
             toast.error(error.response?.data?.message || error.message);
         }
     };
-    const AdminContextProvider = (props) => {
-        // ... existing states and functions ...
-
-        // Add logout function to handle logout logic for Admin
+   // Add logout function to handle logout logic for Admin
         const logout = () => {
             localStorage.removeItem('aToken'); // Clear the token from storage
             setAToken(''); // Clear the token from state
