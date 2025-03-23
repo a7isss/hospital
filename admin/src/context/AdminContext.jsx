@@ -24,6 +24,24 @@ const AdminContextProvider = ({ children }) => {
         // States
         const [services, setServices] = useState([]); // New state for services
 
+        // Set up Axios interceptor
+        useEffect(() => {
+            const requestInterceptor = axios.interceptors.request.use(
+                (config) => {
+                    const token = localStorage.getItem("aToken");
+                    if (token) {
+                        config.headers["Authorization"] = `Bearer ${token}`;
+                    }
+                    return config;
+                },
+                (error) => Promise.reject(error)
+            );
+
+            return () => {
+                axios.interceptors.request.eject(requestInterceptor);
+            };
+        }, []);
+
         // Load all services from the backend
         const getAllServices = async () => {
             try {
@@ -89,24 +107,6 @@ const AdminContextProvider = ({ children }) => {
             }
         };
 
-
-    // Set up Axios interceptor
-    useEffect(() => {
-        const requestInterceptor = axios.interceptors.request.use(
-            (config) => {
-                const token = localStorage.getItem("aToken");
-                if (token) {
-                    config.headers["Authorization"] = `Bearer ${token}`;
-                }
-                return config;
-            },
-            (error) => Promise.reject(error)
-        );
-
-        return () => {
-            axios.interceptors.request.eject(requestInterceptor);
-        };
-    }, []);
 
     // Fetch all doctors
     const getAllDoctors = async () => {
