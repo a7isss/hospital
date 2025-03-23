@@ -34,7 +34,7 @@ const App = () => {
           <Route path="/add-doctor" element={<AddDoctor />} />
           <Route path="/doctor-list" element={<DoctorsList />} />
           <Route path="/add-service" element={<AddService />} /> {/* Add service route */}
-          <Route path="/services" element={<ServiceList />} /> {/* Optional Services List */}
+          <Route path="/services" element={<ServicesList />} /> {/* Optional Services List */}
           
           {/* Doctor Routes */}
           <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
