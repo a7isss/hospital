@@ -22,7 +22,6 @@ const AdminContextProvider = ({ children }) => {
         const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
         // States
-        const [aToken, setAToken] = useState(localStorage.getItem("aToken") || "");
         const [services, setServices] = useState([]); // New state for services
 
         // Load all services from the backend
