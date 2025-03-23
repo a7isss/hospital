@@ -1,22 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useContext, useState, useEffect } from 'react';
+import { AdminContext } from '../../context/AdminContext'; // Import AdminContext
 
 const ServicesList = () => {
+    const { getAllServices } = useContext(AdminContext); // Access getAllServices from AdminContext
     const [services, setServices] = useState([]); // State to hold the fetched services
     const [loading, setLoading] = useState(true); // Loading state
     const [error, setError] = useState(null); // Error state
 
-    // Fetch services from the backend API
+    // Fetch services using the context method
     useEffect(() => {
         const fetchServices = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get('/api/admin/services', {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('adminToken')}`, // Assume token authentication
-                    },
-                });
-                setServices(response.data.services); // Assign fetched services to state
+                const fetchedServices = await getAllServices(); // Call getAllServices from AdminContext
+                if (fetchedServices) {
+                    setServices(fetchedServices); // Assign fetched services to state
+                }
             } catch (err) {
                 console.error('Error fetching services:', err);
                 setError('Failed to load services. Please try again later.');
