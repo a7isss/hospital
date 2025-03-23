@@ -230,6 +230,7 @@ const AdminContextProvider = ({ children }) => {
     return (
         <AdminContext.Provider
             value={{
+                setAToken,
                 aToken,
                 doctors,
                 appointments,
