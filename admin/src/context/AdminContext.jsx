@@ -186,6 +186,14 @@ const AdminContextProvider = ({ children }) => {
             toast.error(error.response?.data?.message || error.message);
         }
     };
+    const AdminContextProvider = (props) => {
+        // ... existing states and functions ...
+
+        // Add logout function to handle logout logic for Admin
+        const logout = () => {
+            localStorage.removeItem('aToken'); // Clear the token from storage
+            setAToken(''); // Clear the token from state
+        };
 
     // Cancel an appointment
     const cancelAppointment = async (appointmentId) => {
@@ -225,6 +233,7 @@ const AdminContextProvider = ({ children }) => {
                 getAllAppointments,
                 getDashData,
                 deleteDoctor,
+                logout,
                 changeAvailability,
                 cancelAppointment,
                 getAllServices,
