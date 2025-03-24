@@ -13,6 +13,25 @@ const ServicesList = () => {
             try {
                 setLoading(true);
                 const fetchedServices = await getAllServices(); // Call getAllServices from AdminContext
+                useEffect(() => {
+                    const fetchServices = async () => {
+                        try {
+                            setLoading(true);
+                            const fetchedServices = await getAllServices(); // Fetches from context
+                            console.log("Fetched services:", fetchedServices); // Debug the response
+                            if (fetchedServices) {
+                                setServices(fetchedServices); // Assign to state
+                            }
+                        } catch (err) {
+                            console.error("Error fetching services:", err); // Debug errors
+                            setError("Failed to load services. Please try again later.");
+                        } finally {
+                            setLoading(false);
+                        }
+                    };
+
+                    fetchServices();
+                }, []);
                 if (fetchedServices) {
                     setServices(fetchedServices); // Assign fetched services to state
                 }
