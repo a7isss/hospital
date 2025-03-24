@@ -3,49 +3,32 @@ import { AdminContext } from '../../context/AdminContext'; // Import AdminContex
 
 const ServicesList = () => {
     const { getAllServices } = useContext(AdminContext); // Access getAllServices from AdminContext
-    const [services, setServices] = useState([]); // State to hold the fetched services
+    const [services, setServices] = useState([]); // State for fetched services
     const [loading, setLoading] = useState(true); // Loading state
     const [error, setError] = useState(null); // Error state
 
-    // Fetch services using the context method
+    // Fetch services when the component mounts
     useEffect(() => {
         const fetchServices = async () => {
             try {
-                setLoading(true);
-                const fetchedServices = await getAllServices(); // Call getAllServices from AdminContext
-                useEffect(() => {
-                    const fetchServices = async () => {
-                        try {
-                            setLoading(true);
-                            const fetchedServices = await getAllServices(); // Fetches from context
-                            console.log("Fetched services:", fetchedServices); // Debug the response
-                            if (fetchedServices) {
-                                setServices(fetchedServices); // Assign to state
-                            }
-                        } catch (err) {
-                            console.error("Error fetching services:", err); // Debug errors
-                            setError("Failed to load services. Please try again later.");
-                        } finally {
-                            setLoading(false);
-                        }
-                    };
-
-                    fetchServices();
-                }, []);
+                setLoading(true); // Start loading
+                const fetchedServices = await getAllServices(); // Fetch services from context
+                console.log('Fetched services:', fetchedServices); // Debugging response
                 if (fetchedServices) {
-                    setServices(fetchedServices); // Assign fetched services to state
+                    setServices(fetchedServices); // Save services state
                 }
             } catch (err) {
-                console.error('Error fetching services:', err);
+                console.error('Error fetching services:', err); // For debugging
                 setError('Failed to load services. Please try again later.');
             } finally {
-                setLoading(false);
+                setLoading(false); // Stop loading
             }
         };
 
         fetchServices();
-    }, []);
+    }, [getAllServices]); // Dependency array includes getAllServices to prevent unintended reloads
 
+    // Return statement for rendering
     return (
         <div className="m-5 max-h-[90vh] overflow-y-scroll">
             <h1 className="text-lg font-medium">All Services</h1>
@@ -58,8 +41,8 @@ const ServicesList = () => {
                 <div className="w-full flex flex-wrap gap-4 pt-5 gap-y-6">
                     {services.map((service) => (
                         <div
-                            className="border border-[#C9D8FF] rounded-xl max-w-56 overflow-hidden cursor-pointer group"
                             key={service._id}
+                            className="border border-[#C9D8FF] rounded-xl max-w-56 overflow-hidden cursor-pointer group"
                         >
                             <img
                                 className="bg-[#EAEFFF] group-hover:bg-primary transition-all duration-500"
@@ -73,21 +56,12 @@ const ServicesList = () => {
                                 <p className="text-sm mt-1 font-medium">
                                     Price: ${service.price || 'N/A'} | Duration: {service.duration || 'N/A'}
                                 </p>
-                                {service.available !== undefined && (
-                                    <p
-                                        className={`mt-2 ${
-                                            service.available ? 'text-green-500' : 'text-red-500'
-                                        }`}
-                                    >
-                                        {service.available ? 'Available' : 'Unavailable'}
-                                    </p>
-                                )}
                             </div>
                         </div>
                     ))}
                 </div>
             ) : (
-                <p className="text-gray-500 mt-4">No services available right now.</p>
+                <p className="text-gray-500 mt-4">No services available at the moment.</p>
             )}
         </div>
     );

@@ -37,7 +37,7 @@ const AdminContextProvider = ({ children }) => {
         };
     }, []);
 
-    // Fetch all services from the backend
+// Fetch all services from the backend
     const getAllServices = async () => {
         try {
             const { data } = await axios.get(`${backendUrl}/api/admin/services`, {
@@ -47,13 +47,14 @@ const AdminContextProvider = ({ children }) => {
             });
 
             if (data.success) {
-                setServices(data.services); // Update the services state
+                setServices(data.services); // Update context state
+                return data.services; // Return services for direct use
             } else {
                 toast.error(data.message || "Failed to fetch services.");
             }
         } catch (error) {
             console.error("Error fetching services:", error);
-            toast.error(error.response?.data?.message || "An error occurred while fetching services.");
+            toast.error("An error occurred while fetching services.");
         }
     };
 
