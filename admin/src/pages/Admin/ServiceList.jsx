@@ -2,34 +2,35 @@ import React, { useContext, useState, useEffect } from 'react';
 import { AdminContext } from '../../context/AdminContext';
 
 const ServicesList = () => {
-    const { getAllServices } = useContext(AdminContext);
-    const [services, setServices] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const { getAllServices } = useContext(AdminContext); // Fetch function from context
+    const [services, setServices] = useState([]); // State for storing fetched services
+    const [loading, setLoading] = useState(true); // Loading state
+    const [error, setError] = useState(null); // Error state
 
     useEffect(() => {
         const fetchServices = async () => {
             try {
-                setLoading(true);
-                const fetchedServices = await getAllServices();
+                setLoading(true); // Start loading
+                const fetchedServices = await getAllServices(); // Fetch services from context function
                 if (Array.isArray(fetchedServices)) {
-                    setServices(fetchedServices);
+                    setServices(fetchedServices); // Store services in state
                 } else {
                     setError('Unexpected data received. Could not fetch services.');
                 }
             } catch (err) {
+                console.error(err); // For debugging
                 setError('Failed to load services. Please try again later.');
             } finally {
-                setLoading(false);
+                setLoading(false); // Stop loading once fetch is complete
             }
         };
 
-        fetchServices();
+        fetchServices(); // Call fetch function on component mount
     }, [getAllServices]);
 
-    const truncateArabicText = (text = '', maxLength = 100) => {
+    const truncateText = (text = '', maxLength = 100) => {
         if (text.length > maxLength) {
-            return `${text.split('.')[0].slice(0, maxLength)}...`;
+            return `${text.slice(0, maxLength)}...`;
         }
         return text;
     };
@@ -43,22 +44,23 @@ const ServicesList = () => {
                 <p className="text-red-500 mt-4">{error}</p>
             ) : services.length > 0 ? (
                 <div className="w-full flex flex-wrap gap-4 pt-5 gap-y-6">
-                    {services.map((service, index) => {
+                    {services.map((service) => {
+                        // Destructure and provide fallbacks for potential missing fields
                         const {
                             _id,
-                            image = '/default-service.png',
-                            name = 'Unknown Service',
-                            description = 'No description available',
-                            category = 'N/A',
-                            price = 'N/A',
-                            duration = 'N/A',
-                            available,
+                            image = '/default-service.png', // Default fallback image
+                            name = 'Unknown Service', // Default service name
+                            description = 'No description available', // Fallback for missing description
+                            category = 'N/A', // Category default
+                            price = 'N/A', // Fallback for missing price
+                            duration = 'N/A', // Fallback for service duration
+                            available = false, // Assume unavailable if not specified
                         } = service;
 
                         return (
                             <div
                                 className="border border-[#C9D8FF] rounded-xl max-w-[14rem] overflow-hidden cursor-pointer group transition-transform transform hover:scale-105"
-                                key={index}
+                                key={_id || Math.random()} // Use _id for key (fallback to Math.random if _id is missing)
                             >
                                 {/* Service Image */}
                                 <img
@@ -67,16 +69,14 @@ const ServicesList = () => {
                                     alt={name}
                                     loading="lazy"
                                     onError={(e) => {
-                                        e.target.src = '/default-service.png';
+                                        e.target.src = '/default-service.png'; // Replace broken images
                                     }}
                                 />
 
                                 {/* Service Details */}
                                 <div className="p-4">
                                     <p className="text-[#262626] text-lg font-medium">{name}</p>
-                                    <p className="text-[#5C5C5C] text-sm">
-                                        {truncateArabicText(description)}
-                                    </p>
+                                    <p className="text-[#5C5C5C] text-sm">{truncateText(description)}</p>
                                     <p className="text-sm mt-2">
                                         <span className="font-bold">Category:</span> {category}
                                     </p>
@@ -89,7 +89,7 @@ const ServicesList = () => {
                                         <input
                                             type="checkbox"
                                             checked={available}
-                                            disabled
+                                            readOnly
                                             className="cursor-default"
                                         />
                                         <p>{available ? 'Available' : 'Unavailable'}</p>
@@ -100,7 +100,7 @@ const ServicesList = () => {
                     })}
                 </div>
             ) : (
-                <p className="text-gray-500 mt-4">No services found.</p>
+                <p className="text-gray-500 mt-4">No services available.</p>
             )}
         </div>
     );
