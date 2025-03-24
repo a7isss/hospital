@@ -57,7 +57,7 @@ const Banner = () => {
                     Array.from({ length: 6 }).map((_, index) => (
                         <div
                             key={index}
-                            className="service-card bg-gray-200 animate-pulse rounded-lg shadow-md w-[130%] flex flex-col h-60"
+                            className="service-card bg-gray-200 animate-pulse rounded-lg shadow-md flex flex-col h-[19.5rem]"
                         >
                             <div className="bg-gray-300 h-2/3 w-full rounded-t-lg"></div>
                             <div className="flex-grow flex items-center justify-center p-4">
@@ -75,7 +75,7 @@ const Banner = () => {
                     services.map((service) => (
                         <div
                             key={service._id}
-                            className="service-card bg-white rounded-lg shadow-md w-[130%] flex flex-col h-60 hover:shadow-lg transition-shadow"
+                            className="service-card bg-white rounded-lg shadow-md flex flex-col h-[19.5rem] hover:shadow-lg transition-shadow"
                         >
                             {/* Image or Placeholder */}
                             <div className="h-2/3 rounded-t-lg overflow-hidden">
