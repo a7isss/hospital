@@ -30,7 +30,7 @@ const ServicesList = () => {
 
     // Return statement for rendering
     return (
-        <div className="m-5 max-h-[90vh] overflow-y-scroll">
+        <div className="m-5 h-auto overflow-visible">
             <h1 className="text-lg font-medium">All Services</h1>
 
             {loading ? (
@@ -39,6 +39,7 @@ const ServicesList = () => {
                 <p className="text-red-500 mt-4">{error}</p>
             ) : services?.length > 0 ? (
                 <div className="w-full flex flex-wrap gap-4 pt-5 gap-y-6">
+                    console.log('Rendered services:', services);
                     {services.map((service) => {
                         // Destructure fields for cleaner and safe rendering
                         const {
@@ -71,14 +72,11 @@ const ServicesList = () => {
                                     <p className="text-sm mt-2">Category: {category}</p>
                                     <p className="text-sm mt-1 font-medium">Price: ${price} | Duration: {duration}</p>
 
-                                    {/* Availability (optional rendering based on the 'available' field) */}
+                                    {/* Availability */}
                                     {available !== undefined && (
-                                        <p
-                                            className={`mt-2 ${
-                                                available ? 'text-green-600' : 'text-red-600'
-                                            } text-sm font-semibold`}
-                                        >
-                                            {available ? 'Available' : 'Not Available'}
+                                        <p className={`mt-2 ${available ? 'text-green-600' : 'text-red-600'}`}>
+                                            {available ? 'Available' : 'Unavailable'}
+
                                         </p>
                                     )}
                                 </div>
