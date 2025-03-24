@@ -1,22 +1,47 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { AdminContext } from '../../context/AdminContext';
 
 const ServicesList = () => {
-    const { services, getAllServices, aToken } = useContext(AdminContext); // Access services from AdminContext
+    const { getAllServices } = useContext(AdminContext); // Fetch function from context
+    const [services, setServices] = useState([]); // Local state for service data
+    const [loading, setLoading] = useState(true); // Loading state
+    const [error, setError] = useState(null); // Error state
 
-    // Fetch services when the component mounts, only if aToken is present
+    // Fetch services on component mount
     useEffect(() => {
-        if (aToken) {
-            getAllServices();
-        }
-    }, [aToken, getAllServices]);
+        const fetchServices = async () => {
+            try {
+                setLoading(true); // Ensure loading starts
+                const fetchedServices = await getAllServices(); // Call service fetch function
+                console.log('Fetched services:', fetchedServices); // Debug fetched data
+                if (Array.isArray(fetchedServices)) {
+                    setServices(fetchedServices); // Store fetched services in state
+                } else {
+                    console.error('Unexpected data format:', fetchedServices); // Debug invalid data
+                    setError('Unexpected data received. Could not fetch services.');
+                }
+            } catch (err) {
+                console.error('Error fetching services:', err); // Log fetch errors
+                setError('Failed to load services. Please try again later.');
+            } finally {
+                setLoading(false); // Stop loading when fetch completes
+            }
+        };
 
+        fetchServices();
+    }, [getAllServices]); // Dependency on fetch function
+
+    // Render the component
     return (
         <div className="m-5 max-h-[90vh] overflow-y-scroll">
             <h1 className="text-lg font-medium">All Services</h1>
-            <div className="w-full flex flex-wrap gap-4 pt-5 gap-y-6">
-                {services && services.length > 0 ? (
-                    services.map((service, index) => {
+            {loading ? (
+                <p className="text-gray-500 mt-4">Loading services...</p>
+            ) : error ? (
+                <p className="text-red-500 mt-4">{error}</p>
+            ) : services.length > 0 ? (
+                <div className="w-full flex flex-wrap gap-4 pt-5 gap-y-6">
+                    {services.map((service, index) => {
                         const {
                             _id,
                             image = '/default-service.png', // Default image fallback
@@ -31,7 +56,7 @@ const ServicesList = () => {
                         return (
                             <div
                                 className="border border-[#C9D8FF] rounded-xl max-w-56 overflow-hidden cursor-pointer group"
-                                key={index} // Use index as key if `_id` isn't unique
+                                key={index} // Key based on index, as fallback if `_id` is unreliable
                             >
                                 {/* Service Image */}
                                 <img
@@ -39,7 +64,7 @@ const ServicesList = () => {
                                     src={image}
                                     alt={name}
                                     onError={(e) => {
-                                        e.target.src = '/default-service.png'; // Fallback if image fails
+                                        e.target.src = '/default-service.png'; // Fallback if image fails to load
                                     }}
                                 />
 
@@ -52,28 +77,27 @@ const ServicesList = () => {
                                     </p>
                                     <p className="text-sm mt-1 font-medium">
                                         <span className="font-bold">Price:</span>{' '}
-                                        {price !== 'N/A' ? `$${price}` : price}
-                                        {' | '}
-                                        <span className="font-bold">Duration:</span> {duration}
+                                        {price !== 'N/A' ? `$${price}` : price}{' '}
+                                        | <span className="font-bold">Duration:</span> {duration}
                                     </p>
                                     {/* Availability */}
-                                    {available !== undefined && (
-                                        <p
-                                            className={`mt-2 font-bold ${
-                                                available ? 'text-green-600' : 'text-red-600'
-                                            }`}
-                                        >
-                                            {available ? 'Available' : 'Unavailable'}
-                                        </p>
-                                    )}
+                                    <div className="mt-2 flex items-center gap-1 text-sm">
+                                        <input
+                                            type="checkbox"
+                                            checked={available}
+                                            disabled
+                                            className="cursor-default"
+                                        />
+                                        <p>{available ? 'Available' : 'Unavailable'}</p>
+                                    </div>
                                 </div>
                             </div>
                         );
-                    })
-                ) : (
-                    <p className="text-gray-500 mt-4">No services found.</p>
-                )}
-            </div>
+                    })}
+                </div>
+            ) : (
+                <p className="text-gray-500 mt-4">No services found.</p>
+            )}
         </div>
     );
 };
