@@ -3,10 +3,11 @@ import { loginUser, registerUser, getProfile, updateProfile, bookAppointment, li
 import upload from '../middleware/multer.js';
 import authUser from '../middleware/authUser.js';
 import { getServices } from "../controllers/userController.js";
-
+import { getServiceById } from "../controllers/userController.js";
 const userRouter = express.Router();
 
 userRouter.post("/register", registerUser)
+userRouter.get("/uservices/:id", getServiceById); // New route to fetch service by ID
 userRouter.post("/login", loginUser)
 userRouter.get("/uservices", getServices); // Define the /uservices route
 userRouter.get("/get-profile", authUser, getProfile)

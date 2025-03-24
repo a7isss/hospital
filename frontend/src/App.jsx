@@ -13,6 +13,7 @@ import Footer from './components/Footer';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Verify from './pages/Verify';
+import Service from './pages/Service';
 
 const App = () => {
     return (
@@ -35,16 +36,17 @@ const App = () => {
 
             {/* Main Routes */}
             <Routes>
-                <Route path='/' element={<Home />} />
-                <Route path='/doctors' element={<Doctors />} />
-                <Route path='/doctors/:speciality' element={<Doctors />} />
-                <Route path='/login' element={<Login />} />
-                <Route path='/about' element={<About />} />
-                <Route path='/contact' element={<Contact />} />
-                <Route path='/appointment/:docId' element={<Appointment />} />
-                <Route path='/my-appointments' element={<MyAppointments />} />
-                <Route path='/my-profile' element={<MyProfile />} />
-                <Route path='/verify' element={<Verify />} />
+                <Route path="/" element={<Home />} />
+                <Route path="/doctors" element={<Doctors />} />
+                <Route path="/doctors/:speciality" element={<Doctors />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/appointment/:docId" element={<Appointment />} />
+                <Route path="/my-appointments" element={<MyAppointments />} />
+                <Route path="/my-profile" element={<MyProfile />} />
+                <Route path="/verify" element={<Verify />} />
+                <Route path="/service/:id" element={<Service />} /> {/* New Route for Service Page */}
             </Routes>
 
             {/* Footer */}

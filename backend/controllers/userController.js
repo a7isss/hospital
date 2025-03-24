@@ -15,6 +15,20 @@ const razorpayInstance = new razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET,
 })
+// Fetch a single service by ID
+export const getServiceById = async (req, res) => {
+    const { id } = req.params; // Extract the ID from request parameters
+    try {
+        const service = await ServiceModel.findById(id); // Query the service by ID
+        if (!service) {
+            return res.status(404).json({ success: false, message: "Service not found" });
+        }
+        res.status(200).json({ success: true, service });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Internal server error", error: error.message });
+    }
+};
+
 // Fetch all services
 export const getServices = async (req, res) => {
     try {
