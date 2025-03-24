@@ -2,36 +2,38 @@ import React, { useContext, useState, useEffect } from 'react';
 import { AdminContext } from '../../context/AdminContext';
 
 const ServicesList = () => {
-    const { getAllServices } = useContext(AdminContext); // Fetch function from context
-    const [services, setServices] = useState([]); // Local state for service data
-    const [loading, setLoading] = useState(true); // Loading state
-    const [error, setError] = useState(null); // Error state
+    const { getAllServices } = useContext(AdminContext);
+    const [services, setServices] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // Fetch services on component mount
     useEffect(() => {
         const fetchServices = async () => {
             try {
-                setLoading(true); // Ensure loading starts
-                const fetchedServices = await getAllServices(); // Call service fetch function
-                console.log('Fetched services:', fetchedServices); // Debug fetched data
+                setLoading(true);
+                const fetchedServices = await getAllServices();
                 if (Array.isArray(fetchedServices)) {
-                    setServices(fetchedServices); // Store fetched services in state
+                    setServices(fetchedServices);
                 } else {
-                    console.error('Unexpected data format:', fetchedServices); // Debug invalid data
                     setError('Unexpected data received. Could not fetch services.');
                 }
             } catch (err) {
-                console.error('Error fetching services:', err); // Log fetch errors
                 setError('Failed to load services. Please try again later.');
             } finally {
-                setLoading(false); // Stop loading when fetch completes
+                setLoading(false);
             }
         };
 
         fetchServices();
-    }, [getAllServices]); // Dependency on fetch function
+    }, [getAllServices]);
 
-    // Render the component
+    const truncateArabicText = (text = '', maxLength = 100) => {
+        if (text.length > maxLength) {
+            return `${text.split('.')[0].slice(0, maxLength)}...`;
+        }
+        return text;
+    };
+
     return (
         <div className="m-5 max-h-[90vh] overflow-y-scroll">
             <h1 className="text-lg font-medium">All Services</h1>
@@ -44,7 +46,7 @@ const ServicesList = () => {
                     {services.map((service, index) => {
                         const {
                             _id,
-                            image = '/default-service.png', // Default image fallback
+                            image = '/default-service.png',
                             name = 'Unknown Service',
                             description = 'No description available',
                             category = 'N/A',
@@ -55,23 +57,26 @@ const ServicesList = () => {
 
                         return (
                             <div
-                                className="border border-[#C9D8FF] rounded-xl max-w-56 overflow-hidden cursor-pointer group"
-                                key={index} // Key based on index, as fallback if `_id` is unreliable
+                                className="border border-[#C9D8FF] rounded-xl max-w-[14rem] overflow-hidden cursor-pointer group transition-transform transform hover:scale-105"
+                                key={index}
                             >
                                 {/* Service Image */}
                                 <img
-                                    className="bg-[#EAEFFF] group-hover:bg-primary transition-all duration-500"
+                                    className="w-full h-48 object-cover group-hover:opacity-90 transition-opacity duration-300"
                                     src={image}
                                     alt={name}
+                                    loading="lazy"
                                     onError={(e) => {
-                                        e.target.src = '/default-service.png'; // Fallback if image fails to load
+                                        e.target.src = '/default-service.png';
                                     }}
                                 />
 
                                 {/* Service Details */}
                                 <div className="p-4">
                                     <p className="text-[#262626] text-lg font-medium">{name}</p>
-                                    <p className="text-[#5C5C5C] text-sm">{description}</p>
+                                    <p className="text-[#5C5C5C] text-sm">
+                                        {truncateArabicText(description)}
+                                    </p>
                                     <p className="text-sm mt-2">
                                         <span className="font-bold">Category:</span> {category}
                                     </p>
@@ -80,7 +85,6 @@ const ServicesList = () => {
                                         {price !== 'N/A' ? `$${price}` : price}{' '}
                                         | <span className="font-bold">Duration:</span> {duration}
                                     </p>
-                                    {/* Availability */}
                                     <div className="mt-2 flex items-center gap-1 text-sm">
                                         <input
                                             type="checkbox"
