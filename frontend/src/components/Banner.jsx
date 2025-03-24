@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import placeholderImage from '../assets/doc4.png'; // Placeholder image
-import currencySVG from '../assets/curr.svg'; // Import the SVG for the currency symbol
+import currencySVG from '../assets/curr.svg'; // Currency symbol
+import { Link } from 'react-router-dom'; // Use React Router's Link to navigate
 
 const Banner = () => {
     const [services, setServices] = useState([]); // Local state for services
@@ -28,14 +29,15 @@ const Banner = () => {
                 if (data.success) {
                     setServices(data.services); // Populate services
                 } else {
-                    setError(data.message || "Failed to fetch services");
+                    setError(data.message || 'Failed to fetch services');
                 }
             } catch (err) {
-                setError("An error occurred while fetching services");
+                setError('An error occurred while fetching services');
             } finally {
                 setLoading(false); // End loading state
             }
         };
+
         fetchServices();
     }, []); // Run on mount only once
 
@@ -78,49 +80,37 @@ const Banner = () => {
                             key={service._id}
                             className="service-card bg-white rounded-lg shadow-md flex flex-col h-[19.5rem] hover:shadow-lg transition-shadow"
                         >
-                            {/* Image or Placeholder */}
-                            <div className="h-2/3 rounded-t-lg overflow-hidden">
-                                {service.image ? (
+                            {/* Link to service page */}
+                            <Link to={`/service/${service._id}`} className="h-full">
+                                {/* Service Image */}
+                                <div className="h-2/3 w-full rounded-t-lg overflow-hidden">
                                     <img
-                                        src={service.image}
+                                        src={service.image || placeholderImage}
                                         alt={service.name}
-                                        className="object-cover h-full w-full"
+                                        className="w-full h-full object-cover"
                                     />
-                                ) : (
-                                    <img
-                                        src={placeholderImage}
-                                        alt="Placeholder"
-                                        className="object-cover h-full w-full"
-                                    />
-                                )}
-                            </div>
-                            {/* Name and Description */}
-                            <div className="p-4 flex flex-col justify-between flex-grow">
-                                <h3 className="text-lg font-semibold text-gray-800">
-                                    {service.name}
-                                </h3>
-                                <p className="text-sm text-gray-600">
-                                    {getFirstSentence(service.description)}
-                                </p>
-                                {/* Price with SVG */}
-                                <div className="flex items-center mt-2">
-                                    <img
-                                        src={currencySVG}
-                                        alt="Currency Symbol"
-                                        className="h-5 w-5 mr-1 object-contain" // Scales to 1em size
-                                    />
-                                    <span className="text-sm text-gray-600">
-                                        {service.price}
-                                    </span>
                                 </div>
-                            </div>
+                                {/* Service Info */}
+                                <div className="flex-grow flex flex-col justify-between p-4">
+                                    <h3 className="text-primary font-semibold text-base md:text-lg">
+                                        {service.name}
+                                    </h3>
+                                    <p className="text-gray-600 text-xs">
+                                        {getFirstSentence(service.description)}
+                                    </p>
+                                    <div className="flex items-center text-xs sm:text-sm mt-2">
+                                        <img src={currencySVG} alt="currency" className="w-4 h-4 mr-1" />
+                                        <span className="text-secondary font-semibold">
+                                            {service.price}
+                                        </span>
+                                    </div>
+                                </div>
+                            </Link>
                         </div>
                     ))
                 ) : (
-                    // Render if no services found
-                    <div className="text-gray-500 text-center col-span-full">
-                        {t('no_services_found')}
-                    </div>
+                    // Render message if no services are available
+                    <div className="text-gray-500 text-center col-span-full">{t('no_services_available')}</div>
                 )}
             </div>
         </div>
