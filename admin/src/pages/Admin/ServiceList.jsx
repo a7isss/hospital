@@ -99,6 +99,6 @@ const ServicesList = () => {
             )}
         </Container>
 
-};
+    );
 
 export default ServicesList;
