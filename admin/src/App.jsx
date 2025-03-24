@@ -22,29 +22,69 @@ const App = () => {
     const { aToken } = useContext(AdminContext); // Admin's token from context
 
     return dToken || aToken ? (
-        <AdminContextProvider> {/* Wrap everything that needs AdminContext */}
-            <div className="bg-[#F8F9FD]">
-                <ToastContainer />
-                <Navbar />
-                <div className="flex items-start">
-                    <Sidebar />
-                    <Routes>
-                        {/* Admin Routes */}
-                        <Route path="/admin-dashboard" element={<Dashboard />} />
-                        <Route path="/all-appointments" element={<AllAppointments />} />
-                        <Route path="/add-doctor" element={<AddDoctor />} />
-                        <Route path="/doctor-list" element={<DoctorsList />} />
-                        <Route path="/add-service" element={<AddService />} />
-                        <Route path="/services" element={<ServicesList />} />
+        <div className="bg-[#F8F9FD]">
+            <ToastContainer />
+            <Navbar />
+            <div className="flex items-start">
+                <Sidebar />
+                <Routes>
+                    {/* Admin Routes wrapped in AdminContextProvider */}
+                    <Route
+                        path="/admin-dashboard"
+                        element={
+                            <AdminContextProvider>
+                                <Dashboard />
+                            </AdminContextProvider>
+                        }
+                    />
+                    <Route
+                        path="/all-appointments"
+                        element={
+                            <AdminContextProvider>
+                                <AllAppointments />
+                            </AdminContextProvider>
+                        }
+                    />
+                    <Route
+                        path="/add-doctor"
+                        element={
+                            <AdminContextProvider>
+                                <AddDoctor />
+                            </AdminContextProvider>
+                        }
+                    />
+                    <Route
+                        path="/doctor-list"
+                        element={
+                            <AdminContextProvider>
+                                <DoctorsList />
+                            </AdminContextProvider>
+                        }
+                    />
+                    <Route
+                        path="/add-service"
+                        element={
+                            <AdminContextProvider>
+                                <AddService />
+                            </AdminContextProvider>
+                        }
+                    />
+                    <Route
+                        path="/services"
+                        element={
+                            <AdminContextProvider>
+                                <ServicesList />
+                            </AdminContextProvider>
+                        }
+                    />
 
-                        {/* Doctor Routes */}
-                        <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
-                        <Route path="/doctor-appointments" element={<DoctorAppointments />} />
-                        <Route path="/doctor-profile" element={<DoctorProfile />} />
-                    </Routes>
-                </div>
+                    {/* Doctor Routes (outside AdminContext) */}
+                    <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
+                    <Route path="/doctor-appointments" element={<DoctorAppointments />} />
+                    <Route path="/doctor-profile" element={<DoctorProfile />} />
+                </Routes>
             </div>
-        </AdminContextProvider>
+        </div>
     ) : (
         <>
             {/* Login Page (if unauthenticated) */}
