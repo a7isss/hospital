@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import placeholderImage from '../assets/doc4.png'; // Import the placeholder image
+import placeholderImage from '../assets/doc4.png'; // Placeholder image
+import currencySVG from '../assets/curr.svg'; // Import the SVG for the currency symbol
 
 const Banner = () => {
     const [services, setServices] = useState([]); // Local state for services
@@ -80,35 +81,45 @@ const Banner = () => {
                             {/* Image or Placeholder */}
                             <div className="h-2/3 rounded-t-lg overflow-hidden">
                                 {service.image ? (
-                                    <img src={service.image} alt={service.name} className="w-full h-full object-cover" />
+                                    <img
+                                        src={service.image}
+                                        alt={service.name}
+                                        className="object-cover h-full w-full"
+                                    />
                                 ) : (
-                                    <img src={placeholderImage} alt="Placeholder" className="w-full h-full object-cover" />
+                                    <img
+                                        src={placeholderImage}
+                                        alt="Placeholder"
+                                        className="object-cover h-full w-full"
+                                    />
                                 )}
                             </div>
-
-                            {/* Service Info */}
-                            <div className="p-4 flex-grow flex flex-col justify-between">
-                                {/* Name */}
-                                <h3 className="text-lg font-semibold">
+                            {/* Name and Description */}
+                            <div className="p-4 flex flex-col justify-between flex-grow">
+                                <h3 className="text-lg font-semibold text-gray-800">
                                     {service.name}
                                 </h3>
-
-                                {/* Price */}
                                 <p className="text-sm text-gray-600">
-                                    {t('price')}: ${service.price}
-                                </p>
-
-                                {/* Description */}
-                                <p className="text-sm text-gray-600 mt-2">
                                     {getFirstSentence(service.description)}
                                 </p>
+                                {/* Price with SVG */}
+                                <div className="flex items-center mt-2">
+                                    <img
+                                        src={currencySVG}
+                                        alt="Currency Symbol"
+                                        className="h-5 w-5 mr-1 object-contain" // Scales to 1em size
+                                    />
+                                    <span className="text-sm text-gray-600">
+                                        {service.price}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     ))
                 ) : (
-                    // Handle case with no services
+                    // Render if no services found
                     <div className="text-gray-500 text-center col-span-full">
-                        {t('no_services_available')}
+                        {t('no_services_found')}
                     </div>
                 )}
             </div>
