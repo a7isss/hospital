@@ -1,11 +1,5 @@
 {
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ],
-  "projectSettings": {
-    "framework": null
-  }
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
