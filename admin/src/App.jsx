@@ -16,7 +16,7 @@ import Login from './pages/Login'; // Login page
 import DoctorAppointments from './pages/Doctor/DoctorAppointments'; // Doctor appointments page
 import DoctorDashboard from './pages/Doctor/DoctorDashboard'; // Doctor dashboard
 import DoctorProfile from './pages/Doctor/DoctorProfile'; // Doctor profile page
-
+import 'bootstrap/dist/css/bootstrap.min.css';
 const App = () => {
     const { dToken } = useContext(DoctorContext); // Doctor's token from context
     const { aToken } = useContext(AdminContext); // Admin's token from context

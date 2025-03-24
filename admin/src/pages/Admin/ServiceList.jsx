@@ -1,10 +1,10 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AdminContext } from '../../context/AdminContext';
-import { Card, CardContent, CardMedia, Typography, Grid, Box, CircularProgress, Alert } from '@mui/material';
+import { Card, Row, Col, Spinner, Alert, Container } from 'react-bootstrap';
 
 const ServicesList = () => {
     const { getAllServices } = useContext(AdminContext); // Fetch function from context
-    const [services, setServices] = useState([]); // State for services
+    const [services, setServices] = useState([]); // State for storing fetched services
     const [loading, setLoading] = useState(true); // Loading state
     const [error, setError] = useState(null); // Error state
 
@@ -12,21 +12,21 @@ const ServicesList = () => {
         const fetchServices = async () => {
             try {
                 setLoading(true); // Start loading
-                const fetchedServices = await getAllServices(); // Fetch services from context
+                const fetchedServices = await getAllServices(); // Fetch services from context function
                 if (Array.isArray(fetchedServices)) {
-                    setServices(fetchedServices); // Store in state
+                    setServices(fetchedServices); // Store services in state
                 } else {
                     setError('Unexpected data received. Could not fetch services.');
                 }
             } catch (err) {
-                console.error(err); // Debugging
+                console.error(err); // For debugging
                 setError('Failed to load services. Please try again later.');
             } finally {
-                setLoading(false); // Stop loading
+                setLoading(false); // Stop loading once fetch is complete
             }
         };
 
-        fetchServices(); // Fetch data on component mount
+        fetchServices(); // Call fetch function on component mount
     }, [getAllServices]);
 
     const truncateText = (text = '', maxLength = 100) => {
@@ -37,71 +37,58 @@ const ServicesList = () => {
     };
 
     return (
-        <Box sx={{ padding: 3, maxHeight: '90vh', overflowY: 'auto' }}>
-            <Typography variant="h5" component="h1" gutterBottom>
-                All Services
-            </Typography>
-
+        <Container className="py-5">
+            <h1 className="mb-4">All Services</h1>
             {loading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
-                    <CircularProgress />
-                </Box>
+                <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '50vh' }}>
+                    <Spinner animation="border" variant="primary" />
+                </div>
             ) : error ? (
-                <Alert severity="error">{error}</Alert>
+                <Alert variant="danger">{error}</Alert>
             ) : services.length > 0 ? (
-                <Grid container spacing={3}>
+                <Row className="g-4">
                     {services.map((service) => {
                         const {
                             _id,
-                            image = '/default-service.png', // Fallback image
-                            name = 'Unknown Service', // Fallback name
-                            description = 'No description available', // Fallback description
-                            category = 'N/A', // Default category
-                            price = 'N/A', // Default price
-                            duration = 'N/A', // Default duration
+                            image = '/default-service.png', // Default fallback image
+                            name = 'Unknown Service', // Default name
+                            description = 'No description available', // Fallback for missing description
+                            category = 'N/A', // Category default
+                            price = 'N/A', // Fallback for missing price
+                            duration = 'N/A', // Fallback duration
                         } = service;
 
                         return (
-                            <Grid item xs={12} sm={6} md={4} lg={3} key={_id}>
-                                <Card sx={{ height: '100%' }}>
-                                    {/* Service Image */}
-                                    <CardMedia
-                                        component="img"
-                                        height="140"
-                                        image={image}
+                            <Col xs={12} sm={6} md={4} lg={3} key={_id}>
+                                <Card className="h-100">
+                                    <Card.Img
+                                        variant="top"
+                                        src={image}
                                         alt={name}
                                         onError={(e) => {
                                             e.target.src = '/default-service.png'; // Replace broken images
                                         }}
                                     />
-
-                                    {/* Service Details */}
-                                    <CardContent>
-                                        <Typography variant="h6" gutterBottom>
-                                            {name}
-                                        </Typography>
-                                        <Typography variant="body2" color="text.secondary">
-                                            {truncateText(description)}
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ marginTop: 1 }}>
+                                    <Card.Body>
+                                        <Card.Title className="mb-2">{name}</Card.Title>
+                                        <Card.Text className="text-muted mb-2">{truncateText(description)}</Card.Text>
+                                        <Card.Text>
                                             <strong>Category:</strong> {category}
-                                        </Typography>
-                                        <Typography variant="body2">
+                                        </Card.Text>
+                                        <Card.Text>
                                             <strong>Price:</strong> {price !== 'N/A' ? `$${price}` : price} |{' '}
                                             <strong>Duration:</strong> {duration}
-                                        </Typography>
-                                    </CardContent>
+                                        </Card.Text>
+                                    </Card.Body>
                                 </Card>
-                            </Grid>
+                            </Col>
                         );
                     })}
-                </Grid>
+                </Row>
             ) : (
-                <Typography variant="body1" color="text.secondary">
-                    No services available.
-                </Typography>
+                <p className="text-muted">No services available.</p>
             )}
-        </Box>
+        </Container>
     );
 };
 
