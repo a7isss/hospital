@@ -10,7 +10,7 @@ const Banner = () => {
     const [error, setError] = useState(null); // Handle errors
     const { t } = useTranslation(); // Initialize translation
 
-    // Utility function to get first sentence of the description
+    // Utility function to get the first sentence of the description
     const getFirstSentence = (text) => {
         if (!text) return t('no_description'); // Handle missing descriptions
         const firstSentence = text.split('.')[0]; // Split text at periods and get the first
@@ -42,29 +42,29 @@ const Banner = () => {
     }, []); // Run on mount only once
 
     return (
-        <div className="flex flex-col bg-primary rounded-lg px-6 sm:px-10 md:px-14 lg:px-12 my-10 md:mx-10">
+        <div className="flex flex-col bg-primary rounded-lg px-8 sm:px-12 lg:px-16 py-10 lg:py-14 my-10 md:mx-10">
             {/* ------- Header Section ------- */}
-            <div className="py-6 sm:py-8 md:py-10 lg:py-12 text-center">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-white">
+            <div className="text-center mb-10">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-white mb-4">
                     {t('book_appointment')}
                 </h2>
-                <p className="text-xs text-white mt-4">
+                <p className="text-sm sm:text-base text-white">
                     {t('explore_our_services')}
                 </p>
             </div>
 
             {/* ------- Services Grid ------- */}
-            <div className="services-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="services-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 {loading ? (
                     // Render placeholder cards while loading
                     Array.from({ length: 6 }).map((_, index) => (
                         <div
                             key={index}
-                            className="service-card bg-gray-200 animate-pulse rounded-lg shadow-md flex flex-col h-[19.5rem]"
+                            className="service-card bg-gray-200 animate-pulse rounded-lg shadow-md flex flex-col h-[20rem] sm:h-[22rem]"
                         >
                             <div className="bg-gray-300 h-2/3 w-full rounded-t-lg"></div>
                             <div className="flex-grow flex items-center justify-center p-4">
-                                <p className="text-gray-500 text-xs">Loading...</p>
+                                <p className="text-gray-500 text-sm">Loading...</p>
                             </div>
                         </div>
                     ))
@@ -78,39 +78,42 @@ const Banner = () => {
                     services.map((service) => (
                         <div
                             key={service._id}
-                            className="service-card bg-white rounded-lg shadow-md flex flex-col h-[19.5rem] hover:shadow-lg transition-shadow"
+                            className="service-card bg-white rounded-lg shadow-md flex flex-col h-[20rem] sm:h-[22rem] hover:shadow-lg transition-shadow p-4"
                         >
-                            {/* Link to service page */}
-                            <Link to={`/service/${service._id}`} className="h-full">
-                                {/* Service Image */}
-                                <div className="h-2/3 w-full rounded-t-lg overflow-hidden">
-                                    <img
-                                        src={service.image || placeholderImage}
-                                        alt={service.name}
-                                        className="w-full h-full object-cover"
-                                    />
-                                </div>
-                                {/* Service Info */}
-                                <div className="flex-grow flex flex-col justify-between p-4">
-                                    <h3 className="text-primary font-semibold text-base md:text-lg">
-                                        {service.name}
-                                    </h3>
-                                    <p className="text-gray-600 text-xs">
-                                        {getFirstSentence(service.description)}
+                            <div className="h-2/3 mb-4">
+                                <img
+                                    src={service.image || placeholderImage}
+                                    alt={service.name}
+                                    className="w-full h-full object-cover rounded-lg"
+                                />
+                            </div>
+                            <div className="flex-1 flex flex-col justify-between">
+                                <h3 className="text-lg sm:text-xl font-semibold text-gray-800 leading-tight mb-2">
+                                    {service.name}
+                                </h3>
+                                <p className="text-sm text-gray-600 leading-snug mb-2">
+                                    {getFirstSentence(service.description)}
+                                </p>
+                                <div className="flex items-center justify-between mt-auto">
+                                    <p className="text-sm sm:text-base font-medium text-gray-800">
+                                        <img src={currencySVG} alt="Currency" className="inline w-4 h-4 mr-1" />
+                                        {service.price}
                                     </p>
-                                    <div className="flex items-center text-xs sm:text-sm mt-2">
-                                        <img src={currencySVG} alt="currency" className="w-4 h-4 mr-1" />
-                                        <span className="text-secondary font-semibold">
-                                            {service.price}
-                                        </span>
-                                    </div>
+                                    <Link
+                                        to={`/service/${service._id}`}
+                                        className="text-sm sm:text-base text-primary font-semibold hover:underline"
+                                    >
+                                        {t('view_details')}
+                                    </Link>
                                 </div>
-                            </Link>
+                            </div>
                         </div>
                     ))
                 ) : (
-                    // Render message if no services are available
-                    <div className="text-gray-500 text-center col-span-full">{t('no_services_available')}</div>
+                    // No services found
+                    <div className="text-gray-500 text-center col-span-full">
+                        {t('no_services_available')}
+                    </div>
                 )}
             </div>
         </div>
