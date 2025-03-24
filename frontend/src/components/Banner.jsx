@@ -80,31 +80,33 @@ const Banner = () => {
                             {/* Image or Placeholder */}
                             <div className="h-2/3 rounded-t-lg overflow-hidden">
                                 {service.image ? (
-                                    <img
-                                        src={service.image}
-                                        alt={service.name}
-                                        className="w-full h-full object-cover"
-                                    />
+                                    <img src={service.image} alt={service.name} className="w-full h-full object-cover" />
                                 ) : (
-                                    <img
-                                        src={placeholderImage}
-                                        alt="Placeholder"
-                                        className="w-full h-full object-cover"
-                                    />
+                                    <img src={placeholderImage} alt="Placeholder" className="w-full h-full object-cover" />
                                 )}
                             </div>
-                            {/* Service Details */}
-                            <div className="p-4 flex-grow flex flex-col">
-                                <h3 className="text-md font-semibold text-gray-800">
+
+                            {/* Service Info */}
+                            <div className="p-4 flex-grow flex flex-col justify-between">
+                                {/* Name */}
+                                <h3 className="text-lg font-semibold">
                                     {service.name}
                                 </h3>
-                                <p className="text-xs text-gray-500 mt-2">
+
+                                {/* Price */}
+                                <p className="text-sm text-gray-600">
+                                    {t('price')}: ${service.price}
+                                </p>
+
+                                {/* Description */}
+                                <p className="text-sm text-gray-600 mt-2">
                                     {getFirstSentence(service.description)}
                                 </p>
                             </div>
                         </div>
                     ))
                 ) : (
+                    // Handle case with no services
                     <div className="text-gray-500 text-center col-span-full">
                         {t('no_services_available')}
                     </div>

@@ -2,7 +2,7 @@ import React from 'react';
 import Header from '../components/Header';
 import SpecialityMenu from '../components/SpecialityMenu';
 import TopDoctors from '../components/TopDoctors';
-import Banner from '../components/Banner';
+import Banner from '../components/Banner'; // Contains services grid
 import { useTranslation } from 'react-i18next';
 
 const Home = () => {
@@ -10,7 +10,10 @@ const Home = () => {
 
     return (
         <div>
-            {/* Header Section */}
+            {/* Banner with Services - Now at the top */}
+            <Banner />
+
+            {/* Optional: Add Header Here If Necessary */}
             <Header />
 
             {/* Login Button */}
@@ -33,7 +36,6 @@ const Home = () => {
             {/* Main Sections */}
             <SpecialityMenu />
             <TopDoctors />
-            <Banner /> {/* Updated Banner component */}
         </div>
     );
 };
