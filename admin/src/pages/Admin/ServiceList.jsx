@@ -12,21 +12,25 @@ const ServicesList = () => {
         const fetchServices = async () => {
             try {
                 setLoading(true); // Start loading
-                const fetchedServices = await getAllServices(); // Fetch services from context
+                console.log('Fetching services...');
+                const fetchedServices = await getAllServices(); // Fetch services context function
                 console.log('Fetched services:', fetchedServices); // Debugging response
-                if (fetchedServices) {
+                if (Array.isArray(fetchedServices)) {
                     setServices(fetchedServices); // Save services state
+                } else {
+                    console.error('Unexpected data format:', fetchedServices);
+                    setError('Unexpected data format received from the server.');
                 }
             } catch (err) {
-                console.error('Error fetching services:', err); // For debugging
-                setError('Failed to load services. Please try again later.');
+                console.error('Error fetching services:', err); // Debugging
+                setError('Failed to load services. Please try again.');
             } finally {
                 setLoading(false); // Stop loading
             }
         };
 
         fetchServices();
-    }, [getAllServices]); // Dependency array includes getAllServices to prevent unintended reloads
+    }, [getAllServices]);
 
     // Return statement for rendering
     return (
@@ -37,12 +41,11 @@ const ServicesList = () => {
                 <p className="text-gray-500 mt-4">Loading services...</p>
             ) : error ? (
                 <p className="text-red-500 mt-4">{error}</p>
-            ) : services?.length > 0 ? (
+            ) : services.length > 0 ? (
                 <div className="w-full flex flex-wrap gap-4 pt-5 gap-y-6">
-                    {/* Debugging rendered services */}
-                    {console.log('Rendered services:', services)}
+                    {/* Render each service */}
                     {services.map((service) => {
-                        // Destructure fields for cleaner and safe rendering
+                        // Validate the data structure and provide fallbacks
                         const {
                             _id,
                             image = '/default-service.png', // Default image fallback
@@ -54,6 +57,11 @@ const ServicesList = () => {
                             available,
                         } = service;
 
+                        if (!_id) {
+                            console.warn('Invalid service data:', service);
+                            return null; // Skip if the service data is invalid
+                        }
+
                         return (
                             <div
                                 key={_id}
@@ -64,14 +72,21 @@ const ServicesList = () => {
                                     className="bg-[#EAEFFF] group-hover:bg-primary transition-all duration-500"
                                     src={image}
                                     alt={name}
+                                    onError={(e) => {
+                                        e.target.src = '/default-service.png'; // Fallback in case of an image load error
+                                    }}
                                 />
 
                                 {/* Service Details */}
                                 <div className="p-4">
                                     <p className="text-[#262626] text-lg font-medium">{name}</p>
-                                    <p className="text-[#5C5C5C] text-sm">{description}</p>
+                                    <p className="text-[#5C5C5C] text-sm">
+                                        {description || 'No description available'}
+                                    </p>
                                     <p className="text-sm mt-2">Category: {category}</p>
-                                    <p className="text-sm mt-1 font-medium">Price: ${price} | Duration: {duration}</p>
+                                    <p className="text-sm mt-1 font-medium">
+                                        Price: {price === 'N/A' ? price : `$${price}`} | Duration: {duration}
+                                    </p>
 
                                     {/* Availability */}
                                     {available !== undefined && (
