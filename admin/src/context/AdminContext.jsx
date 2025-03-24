@@ -36,28 +36,27 @@ const AdminContextProvider = ({ children }) => {
             axios.interceptors.request.eject(requestInterceptor);
         };
     }, []);
-
-// Fetch all services from the backend
+//fetch services
     const getAllServices = async () => {
         try {
             const { data } = await axios.get(`${backendUrl}/api/admin/services`, {
                 headers: {
-                    Authorization: `Bearer ${aToken}` // Auth token
+                    Authorization: `Bearer ${aToken}`
                 },
             });
 
-            if (data.success) {
-                setServices(data.services); // Update context state
-                return data.services; // Return services for direct use
+            if (data.success && Array.isArray(data.services)) {
+                setServices(data.services); // Populate AdminContext state
+                return data.services; // Return services to the caller
             } else {
-                toast.error(data.message || "Failed to fetch services.");
+                console.error("Error: Unexpected data shape:", data);
+                return []; // Safe fallback
             }
         } catch (error) {
-            console.error("Error fetching services:", error);
-            toast.error("An error occurred while fetching services.");
+            console.error("Error in getAllServices:", error);
+            return []; // Always return an array to avoid breaking loops
         }
     };
-
     // Add a new service
     const addService = async (serviceData) => {
         try {
