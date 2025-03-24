@@ -1,9 +1,10 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AdminContext } from '../../context/AdminContext';
+import { Card, CardContent, CardMedia, Typography, Grid, Box, CircularProgress, Alert } from '@mui/material';
 
 const ServicesList = () => {
     const { getAllServices } = useContext(AdminContext); // Fetch function from context
-    const [services, setServices] = useState([]); // State for storing fetched services
+    const [services, setServices] = useState([]); // State for services
     const [loading, setLoading] = useState(true); // Loading state
     const [error, setError] = useState(null); // Error state
 
@@ -11,21 +12,21 @@ const ServicesList = () => {
         const fetchServices = async () => {
             try {
                 setLoading(true); // Start loading
-                const fetchedServices = await getAllServices(); // Fetch services from context function
+                const fetchedServices = await getAllServices(); // Fetch services from context
                 if (Array.isArray(fetchedServices)) {
-                    setServices(fetchedServices); // Store services in state
+                    setServices(fetchedServices); // Store in state
                 } else {
                     setError('Unexpected data received. Could not fetch services.');
                 }
             } catch (err) {
-                console.error(err); // For debugging
+                console.error(err); // Debugging
                 setError('Failed to load services. Please try again later.');
             } finally {
-                setLoading(false); // Stop loading once fetch is complete
+                setLoading(false); // Stop loading
             }
         };
 
-        fetchServices(); // Call fetch function on component mount
+        fetchServices(); // Fetch data on component mount
     }, [getAllServices]);
 
     const truncateText = (text = '', maxLength = 100) => {
@@ -36,73 +37,71 @@ const ServicesList = () => {
     };
 
     return (
-        <div className="m-5 max-h-[90vh] overflow-y-scroll">
-            <h1 className="text-lg font-medium">All Services</h1>
+        <Box sx={{ padding: 3, maxHeight: '90vh', overflowY: 'auto' }}>
+            <Typography variant="h5" component="h1" gutterBottom>
+                All Services
+            </Typography>
+
             {loading ? (
-                <p className="text-gray-500 mt-4">Loading services...</p>
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+                    <CircularProgress />
+                </Box>
             ) : error ? (
-                <p className="text-red-500 mt-4">{error}</p>
+                <Alert severity="error">{error}</Alert>
             ) : services.length > 0 ? (
-                <div className="w-full flex flex-wrap gap-4 pt-5 gap-y-6">
+                <Grid container spacing={3}>
                     {services.map((service) => {
-                        // Destructure and provide fallbacks for potential missing fields
                         const {
                             _id,
-                            image = '/default-service.png', // Default fallback image
-                            name = 'Unknown Service', // Default service name
-                            description = 'No description available', // Fallback for missing description
-                            category = 'N/A', // Category default
-                            price = 'N/A', // Fallback for missing price
-                            duration = 'N/A', // Fallback for service duration
-                            available = false, // Assume unavailable if not specified
+                            image = '/default-service.png', // Fallback image
+                            name = 'Unknown Service', // Fallback name
+                            description = 'No description available', // Fallback description
+                            category = 'N/A', // Default category
+                            price = 'N/A', // Default price
+                            duration = 'N/A', // Default duration
                         } = service;
 
                         return (
-                            <div
-                                className="border border-[#C9D8FF] rounded-xl max-w-[14rem] overflow-hidden cursor-pointer group transition-transform transform hover:scale-105"
-                                key={_id || Math.random()} // Use _id for key (fallback to Math.random if _id is missing)
-                            >
-                                {/* Service Image */}
-                                <img
-                                    className="w-full h-48 object-cover group-hover:opacity-90 transition-opacity duration-300"
-                                    src={image}
-                                    alt={name}
-                                    loading="lazy"
-                                    onError={(e) => {
-                                        e.target.src = '/default-service.png'; // Replace broken images
-                                    }}
-                                />
+                            <Grid item xs={12} sm={6} md={4} lg={3} key={_id}>
+                                <Card sx={{ height: '100%' }}>
+                                    {/* Service Image */}
+                                    <CardMedia
+                                        component="img"
+                                        height="140"
+                                        image={image}
+                                        alt={name}
+                                        onError={(e) => {
+                                            e.target.src = '/default-service.png'; // Replace broken images
+                                        }}
+                                    />
 
-                                {/* Service Details */}
-                                <div className="p-4">
-                                    <p className="text-[#262626] text-lg font-medium">{name}</p>
-                                    <p className="text-[#5C5C5C] text-sm">{truncateText(description)}</p>
-                                    <p className="text-sm mt-2">
-                                        <span className="font-bold">Category:</span> {category}
-                                    </p>
-                                    <p className="text-sm mt-1 font-medium">
-                                        <span className="font-bold">Price:</span>{' '}
-                                        {price !== 'N/A' ? `$${price}` : price}{' '}
-                                        | <span className="font-bold">Duration:</span> {duration}
-                                    </p>
-                                    <div className="mt-2 flex items-center gap-1 text-sm">
-                                        <input
-                                            type="checkbox"
-                                            checked={available}
-                                            readOnly
-                                            className="cursor-default"
-                                        />
-                                        <p>{available ? 'Available' : 'Unavailable'}</p>
-                                    </div>
-                                </div>
-                            </div>
+                                    {/* Service Details */}
+                                    <CardContent>
+                                        <Typography variant="h6" gutterBottom>
+                                            {name}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            {truncateText(description)}
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ marginTop: 1 }}>
+                                            <strong>Category:</strong> {category}
+                                        </Typography>
+                                        <Typography variant="body2">
+                                            <strong>Price:</strong> {price !== 'N/A' ? `$${price}` : price} |{' '}
+                                            <strong>Duration:</strong> {duration}
+                                        </Typography>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
                         );
                     })}
-                </div>
+                </Grid>
             ) : (
-                <p className="text-gray-500 mt-4">No services available.</p>
+                <Typography variant="body1" color="text.secondary">
+                    No services available.
+                </Typography>
             )}
-        </div>
+        </Box>
     );
 };
 
