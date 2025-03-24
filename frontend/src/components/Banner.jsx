@@ -45,7 +45,7 @@ const Banner = () => {
                 <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-white">
                     {t('book_appointment')}
                 </h2>
-                <p className="text-sm sm:text-md lg:text-lg text-white mt-4">
+                <p className="text-xs text-white mt-4">
                     {t('explore_our_services')}
                 </p>
             </div>
@@ -57,11 +57,11 @@ const Banner = () => {
                     Array.from({ length: 6 }).map((_, index) => (
                         <div
                             key={index}
-                            className="service-card bg-gray-200 animate-pulse rounded-lg shadow-md flex flex-col h-60"
+                            className="service-card bg-gray-200 animate-pulse rounded-lg shadow-md w-[130%] flex flex-col h-60"
                         >
                             <div className="bg-gray-300 h-2/3 w-full rounded-t-lg"></div>
                             <div className="flex-grow flex items-center justify-center p-4">
-                                <p className="text-gray-500 text-sm">Loading...</p>
+                                <p className="text-gray-500 text-xs">Loading...</p>
                             </div>
                         </div>
                     ))
@@ -75,34 +75,38 @@ const Banner = () => {
                     services.map((service) => (
                         <div
                             key={service._id}
-                            className="service-card bg-white rounded-lg shadow-md flex flex-col h-60 hover:shadow-lg transition-shadow"
+                            className="service-card bg-white rounded-lg shadow-md w-[130%] flex flex-col h-60 hover:shadow-lg transition-shadow"
                         >
                             {/* Image or Placeholder */}
                             <div className="h-2/3 rounded-t-lg overflow-hidden">
-                                <img
-                                    src={service.image || placeholderImage} // Use placeholder if no image exists
-                                    alt={service.name}
-                                    className="h-full w-full object-cover"
-                                />
+                                {service.image ? (
+                                    <img
+                                        src={service.image}
+                                        alt={service.name}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <img
+                                        src={placeholderImage}
+                                        alt="Placeholder"
+                                        className="w-full h-full object-cover"
+                                    />
+                                )}
                             </div>
-                            {/* Content Section - Name, Short Description, and Price */}
-                            <div className="flex-grow p-4">
-                                <h3 className="text-lg font-semibold text-black truncate">
+                            {/* Service Details */}
+                            <div className="p-4 flex-grow flex flex-col">
+                                <h3 className="text-md font-semibold text-gray-800">
                                     {service.name}
                                 </h3>
-                                <p className="text-sm text-gray-500 mt-2">
+                                <p className="text-xs text-gray-500 mt-2">
                                     {getFirstSentence(service.description)}
-                                </p>
-                                <p className="text-md font-medium text-primary mt-4">
-                                    {t('price')}: ${service.price.toFixed(2)}
                                 </p>
                             </div>
                         </div>
                     ))
                 ) : (
-                    // Handle case where no services exist
                     <div className="text-gray-500 text-center col-span-full">
-                        {t('no_services_found')}
+                        {t('no_services_available')}
                     </div>
                 )}
             </div>
