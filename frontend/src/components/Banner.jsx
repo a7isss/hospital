@@ -11,14 +11,16 @@ const Banner = () => {
     useEffect(() => {
         const fetchServices = async () => {
             try {
+                console.log("Fetching services..."); // Debugging
                 const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/uservices`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
-                console.log("Services fetched in Banner:", data); // Debugging
+                console.log("Fetched services:", data.services); // Debugging fetched data
                 if (data.success) {
                     setServices(data.services); // Populate services
+                    console.log("After setting services state:", data.services); // Debug services state
                 } else {
                     setError(data.message || "Failed to fetch services");
                 }
@@ -32,6 +34,14 @@ const Banner = () => {
         fetchServices();
     }, []); // Run on component mount only
 
+    // Log whenever 'services' is updated
+    useEffect(() => {
+        console.log("Services state updated:", services);
+    }, [services]);
+
+    // Debug states at render time
+    console.log("Debug States - services:", services, "loading:", loading, "error:", error);
+
     return (
         <div className="flex flex-col bg-primary rounded-lg px-6 sm:px-10 md:px-14 lg:px-12 my-10 md:mx-10">
             {/* ------- Header Section ------- */}
@@ -40,7 +50,7 @@ const Banner = () => {
                     {t('book_appointment')}
                 </h2>
                 <p className="text-sm sm:text-md lg:text-lg text-white mt-4">
-                    {t('explore_our_services')} {/* Optional subtitle */}
+                    {t('explore_our_services')}
                 </p>
             </div>
 
@@ -57,12 +67,12 @@ const Banner = () => {
                         </div>
                     ))
                 ) : error ? (
-                    // Render error if fetching fails
+                    // Render error message if fetching fails
                     <div className="text-red-500 text-center col-span-full">
                         {error}
                     </div>
                 ) : services.length > 0 ? (
-                    // Render services (if successfully fetched)
+                    // Render services if successfully fetched
                     services.map((service) => (
                         <div
                             key={service._id}
