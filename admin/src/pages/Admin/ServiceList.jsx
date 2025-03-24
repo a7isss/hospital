@@ -39,26 +39,52 @@ const ServicesList = () => {
                 <p className="text-red-500 mt-4">{error}</p>
             ) : services?.length > 0 ? (
                 <div className="w-full flex flex-wrap gap-4 pt-5 gap-y-6">
-                    {services.map((service) => (
-                        <div
-                            key={service._id}
-                            className="border border-[#C9D8FF] rounded-xl max-w-56 overflow-hidden cursor-pointer group"
-                        >
-                            <img
-                                className="bg-[#EAEFFF] group-hover:bg-primary transition-all duration-500"
-                                src={service.image || '/default-service.png'}
-                                alt={service.name || 'Service'}
-                            />
-                            <div className="p-4">
-                                <p className="text-[#262626] text-lg font-medium">{service.name || 'Unknown Service'}</p>
-                                <p className="text-[#5C5C5C] text-sm">{service.description || 'No description available'}</p>
-                                <p className="text-sm mt-2">Category: {service.category || 'N/A'}</p>
-                                <p className="text-sm mt-1 font-medium">
-                                    Price: ${service.price || 'N/A'} | Duration: {service.duration || 'N/A'}
-                                </p>
+                    {services.map((service) => {
+                        // Destructure fields for cleaner and safe rendering
+                        const {
+                            _id,
+                            image = '/default-service.png', // Default image fallback
+                            name = 'Unknown Service',
+                            description = 'No description available',
+                            category = 'N/A',
+                            price = 'N/A',
+                            duration = 'N/A',
+                            available,
+                        } = service;
+
+                        return (
+                            <div
+                                key={_id}
+                                className="border border-[#C9D8FF] rounded-xl max-w-56 overflow-hidden cursor-pointer group"
+                            >
+                                {/* Image */}
+                                <img
+                                    className="bg-[#EAEFFF] group-hover:bg-primary transition-all duration-500"
+                                    src={image}
+                                    alt={name}
+                                />
+
+                                {/* Service Details */}
+                                <div className="p-4">
+                                    <p className="text-[#262626] text-lg font-medium">{name}</p>
+                                    <p className="text-[#5C5C5C] text-sm">{description}</p>
+                                    <p className="text-sm mt-2">Category: {category}</p>
+                                    <p className="text-sm mt-1 font-medium">Price: ${price} | Duration: {duration}</p>
+
+                                    {/* Availability (optional rendering based on the 'available' field) */}
+                                    {available !== undefined && (
+                                        <p
+                                            className={`mt-2 ${
+                                                available ? 'text-green-600' : 'text-red-600'
+                                            } text-sm font-semibold`}
+                                        >
+                                            {available ? 'Available' : 'Not Available'}
+                                        </p>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             ) : (
                 <p className="text-gray-500 mt-4">No services available at the moment.</p>
