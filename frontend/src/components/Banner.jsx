@@ -1,11 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import placeholderImage from '../assets/doc4.png'; // Import the placeholder image
 
 const Banner = () => {
     const [services, setServices] = useState([]); // Local state for services
     const [loading, setLoading] = useState(true); // Track loading state
     const [error, setError] = useState(null); // Handle errors
     const { t } = useTranslation(); // Initialize translation
+
+    // Utility function to get first sentence of the description
+    const getFirstSentence = (text) => {
+        if (!text) return t('no_description'); // Handle missing descriptions
+        const firstSentence = text.split('.')[0]; // Split text at periods and get the first
+        return firstSentence ? `${firstSentence}.` : text; // Append period to the sentence
+    };
 
     // Fetch services on mount
     useEffect(() => {
@@ -28,7 +36,7 @@ const Banner = () => {
             }
         };
         fetchServices();
-    }, []); // Run on component mount only
+    }, []); // Run on mount only once
 
     return (
         <div className="flex flex-col bg-primary rounded-lg px-6 sm:px-10 md:px-14 lg:px-12 my-10 md:mx-10">
@@ -71,25 +79,19 @@ const Banner = () => {
                         >
                             {/* Image or Placeholder */}
                             <div className="h-2/3 rounded-t-lg overflow-hidden">
-                                {service.image ? (
-                                    <img
-                                        src={service.image}
-                                        alt={service.name}
-                                        className="h-full w-full object-cover"
-                                    />
-                                ) : (
-                                    <div className="bg-gray-200 h-full flex items-center justify-center">
-                                        <p className="text-gray-500 text-sm">{t('no_image')}</p>
-                                    </div>
-                                )}
+                                <img
+                                    src={service.image || placeholderImage} // Use placeholder if no image exists
+                                    alt={service.name}
+                                    className="h-full w-full object-cover"
+                                />
                             </div>
-                            {/* Content Section - Name, Price, Description */}
+                            {/* Content Section - Name, Short Description, and Price */}
                             <div className="flex-grow p-4">
                                 <h3 className="text-lg font-semibold text-black truncate">
                                     {service.name}
                                 </h3>
                                 <p className="text-sm text-gray-500 mt-2">
-                                    {service.description || t('no_description')}
+                                    {getFirstSentence(service.description)}
                                 </p>
                                 <p className="text-md font-medium text-primary mt-4">
                                     {t('price')}: ${service.price.toFixed(2)}
