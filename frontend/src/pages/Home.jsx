@@ -33,7 +33,7 @@ const Home = () => {
             {/* Main Sections */}
             <SpecialityMenu />
             <TopDoctors />
-            <Banner /> {/* Render the updated Banner */}
+            <Banner /> {/* Updated Banner component */}
         </div>
     );
 };

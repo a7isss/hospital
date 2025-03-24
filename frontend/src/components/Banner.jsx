@@ -11,21 +11,17 @@ const Banner = () => {
     useEffect(() => {
         const fetchServices = async () => {
             try {
-                console.log("Fetching services..."); // Debugging
                 const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/user/uservices`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
-                console.log("Fetched services:", data.services); // Debugging fetched data
                 if (data.success) {
                     setServices(data.services); // Populate services
-                    console.log("After setting services state:", data.services); // Debug services state
                 } else {
                     setError(data.message || "Failed to fetch services");
                 }
             } catch (err) {
-                console.error("Error fetching services:", err.message);
                 setError("An error occurred while fetching services");
             } finally {
                 setLoading(false); // End loading state
@@ -33,14 +29,6 @@ const Banner = () => {
         };
         fetchServices();
     }, []); // Run on component mount only
-
-    // Log whenever 'services' is updated
-    useEffect(() => {
-        console.log("Services state updated:", services);
-    }, [services]);
-
-    // Debug states at render time
-    console.log("Debug States - services:", services, "loading:", loading, "error:", error);
 
     return (
         <div className="flex flex-col bg-primary rounded-lg px-6 sm:px-10 md:px-14 lg:px-12 my-10 md:mx-10">
@@ -54,16 +42,19 @@ const Banner = () => {
                 </p>
             </div>
 
-            {/* ------- Services Placeholder and Listing ------- */}
+            {/* ------- Services Grid ------- */}
             <div className="services-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {loading ? (
                     // Render placeholder cards while loading
                     Array.from({ length: 6 }).map((_, index) => (
                         <div
                             key={index}
-                            className="service-card bg-gray-200 animate-pulse rounded-lg shadow-md p-4 text-center h-32 flex items-center justify-center"
+                            className="service-card bg-gray-200 animate-pulse rounded-lg shadow-md flex flex-col h-60"
                         >
-                            <p className="text-gray-500 text-sm sm:text-base">Loading...</p>
+                            <div className="bg-gray-300 h-2/3 w-full rounded-t-lg"></div>
+                            <div className="flex-grow flex items-center justify-center p-4">
+                                <p className="text-gray-500 text-sm">Loading...</p>
+                            </div>
                         </div>
                     ))
                 ) : error ? (
@@ -76,19 +67,40 @@ const Banner = () => {
                     services.map((service) => (
                         <div
                             key={service._id}
-                            className="service-card bg-white rounded-lg shadow-md p-4 text-center"
+                            className="service-card bg-white rounded-lg shadow-md flex flex-col h-60 hover:shadow-lg transition-shadow"
                         >
-                            <h3 className="text-lg font-semibold text-black">
-                                {service.name}
-                            </h3>
-                            <p className="text-gray-600">{service.description}</p>
-                            <p className="text-primary mt-2">{`Price: ₹${service.price}`}</p>
+                            {/* Image or Placeholder */}
+                            <div className="h-2/3 rounded-t-lg overflow-hidden">
+                                {service.image ? (
+                                    <img
+                                        src={service.image}
+                                        alt={service.name}
+                                        className="h-full w-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="bg-gray-200 h-full flex items-center justify-center">
+                                        <p className="text-gray-500 text-sm">{t('no_image')}</p>
+                                    </div>
+                                )}
+                            </div>
+                            {/* Content Section - Name, Price, Description */}
+                            <div className="flex-grow p-4">
+                                <h3 className="text-lg font-semibold text-black truncate">
+                                    {service.name}
+                                </h3>
+                                <p className="text-sm text-gray-500 mt-2">
+                                    {service.description || t('no_description')}
+                                </p>
+                                <p className="text-md font-medium text-primary mt-4">
+                                    {t('price')}: ${service.price.toFixed(2)}
+                                </p>
+                            </div>
                         </div>
                     ))
                 ) : (
-                    // Render fallback when no services exist
-                    <div className="text-center col-span-full">
-                        {t("no_services_available")}
+                    // Handle case where no services exist
+                    <div className="text-gray-500 text-center col-span-full">
+                        {t('no_services_found')}
                     </div>
                 )}
             </div>
