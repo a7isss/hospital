@@ -77,7 +77,6 @@ const ServicesList = () => {
                                         <p className={`mt-2 ${available ? 'text-green-600' : 'text-red-600'}`}>
                                             {available ? 'Available' : 'Unavailable'}
                                         </p>
-                                        </p>
                                     )}
                                 </div>
                             </div>
