@@ -1,50 +1,25 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { AdminContext } from '../../context/AdminContext'; // Import AdminContext
+import React, { useContext, useEffect } from 'react';
+import { AdminContext } from '../../context/AdminContext';
 
 const ServicesList = () => {
-    const { getAllServices } = useContext(AdminContext);
-    const [services, setServices] = useState([]); // State for fetched services
-    const [loading, setLoading] = useState(true); // Loading state
-    const [error, setError] = useState(null); // Error state
+    const { services, getAllServices, aToken } = useContext(AdminContext); // Access services from AdminContext
 
-    // Fetch services when component mounts
+    // Fetch services when the component mounts, only if aToken is present
     useEffect(() => {
-        const fetchServices = async () => {
-            try {
-                setLoading(true); // Start loading
-                const fetchedServices = await getAllServices(); // Fetch services using context
-                console.log('Fetched services:', fetchedServices); // Debug print
-                if (Array.isArray(fetchedServices)) {
-                    setServices(fetchedServices); // Set state with fetched services
-                } else {
-                    console.error('Unexpected data format:', fetchedServices); // Debugging
-                    setError('Unexpected data received. Could not fetch services.');
-                }
-            } catch (err) {
-                console.error('Error fetching services:', err); // Debugging
-                setError('Failed to load services. Please try again later.');
-            } finally {
-                setLoading(false); // Stop the loader
-            }
-        };
-
-        fetchServices();
-    }, [getAllServices]);
+        if (aToken) {
+            getAllServices();
+        }
+    }, [aToken, getAllServices]);
 
     return (
-        <div className="m-5 h-auto overflow-visible">
-            <h1 className="text-lg font-medium mb-4">All Services</h1>
-
-            {loading ? (
-                <p className="text-gray-500 mt-4">Loading services...</p>
-            ) : error ? (
-                <p className="text-red-500 mt-4">{error}</p>
-            ) : services.length > 0 ? (
-                <div className="w-full flex flex-wrap gap-4 pt-5 gap-y-6">
-                    {services.map((service) => {
+        <div className="m-5 max-h-[90vh] overflow-y-scroll">
+            <h1 className="text-lg font-medium">All Services</h1>
+            <div className="w-full flex flex-wrap gap-4 pt-5 gap-y-6">
+                {services && services.length > 0 ? (
+                    services.map((service, index) => {
                         const {
                             _id,
-                            image = '/default-service.png', // Use fallback if image is undefined
+                            image = '/default-service.png', // Default image fallback
                             name = 'Unknown Service',
                             description = 'No description available',
                             category = 'N/A',
@@ -53,39 +28,34 @@ const ServicesList = () => {
                             available,
                         } = service;
 
-                        // Validate and ensure `_id` exists before rendering
-                        if (!_id) return null;
-
                         return (
                             <div
-                                key={_id}
-                                className="border border-[#C9D8FF] rounded-xl w-64 overflow-hidden cursor-pointer group bg-white"
+                                className="border border-[#C9D8FF] rounded-xl max-w-56 overflow-hidden cursor-pointer group"
+                                key={index} // Use index as key if `_id` isn't unique
                             >
                                 {/* Service Image */}
                                 <img
+                                    className="bg-[#EAEFFF] group-hover:bg-primary transition-all duration-500"
                                     src={image}
                                     alt={name}
                                     onError={(e) => {
-                                        e.target.src = '/default-service.png'; // Fallback if image fails to load
+                                        e.target.src = '/default-service.png'; // Fallback if image fails
                                     }}
-                                    className="w-full h-36 object-cover group-hover:scale-105 transition-all duration-500"
                                 />
 
                                 {/* Service Details */}
                                 <div className="p-4">
                                     <p className="text-[#262626] text-lg font-medium">{name}</p>
-                                    <p className="text-[#5C5C5C] text-sm mt-2">
-                                        {description || 'No description available'}
-                                    </p>
+                                    <p className="text-[#5C5C5C] text-sm">{description}</p>
                                     <p className="text-sm mt-2">
                                         <span className="font-bold">Category:</span> {category}
                                     </p>
                                     <p className="text-sm mt-1 font-medium">
                                         <span className="font-bold">Price:</span>{' '}
-                                        {price !== 'N/A' ? `$${price}` : price}{' '}
-                                        | <span className="font-bold">Duration:</span> {duration}
+                                        {price !== 'N/A' ? `$${price}` : price}
+                                        {' | '}
+                                        <span className="font-bold">Duration:</span> {duration}
                                     </p>
-
                                     {/* Availability */}
                                     {available !== undefined && (
                                         <p
@@ -99,11 +69,11 @@ const ServicesList = () => {
                                 </div>
                             </div>
                         );
-                    })}
-                </div>
-            ) : (
-                <p className="text-gray-500 mt-4">No services found.</p>
-            )}
+                    })
+                ) : (
+                    <p className="text-gray-500 mt-4">No services found.</p>
+                )}
+            </div>
         </div>
     );
 };
