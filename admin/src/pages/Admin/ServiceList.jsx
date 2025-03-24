@@ -39,7 +39,8 @@ const ServicesList = () => {
                 <p className="text-red-500 mt-4">{error}</p>
             ) : services?.length > 0 ? (
                 <div className="w-full flex flex-wrap gap-4 pt-5 gap-y-6">
-                    console.log('Rendered services:', services);
+                    {/* Debugging rendered services */}
+                    {console.log('Rendered services:', services)}
                     {services.map((service) => {
                         // Destructure fields for cleaner and safe rendering
                         const {
@@ -84,7 +85,7 @@ const ServicesList = () => {
                     })}
                 </div>
             ) : (
-                <p className="text-gray-500 mt-4">No services available at the moment.</p>
+                <p className="text-gray-500 mt-4">No services found.</p>
             )}
         </div>
     );
