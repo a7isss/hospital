@@ -8,58 +8,39 @@ const AppContextProvider = (props) => {
 
     const currencySymbol = '₹';
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
-    console.log("Backend URL from AppContext:", backendUrl);
 
     const [doctors, setDoctors] = useState([]);
+    const [services, setServices] = useState([]); // New state for services
     const [aToken, setAToken] = useState(localStorage.getItem('aToken') ? localStorage.getItem('aToken') : '');
     const [userData, setUserData] = useState(false);
 
-    // Getting Doctors using API
-    const getDoctosData = async () => {
+    // Fetch services from the backend
+    const fetchServices = async () => {
         try {
-            const { data } = await axios.get(backendUrl + '/api/doctor/list');
+            const { data } = await axios.get(backendUrl + '/api/user/uservices');
             if (data.success) {
-                setDoctors(data.doctors);
+                setServices(data.services); // Store services in state
             } else {
                 toast.error(data.message);
             }
         } catch (error) {
             console.log(error);
-            toast.error(error.message);
-        }
-    };
-
-    // Getting User Profile using API
-    const loadUserProfileData = async () => {
-        try {
-            const { data } = await axios.get(backendUrl + '/api/user/get-profile', { headers: { aToken } });
-            if (data.success) {
-                setUserData(data.userData);
-            } else {
-                toast.error(data.message);
-            }
-        } catch (error) {
-            console.log(error);
-            toast.error(error.message);
+            toast.error("Failed to fetch services");
         }
     };
 
     useEffect(() => {
-        getDoctosData();
+        fetchServices(); // Call fetchServices on load
     }, []);
 
-    useEffect(() => {
-        if (aToken) {
-            loadUserProfileData();
-        }
-    }, [aToken]);
-
     const value = {
-        doctors, getDoctosData,
+        doctors,
+        services, // Expose services to the context
         currencySymbol,
         backendUrl,
+        fetchServices, // Allow refetching services if needed
         aToken, setAToken,
-        userData, setUserData, loadUserProfileData
+        userData, setUserData
     };
 
     return (

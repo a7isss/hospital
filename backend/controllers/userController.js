@@ -7,6 +7,7 @@ import appointmentModel from "../models/appointmentModel.js";
 import { v2 as cloudinary } from 'cloudinary'
 import stripe from "stripe";
 import razorpay from 'razorpay';
+import ServiceModel from "../models/serviceModel.js";
 
 // Gateway Initialize
 const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY)
@@ -14,7 +15,23 @@ const razorpayInstance = new razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET,
 })
-
+// Fetch all services
+export const getServices = async (req, res) => {
+    try {
+        const services = await ServiceModel.find(); // Fetch all services
+        res.status(200).json({
+            success: true,
+            message: "Services fetched successfully",
+            services,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Could not fetch services",
+            error: error.message,
+        });
+    }
+};
 // API to register user
 const registerUser = async (req, res) => {
 
