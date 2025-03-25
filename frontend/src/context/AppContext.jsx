@@ -12,6 +12,7 @@ const AppContextProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem('token') || null); // Manage user login state
     const [userData, setUserData] = useState(null); // Logged-in user information
     const [doctors, setDoctors] = useState([]); // List of doctors for use across components
+    const [services, setServices] = useState([]); // List of services for banner/component display
     const [loading, setLoading] = useState(false); // Global loading state for API calls
 
     // Fetch user data if logged in
@@ -39,7 +40,7 @@ const AppContextProvider = ({ children }) => {
         localStorage.removeItem('token'); // Clear token from storage
     };
 
-    // Fetch doctors (example of shared global data)
+    // Fetch doctors (shared global data)
     const fetchDoctors = async () => {
         try {
             setLoading(true);
@@ -52,14 +53,26 @@ const AppContextProvider = ({ children }) => {
         }
     };
 
-    // Fetch user data if token changes
+    // Fetch services for visitors and users
+    const fetchServices = async () => {
+        try {
+            const { data } = await axios.get(`${backendUrl}/api/services`); // Replace `/api/services` with your endpoint
+            setServices(data.services); // Assuming the API returns a list of services
+        } catch (error) {
+            console.error("Failed to fetch services", error);
+            setServices([]); // Ensure services is an empty array on failure
+        }
+    };
+
+    // Fetch data depending on the user's login state
     useEffect(() => {
         if (token) {
-            fetchUserData();
+            fetchUserData(); // Fetch user-specific data
         } else {
             setUserData(null); // Clear user data when not logged in
         }
-    }, [token]);
+        fetchServices(); // Fetch services (same for both visitors and logged-in users)
+    }, [token]); // Refetch when the token changes
 
     // Shared provider value
     const value = {
@@ -70,6 +83,7 @@ const AppContextProvider = ({ children }) => {
         logout,
         doctors,
         fetchDoctors,
+        services, // Add services to the context value
         currencySymbol,
         backendUrl,
         loading,
