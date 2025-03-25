@@ -1,6 +1,7 @@
 // src/context/AppContext.jsx
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import login from "../pages/Login.jsx";
 
 export const AppContext = createContext();
 
@@ -80,6 +81,7 @@ const AppContextProvider = ({ children }) => {
         setToken,
         userData,
         setUserData,
+        login,
         logout,
         doctors,
         fetchDoctors,

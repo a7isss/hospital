@@ -1,7 +1,68 @@
 // cartController.js
 import CartModel from "../models/cartModel.js";
 import ServiceModel from "../models/serviceModel.js";
+import VisitorModel from "../models/visitorModel.js";
+export const clearCart = async (req, res) => {
+    try {
+        const { userId, visitorId } = req.body;
 
+        if (!userId && !visitorId) {
+            return res.status(400).json({
+                success: false,
+                message: "Either a user ID or visitor ID is required to clear the cart.",
+            });
+        }
+
+        // Handle user cart
+        if (userId) {
+            const cart = await CartModel.findOne({ userId });
+            if (!cart) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Cart not found for the user.",
+                });
+            }
+
+            // Clear items and reset cart
+            cart.items = [];
+            cart.totalPrice = 0;
+            await cart.save();
+
+            return res.status(200).json({
+                success: true,
+                message: "Cart cleared successfully for the user.",
+                cart,
+            });
+        }
+
+        // Handle visitor cart (stored in sessionData in VisitorModel)
+        if (visitorId) {
+            const visitorSession = await VisitorModel.findOne({ visitorId });
+            if (!visitorSession) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Visitor session not found.",
+                });
+            }
+
+            // Clear visitor's session cart data
+            visitorSession.sessionData.cart = [];
+            await visitorSession.save();
+
+            return res.status(200).json({
+                success: true,
+                message: "Cart cleared successfully for the visitor.",
+                visitorSession,
+            });
+        }
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            message: "Failed to clear cart",
+            error: err.message,
+        });
+    }
+};
 // Add to Cart
 export const addToCart = async (req, res) => {
     const { userId, serviceId, quantity } = req.body;
@@ -116,27 +177,6 @@ export const updateCartQuantity = async (req, res) => {
         if (!itemToUpdate) {
             return res.status(404).json({ success: false, message: "Item not found in cart" });
         }
-// Clear Cart
-        export const clearCart = async (req, res) => {
-            const { userId } = req.body;
-
-            try {
-                const cart = await CartModel.findOne({ userId });
-                if (!cart) {
-                    return res.status(404).json({ success: false, message: "Cart not found" });
-                }
-
-                // Clear all items and reset total price
-                cart.items = [];
-                cart.totalPrice = 0;
-
-                await cart.save();
-
-                res.status(200).json({ success: true, message: "Cart cleared successfully", cart });
-            } catch (err) {
-                res.status(500).json({ success: false, message: "Failed to clear cart", error: err.message });
-            }
-        };
 
         // Update the quantity and recalculate the total price
         cart.totalPrice -= itemToUpdate.price * itemToUpdate.quantity; // Remove current price

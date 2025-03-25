@@ -1,23 +1,27 @@
-import express from 'express';
+import express from "express";
 import {
     createVisitorSession,
     getVisitorSession,
     updateVisitorSession,
     deleteVisitorSession,
-} from '../controllers/visitorController.js';
+    getVisitorCart,
+    addToVisitorCart,
+    removeFromVisitorCart,
+    clearVisitorCart
+} from "../controllers/visitorController.js";
 
 const visitorRouter = express.Router();
 
-// Create a new visitor session (assign a unique ID to the visitor)
-visitorRouter.post('/create', createVisitorSession);
+// Visitor session routes
+visitorRouter.post("/create", createVisitorSession);
+visitorRouter.get("/:visitorId", getVisitorSession);
+visitorRouter.put("/:visitorId", updateVisitorSession);
+visitorRouter.delete("/:visitorId", deleteVisitorSession);
 
-// Get a visitor session by visitorId
-visitorRouter.get('/:visitorId', getVisitorSession);
-
-// Update a visitor session data (e.g., cart or preferences)
-visitorRouter.put('/:visitorId', updateVisitorSession);
-
-// Delete a visitor session by visitorId (logically remove or invalidate)
-visitorRouter.delete('/:visitorId', deleteVisitorSession);
+// Visitor cart routes
+visitorRouter.get("/:visitorId/cart", getVisitorCart); // Fetch cart items
+visitorRouter.post("/:visitorId/cart/add", addToVisitorCart); // Add item to cart
+visitorRouter.delete("/:visitorId/cart/remove", removeFromVisitorCart); // Remove item from cart
+visitorRouter.delete("/:visitorId/cart/clear", clearVisitorCart); // Clear the cart
 
 export default visitorRouter;
