@@ -4,10 +4,11 @@ import App from './App.jsx';
 import './index.css';
 import { BrowserRouter } from 'react-router-dom';
 import AppContextProvider from './context/AppContext.jsx';
+import CartProvider from './contexts/CartContext.jsx'; // Import CartProvider
 import './i18n'; // Import i18n configuration
-import i18n from 'i18next'; // ar: Import i18n instance
+import i18n from 'i18next'; // Import i18n instance
 
-// ar: Dynamically set the `dir` attribute based on the selected language
+// Dynamically set the `dir` attribute based on the selected language
 i18n.on('languageChanged', (lng) => {
     document.documentElement.setAttribute('dir', lng === 'ar' ? 'rtl' : 'ltr');
 });
@@ -15,7 +16,9 @@ i18n.on('languageChanged', (lng) => {
 ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
         <AppContextProvider>
-            <App />
+            <CartProvider> {/* Wrap the app with CartProvider */}
+                <App />
+            </CartProvider>
         </AppContextProvider>
     </BrowserRouter>
 );
