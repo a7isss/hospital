@@ -1,85 +1,106 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useState, useEffect } from "react";
+import { getVisitorCart, addToVisitorCart, removeFromVisitorCart, updateVisitorCartQuantity, clearVisitorCart } from "../utils/cartUtils";
+import axios from "axios";
 
 export const CartContext = createContext();
 
-const CartProvider = ({ children }) => {
-    const [cart, setCart] = useState(() => {
-        // Load the cart from localStorage on initialization
-        const storedCart = localStorage.getItem("cart");
-        return storedCart ? JSON.parse(storedCart) : [];
-    });
+const CartContextProvider = ({ children }) => {
+    const [cart, setCart] = useState([]);
+    const [totalPrice, setTotalPrice] = useState(0);
 
-    const [totalPrice, setTotalPrice] = useState(() => {
-        // Calculate the total price from localStorage’s cart if available
-        const storedCart = localStorage.getItem("cart");
-        if (storedCart) {
-            const parsedCart = JSON.parse(storedCart);
-            return parsedCart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const isLoggedIn = !!localStorage.getItem("token"); // Check if user is logged in
+
+    // Sync cart from backend for logged-in users
+    const fetchUserCart = async () => {
+        try {
+            const { data } = await axios.get("/api/cart", {
+                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+            });
+            setCart(data.cart.items);
+            setTotalPrice(data.cart.totalPrice);
+        } catch (error) {
+            console.error("Failed to fetch user cart:", error);
         }
-        return 0;
-    });
-
-    // Helper function to calculate total price
-    const calculateTotal = (cartItems) => {
-        const newTotal = cartItems.reduce(
-            (acc, item) => acc + item.price * item.quantity,
-            0
-        );
-        setTotalPrice(newTotal);
     };
 
-    // Add an item to the cart
-    const addToCart = (item) => {
-        const existingItem = cart.find((cartItem) => cartItem._id === item._id);
+    // Sync visitor cart from localStorage
+    const fetchVisitorCart = () => {
+        const cart = getVisitorCart();
+        setCart(cart || []);
+        const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        setTotalPrice(total);
+    };
 
-        let updatedCart;
-        if (existingItem) {
-            updatedCart = cart.map((cartItem) =>
-                cartItem._id === item._id
-                    ? { ...cartItem, quantity: cartItem.quantity + 1 }
-                    : cartItem
-            );
+    // Refresh cart based on login status
+    const refreshCart = () => {
+        if (isLoggedIn) {
+            fetchUserCart();
         } else {
-            updatedCart = [...cart, { ...item, quantity: 1 }];
+            fetchVisitorCart();
         }
-
-        setCart(updatedCart);
-        calculateTotal(updatedCart);
-
-        // Save updated cart to localStorage
-        localStorage.setItem("cart", JSON.stringify(updatedCart));
     };
 
-    // Remove an item from the cart
-    const removeFromCart = (itemId) => {
-        const updatedCart = cart.filter((cartItem) => cartItem._id !== itemId);
-        setCart(updatedCart);
-        calculateTotal(updatedCart);
-
-        // Save updated cart to localStorage
-        localStorage.setItem("cart", JSON.stringify(updatedCart));
+    // Add item to cart
+    const addToCart = async (item) => {
+        if (isLoggedIn) {
+            // Send request to backend
+            await axios.post("/api/cart/add", item, {
+                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+            });
+            fetchUserCart();
+        } else {
+            const updatedCart = addToVisitorCart(item);
+            setCart(updatedCart);
+            setTotalPrice(updatedCart.reduce((sum, item) => sum + item.price * item.quantity, 0));
+        }
     };
 
-    // Update the quantity of an item in the cart
-    const updateCartQuantity = (itemId, quantity) => {
-        const updatedCart = cart.map((cartItem) =>
-            cartItem._id === itemId ? { ...cartItem, quantity } : cartItem
-        );
-        setCart(updatedCart);
-        calculateTotal(updatedCart);
-
-        // Save updated cart to localStorage
-        localStorage.setItem("cart", JSON.stringify(updatedCart));
+    // Remove item from cart
+    const removeFromCart = async (itemId) => {
+        if (isLoggedIn) {
+            await axios.post("/api/cart/remove", { itemId }, {
+                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+            });
+            fetchUserCart();
+        } else {
+            const updatedCart = removeFromVisitorCart(itemId);
+            setCart(updatedCart);
+            setTotalPrice(updatedCart.reduce((sum, item) => sum + item.price * item.quantity, 0));
+        }
     };
 
-    // Clear the cart
-    const clearCart = () => {
-        setCart([]);
-        setTotalPrice(0);
-
-        // Clear cart from localStorage
-        localStorage.removeItem("cart");
+    // Update item quantity
+    const updateCartQuantity = async (itemId, quantity) => {
+        if (isLoggedIn) {
+            await axios.post("/api/cart/update", { itemId, quantity }, {
+                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+            });
+            fetchUserCart();
+        } else {
+            const updatedCart = updateVisitorCartQuantity(itemId, quantity);
+            setCart(updatedCart);
+            setTotalPrice(updatedCart.reduce((sum, item) => sum + item.price * item.quantity, 0));
+        }
     };
+
+    // Clear cart
+    const clearCart = async () => {
+        if (isLoggedIn) {
+            await axios.post("/api/cart/clear", null, {
+                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+            });
+            fetchUserCart();
+        } else {
+            clearVisitorCart();
+            setCart([]);
+            setTotalPrice(0);
+        }
+    };
+
+    // Refresh cart on mount
+    useEffect(() => {
+        refreshCart();
+    }, [isLoggedIn]);
 
     return (
         <CartContext.Provider
@@ -97,4 +118,4 @@ const CartProvider = ({ children }) => {
     );
 };
 
-export default CartProvider;
+export default CartContextProvider;
