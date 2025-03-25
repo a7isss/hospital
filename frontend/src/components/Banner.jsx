@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
-import { AppContext } from "../contexts/AppContext"; // For services
-import { CartContext } from "../contexts/CartContext"; // For cart operations
+import { AppContext } from "../context/AppContext"; // For services
+import { CartContext } from "../context/CartContext"; // For cart operations
 import { toast } from "react-toastify";
 
 const Banner = () => {

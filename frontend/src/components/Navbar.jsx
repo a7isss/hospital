@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { assets } from '../assets/assets';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
-import { CartContext } from '../contexts/CartContext'; // Import CartContext
+import { CartContext } from '../context/CartContext'; // Import CartContext
 import { useTranslation } from 'react-i18next'; // Import useTranslation hook
 
 const Navbar = () => {
