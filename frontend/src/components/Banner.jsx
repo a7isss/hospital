@@ -78,34 +78,28 @@ const Banner = () => {
                     services.map((service) => (
                         <div
                             key={service._id}
-                            className="service-card bg-white rounded-lg shadow-md flex flex-col h-[20rem] sm:h-[22rem] hover:shadow-lg transition-shadow p-4"
+                            className="service-card bg-white rounded-lg shadow-md flex flex-col h-[22rem] sm:h-[22rem] hover:shadow-lg transition-shadow p-4"
                         >
-                            <div className="h-2/3 mb-4">
+                            <div className="mb-4 h-2/3 overflow-hidden rounded-t-lg">
                                 <img
                                     src={service.image || placeholderImage}
                                     alt={service.name}
-                                    className="w-full h-full object-cover rounded-lg"
+                                    className="h-full w-full object-cover"
                                 />
                             </div>
-                            <div className="flex-1 flex flex-col justify-between">
-                                <h3 className="text-lg sm:text-xl font-semibold text-gray-800 leading-tight mb-2">
-                                    {service.name}
-                                </h3>
-                                <p className="text-sm text-gray-600 leading-snug mb-2">
-                                    {getFirstSentence(service.description)}
+                            <h3 className="text-lg font-bold text-gray-800 mb-2">{service.name}</h3>
+                            <p className="text-sm text-gray-500">{getFirstSentence(service.description)}</p>
+                            <div className="mt-auto flex justify-between items-center">
+                                <p className="text-lg font-semibold text-primary">
+                                    {currencySVG && <img src={currencySVG} alt="currency" className="inline h-4 w-4 mr-1" />}
+                                    {service.price}
                                 </p>
-                                <div className="flex items-center justify-between mt-auto">
-                                    <p className="text-sm sm:text-base font-medium text-gray-800">
-                                        <img src={currencySVG} alt="Currency" className="inline w-4 h-4 mr-1" />
-                                        {service.price}
-                                    </p>
-                                    <Link
-                                        to={`/service/${service._id}`}
-                                        className="text-sm sm:text-base text-primary font-semibold hover:underline"
-                                    >
-                                        {t('view_details')}
-                                    </Link>
-                                </div>
+                                <Link
+                                    to={`/service/${service._id}`}
+                                    className="text-sm text-blue-500 hover:underline"
+                                >
+                                    {t('view_details')}
+                                </Link>
                             </div>
                         </div>
                     ))
