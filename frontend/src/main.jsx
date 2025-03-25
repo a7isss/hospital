@@ -4,7 +4,7 @@ import App from './App.jsx';
 import './index.css';
 import { BrowserRouter } from 'react-router-dom';
 import AppContextProvider from './context/AppContext.jsx';
-import CartProvider from './contexts/CartContext.jsx'; // Import CartProvider
+import CartProvider from './context/CartContext.jsx'; // Import CartProvider
 import './i18n'; // Import i18n configuration
 import i18n from 'i18next'; // Import i18n instance
 
