@@ -77,6 +77,14 @@
   "available": "متاح",
   "not_available": "غير متاح",
   "more": "المزيد",
-  "please_sign_up_or_log_in":"يرجى تسجيل الدخول أو التسجيل لحجز موعد.",
-  "with_trusted_doctors":"نرعاكم بأيدي أمينة"
+  "contact_info": "معلومات الاتصال",
+  "learn_more_about_teams": "انضم لفريق أطباء لهم",
+  "contact_us":"متواجدون لخدمتك",
+  "with_trusted_doctors":"برعاية أطباء موثوقين",
+  "schedule_hassle_free":"جدولة مواعيد بدون عناء",
+  "reserve_now": "احجز الان",
+  "service_available": "متاح الان",
+  "category": "نوع الخدمة",
+  "general": "خدمات كشفية",
+  "footer_description": "لأننا نرعاكم"
 }

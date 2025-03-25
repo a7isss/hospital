@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom'; // Use navigate for redirection
+import { useNavigate } from 'react-router-dom'; // For navigation
 import placeholderImage from '../assets/doc4.png'; // Placeholder image
 import currencySVG from '../assets/curr.svg'; // Currency symbol
 
 const Banner = () => {
-    const [services, setServices] = useState([]); // Local state for services
+    const [services, setServices] = useState([]); // State for services
     const [loading, setLoading] = useState(true); // Track loading state
     const [error, setError] = useState(null); // Handle errors
     const { t } = useTranslation(); // Initialize translation
@@ -75,11 +75,11 @@ const Banner = () => {
                             className="service-card bg-white rounded-lg shadow-md flex flex-col h-[22rem] sm:h-[22rem] hover:shadow-lg transition-shadow cursor-pointer"
                             onClick={() => navigate(`/service/${service._id}`)} // Navigate on card click
                         >
-                            {/* Card Image */}
+                            {/* Card Image (Placeholder for All Cards) */}
                             <div className="h-[60%] w-full overflow-hidden rounded-t-lg">
                                 <img
-                                    src={service?.image || placeholderImage}
-                                    alt={service?.name || 'Service'}
+                                    src={placeholderImage} // Use the same placeholder image for all cards
+                                    alt="Service"
                                     className="w-full h-full object-cover"
                                 />
                             </div>

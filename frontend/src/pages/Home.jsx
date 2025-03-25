@@ -1,7 +1,5 @@
 import React from 'react';
 import Header from '../components/Header';
-import SpecialityMenu from '../components/SpecialityMenu';
-import TopDoctors from '../components/TopDoctors';
 import Banner from '../components/Banner'; // Contains services grid
 import { useTranslation } from 'react-i18next';
 
@@ -33,9 +31,9 @@ const Home = () => {
                 </button>
             </div>
 
-            {/* Main Sections */}
-            <SpecialityMenu />
-            <TopDoctors />
+            {/* Main Sections (Removed for now) */}
+            {/* <SpecialityMenu /> */}
+            {/* <TopDoctors /> */}
         </div>
     );
 };
