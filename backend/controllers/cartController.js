@@ -116,6 +116,27 @@ export const updateCartQuantity = async (req, res) => {
         if (!itemToUpdate) {
             return res.status(404).json({ success: false, message: "Item not found in cart" });
         }
+// Clear Cart
+        export const clearCart = async (req, res) => {
+            const { userId } = req.body;
+
+            try {
+                const cart = await CartModel.findOne({ userId });
+                if (!cart) {
+                    return res.status(404).json({ success: false, message: "Cart not found" });
+                }
+
+                // Clear all items and reset total price
+                cart.items = [];
+                cart.totalPrice = 0;
+
+                await cart.save();
+
+                res.status(200).json({ success: true, message: "Cart cleared successfully", cart });
+            } catch (err) {
+                res.status(500).json({ success: false, message: "Failed to clear cart", error: err.message });
+            }
+        };
 
         // Update the quantity and recalculate the total price
         cart.totalPrice -= itemToUpdate.price * itemToUpdate.quantity; // Remove current price
