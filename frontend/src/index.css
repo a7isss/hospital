@@ -9,6 +9,23 @@
 * {
     font-family: 'Cairo', 'Outfit', sans-serif; /* ar: Added Cairo for Arabic and kept Outfit for other languages */
 }
+/* Rotation animation for feedback */
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+/* Color transition feedback for buttons */
+.bg-color-shift {
+    background-color: #4caf50 !important; /* Set to green (use any color scheme you like) */
+    transition: background-color 0.3s ease-in-out; /* Smooth color transition */
+}
+.rotate-360 {
+    animation: rotate 0.5s ease-in-out; /* Adjust timing as necessary */
+}
 
 /* Active state styles */
 .active hr {

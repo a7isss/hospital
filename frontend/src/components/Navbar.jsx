@@ -19,10 +19,18 @@ const Navbar = () => {
     navigate('/login');
   };
 
+  // Calculate total items in the cart
+  const totalCartItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+
   return (
       <div className='flex items-center justify-between text-sm py-4 mb-5 border-b border-b-[#ADADAD]'>
         {/* Logo */}
-        <img onClick={() => navigate('/')} className='w-44 cursor-pointer' src={assets.logo} alt="" />
+        <img
+            onClick={() => navigate('/')}
+            className='w-44 cursor-pointer'
+            src={assets.logo}
+            alt="Logo"
+        />
 
         {/* Desktop Nav Links */}
         <ul className='md:flex items-start gap-5 font-medium hidden'>
@@ -38,15 +46,20 @@ const Navbar = () => {
           <NavLink to='/contact'>
             <li className='py-1'>{t('contact')}</li>
           </NavLink>
+
           {/* Cart link */}
           <NavLink to='/cart'>
-            <li className='relative py-1'>
-              {t('cart')}
-              {cart.length > 0 && (
-                  <span className='absolute -top-2 -right-4 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center'>
-                                {cart.length}
-                            </span>
-              )}
+            <li className='relative py-1 flex items-center'>
+              <span className="mr-2">{t('cart')}</span>
+              <div className="relative flex items-center justify-center">
+                <span
+                    className={`absolute -top-2 -right-4 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center ${
+                        cart.length === 0 ? 'hidden' : ''
+                    }`}
+                >
+                  {totalCartItems}
+                </span>
+              </div>
             </li>
           </NavLink>
         </ul>
@@ -56,13 +69,28 @@ const Navbar = () => {
           {/* User Dropdown */}
           {token && userData ? (
               <div className='flex items-center gap-2 cursor-pointer group relative'>
-                <img className='w-8 rounded-full' src={userData.image} alt="" />
+                <img className='w-8 rounded-full' src={userData.image} alt="User Avatar" />
                 <img className='w-2.5' src={assets.dropdown_icon} alt="" />
                 <div className='absolute top-0 right-0 pt-14 text-base font-medium text-gray-600 z-20 hidden group-hover:block'>
                   <div className='min-w-48 bg-gray-50 rounded flex flex-col gap-4 p-4'>
-                    <p onClick={() => navigate('/my-profile')} className='hover:text-black cursor-pointer'>{t('my_profile')}</p>
-                    <p onClick={() => navigate('/my-appointments')} className='hover:text-black cursor-pointer'>{t('my_appointments')}</p>
-                    <p onClick={logout} className='hover:text-black cursor-pointer'>{t('logout')}</p>
+                    <p
+                        onClick={() => navigate('/my-profile')}
+                        className='hover:text-black cursor-pointer'
+                    >
+                      {t('my_profile')}
+                    </p>
+                    <p
+                        onClick={() => navigate('/my-appointments')}
+                        className='hover:text-black cursor-pointer'
+                    >
+                      {t('my_appointments')}
+                    </p>
+                    <p
+                        onClick={logout}
+                        className='hover:text-black cursor-pointer'
+                    >
+                      {t('logout')}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -76,7 +104,12 @@ const Navbar = () => {
           )}
 
           {/* Hamburger Menu Icon for Mobile */}
-          <img onClick={() => setShowMenu(true)} className='w-6 md:hidden' src={assets.menu_icon} alt="" />
+          <img
+              onClick={() => setShowMenu(true)}
+              className='w-6 md:hidden'
+              src={assets.menu_icon}
+              alt="Menu Icon"
+          />
         </div>
 
         {/* Mobile Menu */}
@@ -84,25 +117,31 @@ const Navbar = () => {
             className={`md:hidden ${showMenu ? 'fixed w-full' : 'h-0 w-0'} right-0 top-0 bottom-0 z-20 overflow-hidden bg-white transition-all`}
         >
           <div className='flex items-center justify-between px-5 py-6'>
-            <img src={assets.logo} className='w-36' alt="" />
-            <img onClick={() => setShowMenu(false)} src={assets.cross_icon} className='w-7' alt="" />
+            <img src={assets.logo} className='w-36' alt="Mobile Menu Logo" />
+            <img
+                onClick={() => setShowMenu(false)}
+                src={assets.cross_icon}
+                className='w-7'
+                alt="Close Icon"
+            />
           </div>
-          <ul className='flex flex-col items-center gap-6 mt-5 px-5 pb-10 text-lg font-medium'>
-            <NavLink onClick={() => setShowMenu(false)} to='/'>
-              {t('home')}
+          <ul className='px-6'>
+            <NavLink to='/'>
+              <li onClick={() => setShowMenu(false)} className='py-3'>{t('home')}</li>
             </NavLink>
-            <NavLink onClick={() => setShowMenu(false)} to='/doctors'>
-              {t('all_doctors')}
+            <NavLink to='/doctors'>
+              <li onClick={() => setShowMenu(false)} className='py-3'>{t('all_doctors')}</li>
             </NavLink>
-            <NavLink onClick={() => setShowMenu(false)} to='/about'>
-              {t('about')}
+            <NavLink to='/about'>
+              <li onClick={() => setShowMenu(false)} className='py-3'>{t('about')}</li>
             </NavLink>
-            <NavLink onClick={() => setShowMenu(false)} to='/contact'>
-              {t('contact')}
+            <NavLink to='/contact'>
+              <li onClick={() => setShowMenu(false)} className='py-3'>{t('contact')}</li>
             </NavLink>
-            {/* Mobile Cart Link */}
-            <NavLink onClick={() => setShowMenu(false)} to='/cart'>
-              {t('cart')} ({cart.length || 0})
+            <NavLink to='/cart'>
+              <li onClick={() => setShowMenu(false)} className='py-3'>
+                {t('cart')} ({totalCartItems})
+              </li>
             </NavLink>
           </ul>
         </div>

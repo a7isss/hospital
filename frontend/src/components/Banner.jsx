@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { AppContext } from "../context/AppContext"; // For services
 import { CartContext } from "../context/CartContext"; // For cart operations
 import { toast } from "react-toastify";
@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 const Banner = () => {
     const { services } = useContext(AppContext); // Get services from AppContext
     const { addToCart } = useContext(CartContext); // Get addToCart function from CartContext
+    const [rotatingId, setRotatingId] = useState(null); // Track which button is rotating
 
     const handleAddToCart = (service) => {
         const cartItem = {
@@ -17,6 +18,9 @@ const Banner = () => {
 
         addToCart(cartItem); // Add to cart (handled for both visitors and logged-in users)
         toast.success(`${service.name} added to cart!`); // Show success message
+
+        setRotatingId(service._id); // Set the button to rotate
+        setTimeout(() => setRotatingId(null), 500); // Reset rotation after 500ms
     };
 
     return (
@@ -32,7 +36,9 @@ const Banner = () => {
                         <p className="text-gray-600">₹{service.price}</p>
                         <button
                             onClick={() => handleAddToCart(service)}
-                            className="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
+                            className={`mt-4 bg-blue-500 text-white font-semibold py-2 px-4 rounded transition-transform duration-500 ${
+                                rotatingId === service._id ? "rotate-360" : ""
+                            }`}
                         >
                             Add to Cart
                         </button>
