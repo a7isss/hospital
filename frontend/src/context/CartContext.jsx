@@ -129,3 +129,4 @@ const CartContextProvider = ({ children }) => {
 
 // Export both CartContext and its Provider
 export { CartContextProvider };
+export default CartContextProvider; // Add this line at the end
