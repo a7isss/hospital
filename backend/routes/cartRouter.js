@@ -1,18 +1,20 @@
-// cartRouter.js
-import express from "express";
+import express from 'express';
+import { authUser } from '../middleware/authUser.js';
 import {
-    addToCart,
-    getCart,
-    removeFromCart,
-    updateCartQuantity,
-} from "../controllers/cartController.js";
+    fetchCart,
+    addItemToCart,
+    removeItemFromCart,
+    updateCartItemQuantity,
+    clearCart,
+} from '../controllers/cartController.js';
 
 const router = express.Router();
 
-// Routes
-router.post("/add", addToCart); // Add item to cart
-router.get("/:userId", getCart); // Get user's cart
-router.delete("/remove", removeFromCart); // Remove item from cart
-router.put("/update", updateCartQuantity); // Update item quantity in cart
+// Cart Routes
+router.get('/cart', authUser, fetchCart);
+router.post('/cart/add', authUser, addItemToCart);
+router.post('/cart/remove', authUser, removeItemFromCart);
+router.post('/cart/update', authUser, updateCartItemQuantity);
+router.post('/cart/clear', authUser, clearCart);
 
 export default router;
