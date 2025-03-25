@@ -1,21 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom'; // Use navigate for redirection
 import placeholderImage from '../assets/doc4.png'; // Placeholder image
 import currencySVG from '../assets/curr.svg'; // Currency symbol
-import { Link } from 'react-router-dom'; // Use React Router's Link to navigate
 
 const Banner = () => {
     const [services, setServices] = useState([]); // Local state for services
     const [loading, setLoading] = useState(true); // Track loading state
     const [error, setError] = useState(null); // Handle errors
     const { t } = useTranslation(); // Initialize translation
-
-    // Utility function to get the first sentence of the description
-    const getFirstSentence = (text) => {
-        if (!text) return t('no_description'); // Handle missing descriptions
-        const firstSentence = text.split('.')[0]; // Split text at periods and get the first
-        return firstSentence ? `${firstSentence}.` : text; // Append period to the sentence
-    };
+    const navigate = useNavigate(); // For navigation
 
     // Fetch services on mount
     useEffect(() => {
@@ -78,35 +72,45 @@ const Banner = () => {
                     services.map((service) => (
                         <div
                             key={service._id}
-                            className="service-card bg-white rounded-lg shadow-md flex flex-col h-[22rem] sm:h-[22rem] hover:shadow-lg transition-shadow p-4"
+                            className="service-card bg-white rounded-lg shadow-md flex flex-col h-[22rem] sm:h-[22rem] hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => navigate(`/service/${service._id}`)} // Navigate on card click
                         >
-                            <div className="mb-4 h-2/3 overflow-hidden rounded-t-lg">
+                            {/* Card Image */}
+                            <div className="h-[60%] w-full overflow-hidden rounded-t-lg">
                                 <img
-                                    src={service.image || placeholderImage}
-                                    alt={service.name}
-                                    className="h-full w-full object-cover"
+                                    src={service?.image || placeholderImage}
+                                    alt={service?.name || 'Service'}
+                                    className="w-full h-full object-cover"
                                 />
                             </div>
-                            <h3 className="text-lg font-bold text-gray-800 mb-2">{service.name}</h3>
-                            <p className="text-sm text-gray-500">{getFirstSentence(service.description)}</p>
-                            <div className="mt-auto flex justify-between items-center">
-                                <p className="text-lg font-semibold text-primary">
-                                    {currencySVG && <img src={currencySVG} alt="currency" className="inline h-4 w-4 mr-1" />}
-                                    {service.price}
-                                </p>
-                                <Link
-                                    to={`/service/${service._id}`}
-                                    className="text-sm text-blue-500 hover:underline"
+
+                            {/* Card Content */}
+                            <div className="flex-grow flex flex-col justify-between p-4">
+                                {/* Name and Price */}
+                                <div>
+                                    <h3 className="font-semibold text-lg text-gray-800">
+                                        {service.name}
+                                    </h3>
+                                    <p className="text-gray-500 flex items-center mt-2">
+                                        <img src={currencySVG} alt="Currency" className="w-4 h-4 mr-1" />
+                                        {service.price}
+                                    </p>
+                                </div>
+
+                                {/* Reserve Button */}
+                                <button
+                                    className="mt-4 bg-primary text-white w-full py-2 rounded-lg font-semibold hover:bg-primary-dark transition-colors"
+                                    onClick={(e) => e.stopPropagation()} // Prevent navigation when clicking the button
                                 >
-                                    {t('view_details')}
-                                </Link>
+                                    {t('reserve_now')}
+                                </button>
                             </div>
                         </div>
                     ))
                 ) : (
-                    // No services found
+                    // If no services are available
                     <div className="text-gray-500 text-center col-span-full">
-                        {t('no_services_available')}
+                        {t('no_services_found')}
                     </div>
                 )}
             </div>
