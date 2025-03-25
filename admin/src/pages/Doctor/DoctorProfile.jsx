@@ -90,7 +90,9 @@ const DoctorProfile = () => {
 
                     <div className='flex gap-1 pt-2'>
                         <input type="checkbox" onChange={() => isEdit && setProfileData(prev => ({ ...prev, available: !prev.available }))} checked={profileData.available} />
-                        <label htmlFor="">Available</label>
+                        <label htmlFor="available">Available</label>
+                        <input type="checkbox" id="available" name="available" />
+
                     </div>
 
                     {
