@@ -1,19 +1,17 @@
 import React, { useContext } from "react";
-import { CartContext } from "../context/CartContext";
-import { AppContext } from "../context/AppContext";
+import { CartContext } from "../context/CartContext"; // Access CartContext for cart operations
+import { AppContext } from "../context/AppContext"; // Access AppContext for additional service details
 
 const Cart = () => {
-    const { cart, totalPrice, removeFromCart, updateCartQuantity } = useContext(CartContext); // Access cart functions from CartContext
-    const { services } = useContext(AppContext); // Access services list from AppContext
+    const { cart, totalPrice, removeFromCart, updateCartQuantity } = useContext(CartContext); // Access Cart context
+    const { services } = useContext(AppContext); // Access services globally from AppContext
 
-    // Helper function to find full service details in AppContext using serviceId from the cart
-    const getServiceDetails = (serviceId) => {
-        return services.find((service) => service.id === serviceId) || {}; // Default empty object if not found
-    };
+    // Helper: Get full service details based on itemId in the cart
+    const getServiceDetails = (serviceId) => services.find((service) => service.id === serviceId) || {};
 
     return (
         <div className="min-h-screen flex flex-col">
-            {/* Page Header */}
+            {/* Header */}
             <div className="bg-primary text-white py-4">
                 <h1 className="text-3xl font-bold text-center">Your Shopping Cart</h1>
             </div>
@@ -21,27 +19,27 @@ const Cart = () => {
             {/* Main Content */}
             <div className="flex-1 container mx-auto px-6 py-8">
                 {cart.length === 0 ? (
-                    // Empty Cart Message
+                    // If Cart is Empty
                     <div className="flex flex-col items-center justify-center gap-4 text-gray-600 min-h-[60vh]">
                         <p className="text-xl font-medium">Your cart is currently empty.</p>
-                        <p className="text-sm">Explore our services and add items to your cart.</p>
+                        <p className="text-sm">Browse our services and add items to your cart.</p>
                     </div>
                 ) : (
+                    // Cart Items List
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                         {cart.map((item) => {
-                            // Fetch full details of the service for better UI display (name, description, etc.)
-                            const serviceDetails = getServiceDetails(item.itemId);
+                            const serviceDetails = getServiceDetails(item.itemId); // Fetch details about the item
 
                             return (
                                 <div key={item.itemId} className="border border-gray-200 rounded-lg p-4 flex items-center gap-4">
-                                    {/* Item Image */}
+                                    {/* Service Image */}
                                     <img
                                         src={serviceDetails.image || "https://via.placeholder.com/100"}
-                                        alt={serviceDetails.name || "Service Image"}
+                                        alt={serviceDetails.name || "Service"}
                                         className="w-16 h-16 object-cover rounded-md"
                                     />
 
-                                    {/* Item Details */}
+                                    {/* Service Details */}
                                     <div className="flex-1">
                                         <h2 className="text-md font-semibold text-gray-800">
                                             {serviceDetails.name || "Service Name"}
@@ -54,7 +52,7 @@ const Cart = () => {
                                         </p>
                                     </div>
 
-                                    {/* Actions */}
+                                    {/* Action Buttons */}
                                     <div className="flex flex-col gap-2">
                                         {/* Increase Quantity */}
                                         <button
@@ -64,10 +62,10 @@ const Cart = () => {
                                             +
                                         </button>
 
-                                        {/* Quantity */}
+                                        {/* Item Quantity */}
                                         <div className="text-center">{item.quantity}</div>
 
-                                        {/* Decrease or Remove */}
+                                        {/* Decrease Quantity or Remove */}
                                         <button
                                             onClick={() =>
                                                 item.quantity > 1
@@ -76,7 +74,7 @@ const Cart = () => {
                                             }
                                             className="bg-secondary text-white px-2 py-1 rounded-md"
                                         >
-                                            −
+                                            -
                                         </button>
                                     </div>
                                 </div>
@@ -86,7 +84,7 @@ const Cart = () => {
                 )}
             </div>
 
-            {/* Footer */}
+            {/* Footer with Total Price */}
             <footer className="bg-gray-100 py-4 mt-auto">
                 <div className="text-center">
                     <p className="text-lg font-medium text-gray-800">
