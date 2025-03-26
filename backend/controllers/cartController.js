@@ -1,93 +1,15 @@
 import CartModel from "../models/cartModel.js";
 import VisitorModel from "../models/visitorModel.js";
 import ServiceModel from "../models/serviceModel.js";
-// Remove item from cart
-export const removeItemFromCart = async (req, res) => {
-    const { userId, visitorId, serviceId } = req.body;
 
-    try {
-        if (userId) {
-            // Handle removal for logged-in users
-            const cart = await CartModel.findOne({ userId });
-            if (!cart) {
-                return res.status(404).json({
-                    success: false,
-                    message: "User cart not found.",
-                });
-            }
-
-            // Find the item to remove
-            const itemIndex = cart.items.findIndex((item) => item.serviceId.toString() === serviceId);
-            if (itemIndex === -1) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Item not found in cart.",
-                });
-            }
-
-            // Update the cart's total price and remove the item
-            const [removedItem] = cart.items.splice(itemIndex, 1);
-            cart.totalPrice -= removedItem.price * removedItem.quantity;
-
-            await cart.save();
-            return res.status(200).json({
-                success: true,
-                message: "Item removed from cart.",
-                cart,
-            });
-        }
-
-        if (visitorId) {
-            // Handle removal for visitors
-            const visitor = await VisitorModel.findOne({ visitorId });
-            if (!visitor || !visitor.sessionData.cart) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Visitor cart not found.",
-                });
-            }
-
-            const cart = visitor.sessionData.cart;
-
-            // Find the item to remove
-            const itemIndex = cart.findIndex((item) => item.serviceId.toString() === serviceId);
-            if (itemIndex === -1) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Item not found in visitor cart.",
-                });
-            }
-
-            // Update the cart and remove the item
-            const [removedItem] = cart.splice(itemIndex, 1);
-            visitor.sessionData.cart = cart;
-
-            await visitor.save();
-            return res.status(200).json({
-                success: true,
-                message: "Item removed from visitor cart.",
-                cart,
-            });
-        }
-
-        res.status(400).json({
-            success: false,
-            message: "Either userId or visitorId is required.",
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Failed to remove item from cart.",
-            error: error.message,
-        });
-    }
-};
-// Fetch cart
+// Fetch the cart
 export const fetchCart = async (req, res) => {
-    const { userId, visitorId } = req.body;
+    const { userId } = req.body; // For logged-in users
+    const visitorId = req.headers.authorization?.replace("Bearer ", ""); // Extract visitorId from Authorization header
 
     try {
         if (userId) {
+            // Fetch cart for logged-in users
             const cart = await CartModel.findOne({ userId });
             if (!cart) {
                 return res.status(404).json({ success: false, message: "User cart not found." });
@@ -96,6 +18,7 @@ export const fetchCart = async (req, res) => {
         }
 
         if (visitorId) {
+            // Fetch cart for visitors
             const visitor = await VisitorModel.findOne({ visitorId });
             if (!visitor || !visitor.sessionData.cart) {
                 return res.status(404).json({ success: false, message: "Visitor cart not found." });
@@ -105,204 +28,194 @@ export const fetchCart = async (req, res) => {
 
         res.status(400).json({ success: false, message: "Either userId or visitorId is required." });
     } catch (error) {
+        console.error("fetchCart - Error:", error.message);
         res.status(500).json({ success: false, message: "Failed to fetch cart.", error: error.message });
     }
 };
-// Update quantity of an item in the cart
-export const updateCartItemQuantity = async (req, res) => {
-    const { userId, visitorId, serviceId, quantity } = req.body;
 
-    if (!serviceId || quantity < 1) {
-        return res.status(400).json({
-            success: false,
-            message: "Invalid serviceId or quantity.",
-        });
-    }
+// Add an item to the cart
+export const addToCart = async (req, res) => {
+    const { userId, itemId, name, price, quantity } = req.body;
+    const visitorId = req.headers.authorization?.replace("Bearer ", ""); // Extract visitorId from Authorization header
 
     try {
         if (userId) {
+            // Add item for logged-in user
+            const cart = await CartModel.findOneAndUpdate(
+                { userId },
+                {
+                    $push: { items: { itemId, name, price, quantity } },
+                    $inc: { totalPrice: price * quantity },
+                },
+                { new: true, upsert: true }
+            );
+            return res.status(200).json({ success: true, message: "Item added to cart.", cart });
+        }
+
+        if (visitorId) {
+            // Add item for visitor
+            const visitor = await VisitorModel.findOne({ visitorId });
+            if (!visitor) {
+                return res.status(404).json({ success: false, message: "Visitor not found." });
+            }
+
+            const cart = visitor.sessionData.cart || [];
+            const existingItemIndex = cart.findIndex((item) => item.itemId === itemId);
+
+            if (existingItemIndex !== -1) {
+                // Update quantity for existing item
+                cart[existingItemIndex].quantity += quantity;
+            } else {
+                // Add new item to cart
+                cart.push({ itemId, name, price, quantity });
+            }
+
+            // Update cart total price and save
+            const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            visitor.sessionData.cart = cart;
+            await visitor.save();
+
+            return res.status(200).json({ success: true, message: "Item added to cart.", cart });
+        }
+
+        res.status(400).json({ success: false, message: "Either userId or visitorId is required." });
+    } catch (error) {
+        console.error("addToCart - Error:", error.message);
+        res.status(500).json({ success: false, message: "Failed to add item to cart.", error: error.message });
+    }
+};
+
+// Remove an item from the cart
+export const removeItemFromCart = async (req, res) => {
+    const { userId, serviceId } = req.body;
+    const visitorId = req.headers.authorization?.replace("Bearer ", ""); // Extract visitorId from Authorization header
+
+    try {
+        if (userId) {
+            // Remove item for logged-in user
             const cart = await CartModel.findOne({ userId });
             if (!cart) {
-                return res.status(404).json({
-                    success: false,
-                    message: "User cart not found.",
-                });
+                return res.status(404).json({ success: false, message: "User cart not found." });
+            }
+
+            const itemIndex = cart.items.findIndex((item) => item.serviceId.toString() === serviceId);
+            if (itemIndex === -1) {
+                return res.status(404).json({ success: false, message: "Item not found in cart." });
+            }
+
+            const [removedItem] = cart.items.splice(itemIndex, 1);
+            cart.totalPrice -= removedItem.price * removedItem.quantity;
+
+            await cart.save();
+            return res.status(200).json({ success: true, message: "Item removed from cart.", cart });
+        }
+
+        if (visitorId) {
+            // Remove item for visitor
+            const visitor = await VisitorModel.findOne({ visitorId });
+            if (!visitor || !visitor.sessionData.cart) {
+                return res.status(404).json({ success: false, message: "Visitor cart not found." });
+            }
+
+            const cart = visitor.sessionData.cart;
+            const itemIndex = cart.findIndex((item) => item.serviceId.toString() === serviceId);
+            if (itemIndex === -1) {
+                return res.status(404).json({ success: false, message: "Item not found in visitor cart." });
+            }
+
+            const [removedItem] = cart.splice(itemIndex, 1);
+            visitor.sessionData.cart = cart;
+
+            await visitor.save();
+            return res.status(200).json({ success: true, message: "Item removed from visitor cart.", cart });
+        }
+
+        res.status(400).json({ success: false, message: "Either userId or visitorId is required." });
+    } catch (error) {
+        console.error("removeItemFromCart - Error:", error.message);
+        res.status(500).json({ success: false, message: "Failed to remove item from cart.", error: error.message });
+    }
+};
+
+// Update the quantity of an item in the cart
+export const updateCartItemQuantity = async (req, res) => {
+    const { userId, serviceId, quantity } = req.body;
+    const visitorId = req.headers.authorization?.replace("Bearer ", ""); // Extract visitorId from Authorization header
+
+    try {
+        if (userId) {
+            // Update item quantity for logged-in user
+            const cart = await CartModel.findOne({ userId });
+            if (!cart) {
+                return res.status(404).json({ success: false, message: "User cart not found." });
             }
 
             const item = cart.items.find((item) => item.serviceId.toString() === serviceId);
             if (!item) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Item not found in cart.",
-                });
+                return res.status(404).json({ success: false, message: "Item not found in cart." });
             }
 
-            // Update quantity and adjust total price
-            const priceDifference = item.price * (quantity - item.quantity);
+            cart.totalPrice -= item.price * item.quantity; // Remove old total
             item.quantity = quantity;
-            cart.totalPrice += priceDifference;
+            cart.totalPrice += item.price * item.quantity; // Add new total
 
             await cart.save();
-            return res.status(200).json({
-                success: true,
-                message: "Cart item quantity updated.",
-                cart,
-            });
+            return res.status(200).json({ success: true, message: "Item quantity updated.", cart });
         }
 
         if (visitorId) {
+            // Update item quantity for visitor
             const visitor = await VisitorModel.findOne({ visitorId });
             if (!visitor || !visitor.sessionData.cart) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Visitor cart not found.",
-                });
+                return res.status(404).json({ success: false, message: "Visitor cart not found." });
             }
 
             const cart = visitor.sessionData.cart;
             const item = cart.find((item) => item.serviceId.toString() === serviceId);
             if (!item) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Item not found in visitor cart.",
-                });
+                return res.status(404).json({ success: false, message: "Item not found in visitor cart." });
             }
 
-            // Update quantity
             item.quantity = quantity;
+            const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
             visitor.sessionData.cart = cart;
 
             await visitor.save();
-            return res.status(200).json({
-                success: true,
-                message: "Visitor cart item quantity updated.",
-                cart,
-            });
+            return res.status(200).json({ success: true, message: "Item quantity updated.", cart });
         }
 
-        return res.status(400).json({
-            success: false,
-            message: "Either userId or visitorId is required.",
-        });
+        res.status(400).json({ success: false, message: "Either userId or visitorId is required." });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Failed to update item quantity for cart.",
-            error: error.message,
-        });
+        console.error("updateCartItemQuantity - Error:", error.message);
+        res.status(500).json({ success: false, message: "Failed to update item quantity.", error: error.message });
     }
 };
 
-// Add item to cart
-export const addToCart = async (req, res) => {
-    const { userId, visitorId, serviceId, quantity } = req.body;
+// Clear the cart
+export const clearCart = async (req, res) => {
+    const { userId } = req.body;
+    const visitorId = req.headers.authorization?.replace("Bearer ", ""); // Extract visitorId from Authorization header
 
     try {
-        const service = await ServiceModel.findById(serviceId);
-        if (!service) {
-            return res.status(404).json({ success: false, message: "Service not found." });
-        }
-
         if (userId) {
-            let cart = await CartModel.findOne({ userId });
-            if (!cart) {
-                cart = new CartModel({
-                    userId,
-                    items: [{ serviceId, quantity: quantity || 1, price: service.price }],
-                    totalPrice: service.price * (quantity || 1),
-                });
-            } else {
-                const existingItem = cart.items.find((item) => item.serviceId.toString() === serviceId);
-                if (existingItem) {
-                    existingItem.quantity += quantity || 1;
-                } else {
-                    cart.items.push({ serviceId, quantity: quantity || 1, price: service.price });
-                }
-                cart.totalPrice += service.price * (quantity || 1);
-            }
-            await cart.save();
-            return res.status(200).json({ success: true, message: "Item added to cart.", cart });
+            await CartModel.findOneAndUpdate({ userId }, { items: [], totalPrice: 0 });
+            return res.status(200).json({ success: true, message: "Cart cleared for user." });
         }
 
         if (visitorId) {
             const visitor = await VisitorModel.findOne({ visitorId });
             if (!visitor) {
-                return res.status(404).json({ success: false, message: "Visitor session not found." });
+                return res.status(404).json({ success: false, message: "Visitor not found." });
             }
 
-            const cart = visitor.sessionData.cart || [];
-            const existingItem = cart.find((item) => item.serviceId.toString() === serviceId);
-
-            if (existingItem) {
-                existingItem.quantity += quantity || 1;
-            } else {
-                cart.push({ serviceId, quantity: quantity || 1, price: service.price });
-            }
-
-            visitor.sessionData.cart = cart;
+            visitor.sessionData.cart = [];
             await visitor.save();
-            return res.status(200).json({ success: true, message: "Item added to visitor cart.", cart });
+            return res.status(200).json({ success: true, message: "Cart cleared for visitor." });
         }
 
         res.status(400).json({ success: false, message: "Either userId or visitorId is required." });
     } catch (error) {
-        res.status(500).json({ success: false, message: "Failed to add item to cart.", error: error.message });
-    }
-};
-
-// Clear the entire cart
-export const clearCart = async (req, res) => {
-    const { userId, visitorId } = req.body;
-
-    try {
-        if (userId) {
-            const cart = await CartModel.findOne({ userId });
-            if (!cart) {
-                return res.status(404).json({
-                    success: false,
-                    message: "User cart not found.",
-                });
-            }
-
-            // Clear items and reset total price
-            cart.items = [];
-            cart.totalPrice = 0;
-
-            await cart.save();
-            return res.status(200).json({
-                success: true,
-                message: "Cart cleared successfully.",
-            });
-        }
-
-        if (visitorId) {
-            const visitor = await VisitorModel.findOne({ visitorId });
-            if (!visitor || !visitor.sessionData.cart) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Visitor cart not found.",
-                });
-            }
-
-            // Clear visitor's cart
-            visitor.sessionData.cart = [];
-            await visitor.save();
-
-            return res.status(200).json({
-                success: true,
-                message: "Visitor cart cleared successfully.",
-            });
-        }
-
-        return res.status(400).json({
-            success: false,
-            message: "Either userId or visitorId is required.",
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Failed to clear cart.",
-            error: error.message,
-        });
+        console.error("clearCart - Error:", error.message);
+        res.status(500).json({ success: false, message: "Failed to clear cart.", error: error.message });
     }
 };

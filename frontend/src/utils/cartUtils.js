@@ -1,14 +1,11 @@
-// src/utils/cartUtils.js
-// Handles visitor-id management only
+// Updated src/utils/cartUtils.js
 
-// Get visitor ID from sessionStorage or generate it if unused
+// Get visitor ID directly (no more temporary creation)
 export const getVisitorId = () => {
-    let visitorId = sessionStorage.getItem("visitor-id");
+    return sessionStorage.getItem("visitor-id") || null; // Only use stored visitor ID
+};
 
-    if (!visitorId) {
-        visitorId = "TEMP_VISITOR"; // Let backend generate a real visitor-id
-        sessionStorage.setItem("visitor-id", visitorId); // Store for future API calls
-    }
-
-    return visitorId;
+// Save visitor ID to sessionStorage
+export const saveVisitorId = (visitorId) => {
+    sessionStorage.setItem("visitor-id", visitorId);
 };
