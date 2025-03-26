@@ -45,13 +45,14 @@ const AppContextProvider = ({ children }) => {
             console.log("Existing visitorID found in state or localStorage:", visitorID);
         }
     }, [visitorID]);
+
     // Fetch user data if logged in
     const fetchUserData = async () => {
         if (!token) return; // No need to fetch if not logged in
         try {
             setLoading(true); // Start loading
             const { data } = await axios.get(`${backendUrl}/api/user/me`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}` }, // Token already has the "Bearer" prefix
             });
             setUserData(data.user); // Set user data
         } catch (error) {
@@ -90,37 +91,44 @@ const AppContextProvider = ({ children }) => {
             setServices(data.services); // Assuming the API returns a list of services
         } catch (error) {
             console.error("Failed to fetch services", error);
-            setServices([]); // Ensure services is an empty array on failure
         }
     };
 
-    // Fetch data depending on the user's login state
-    useEffect(() => {
-        if (token) {
-            fetchUserData(); // Fetch user-specific data
-        } else {
-            setUserData(null); // Clear user data when not logged in
-        }
-        fetchServices(); // Fetch services (same for both visitors and logged-in users)
-    }, [token]); // Refetch when the token changes
-
-    // Shared provider value
-    const value = {
-        token,
-        setToken,
-        userData,
-        setUserData,
-        logout,
-        doctors,
-        fetchDoctors,
-        services, // Add services to the context value
-        currencySymbol,
-        backendUrl,
-        loading,
-        visitorID, // **Expose visitorID in the context value**
+    // Utility function to get `Authorization` headers
+    const getAuthHeaders = () => {
+        return {
+            Authorization: token
+                ? `Bearer ${token}` // Add "Bearer" prefix for logged-in user's token
+                : `Bearer ${visitorID}`, // Add "Bearer" prefix for visitorID for visitors
+        };
     };
 
-    return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+    return (
+        <AppContext.Provider
+            value={{
+                currencySymbol,
+                backendUrl,
+                token,
+                setToken,
+                userData,
+                setUserData,
+                doctors,
+                setDoctors,
+                services,
+                setServices,
+                loading,
+                setLoading,
+                visitorID,
+                getAuthHeaders, // Expose the function for child components
+                fetchUserData,
+                fetchDoctors,
+                fetchServices,
+                logout,
+            }}
+        >
+            {children}
+        </AppContext.Provider>
+    );
 };
 
 export default AppContextProvider;

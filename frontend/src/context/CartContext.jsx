@@ -21,7 +21,7 @@ export const CartContextProvider = ({ children }) => {
         const headers = {
             Authorization: isLoggedIn
                 ? `Bearer ${token}` // Include token if the user is logged in
-                : visitorID, // Pass visitorID directly for guest users
+                : `Bearer ${visitorID}`, // Add "Bearer" prefix for visitorID
         };
         console.log("CartContext - Request headers:", headers);
         return headers;
