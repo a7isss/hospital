@@ -1,4 +1,3 @@
-// src/pages/Services.jsx
 import React, { useEffect, useState } from "react";
 import ServiceCards from "../components/ServiceCards";
 import axios from "axios";
@@ -6,41 +5,43 @@ import { useContext } from "react";
 import { AppContext } from "../context/AppContext";
 
 const Services = () => {
-  const { backendUrl } = useContext(AppContext); // Get backend URL from AppContext
-  const [services, setServices] = useState([]); // State to store fetched services
-  const [loading, setLoading] = useState(false); // State for loading indicator
-  const [error, setError] = useState(null); // State for error handling
+  const { backendUrl } = useContext(AppContext); // Access backend URL from AppContext
+  const [services, setServices] = useState([]); // State for fetched services
+  const [loading, setLoading] = useState(false); // Loading state
+  const [error, setError] = useState(null); // Error state
 
-  // Fetch services from backend
-  const fetchServices = async () => {
-    try {
-      setLoading(true); // Start loading
-      setError(null); // Reset error before fetching
-      const { data } = await axios.get(`${backendUrl}/api/services`); // Fetch data from backend
-      console.log("Fetched services:", data.services);
-      setServices(data.services); // Populate services state
-    } catch (err) {
-      console.error("Error fetching services:", err);
-      setError("Failed to load services. Please try again later.");
-    } finally {
-      setLoading(false); // Stop loading
-    }
-  };
-
-  // Fetch services on component mount
+  // Fetch services when the component mounts
   useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        setLoading(true);
+        const { data } = await axios.get(`${backendUrl}/api/services`);
+        setServices(data.services || []);
+      } catch (err) {
+        console.error("Error loading services:", err);
+        setError("Failed to load services. Try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchServices();
-  }, []);
+  }, [backendUrl]);
 
   return (
-      <div className="container mx-auto py-8">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Our Services</h1>
+      <div className="container mx-auto px-6 py-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Our Services</h1>
 
-        {loading && <p>Loading services...</p>} {/* Loader */}
-        {error && <p className="text-red-500">{error}</p>} {/* Error Message */}
+        {loading && <p className="text-gray-500">Loading...</p>}
+        {error && <p className="text-red-500">{error}</p>}
 
-        {/* Render ServiceCards Component */}
-        {!loading && !error && <ServiceCards services={services} />}
+        {!loading && !error && services.length === 0 && (
+            <p className="text-center text-gray-500">No services available at the moment.</p>
+        )}
+
+        {!loading && !error && services.length > 0 && (
+            <ServiceCards services={services} />
+        )}
       </div>
   );
 };
