@@ -1,7 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { AppContext } from "./AppContext";
-import { getVisitorId } from "../utils/cartUtils"; // Utility to generate/retrieve visitor IDs
 
 export const CartContext = createContext();
 
@@ -20,8 +19,9 @@ export const CartContextProvider = ({ children }) => {
     // Generate headers for requests
     const getHeaders = () => {
         const headers = {
-            Authorization: isLoggedIn ? `Bearer ${token}` : undefined, // Token for logged-in users
-            "visitor-id": !isLoggedIn ? (visitorID || getVisitorId()) : undefined, // Visitor ID for guests
+            Authorization: isLoggedIn
+                ? `Bearer ${token}` // Include token if the user is logged in
+                : visitorID, // Pass visitorID directly for guest users
         };
         console.log("CartContext - Request headers:", headers);
         return headers;
@@ -86,9 +86,11 @@ export const CartContextProvider = ({ children }) => {
         }
     };
 
-    // Initial fetch of cart data on component mount
+    // Fetch cart on component mount
     useEffect(() => {
-        fetchCart();
+        if (visitorID || token) { // Only fetch if visitorID or token is available
+            fetchCart();
+        }
     }, [visitorID, token]);
 
     return (
