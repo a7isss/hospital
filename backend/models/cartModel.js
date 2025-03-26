@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 const cartSchema = new mongoose.Schema({
     userId: { type: String, default: null }, // For logged-in users
     visitorId: { type: String, default: null }, // For visitors
