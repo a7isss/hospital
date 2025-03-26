@@ -11,7 +11,7 @@ const Cart = () => {
             {cart.length > 0 ? (
                 <>
                     {cart.map((item) => (
-                        <div key={item._id} className="flex items-center justify-between mb-4">
+                        <div key={item.serviceId} className="flex items-center justify-between mb-4">
                             <div>
                                 <h3 className="text-lg font-semibold">{item.name}</h3>
                                 <p>Price: ₹{item.price}</p>
@@ -20,7 +20,7 @@ const Cart = () => {
 
                             <div className="flex items-center">
                                 <button
-                                    onClick={() => updateCartQuantity(item._id, item.quantity - 1)}
+                                    onClick={() => updateCartQuantity(item.serviceId, item.quantity - 1)}
                                     className="px-2 py-1 text-sm bg-gray-200 rounded"
                                     disabled={item.quantity === 1}
                                 >
@@ -28,13 +28,13 @@ const Cart = () => {
                                 </button>
                                 <span className="mx-2">{item.quantity}</span>
                                 <button
-                                    onClick={() => updateCartQuantity(item._id, item.quantity + 1)}
+                                    onClick={() => updateCartQuantity(item.serviceId, item.quantity + 1)}
                                     className="px-2 py-1 text-sm bg-gray-200 rounded"
                                 >
                                     +
                                 </button>
                                 <button
-                                    onClick={() => removeFromCart(item._id)}
+                                    onClick={() => removeFromCart(item.serviceId)}
                                     className="ml-4 text-sm text-red-600"
                                 >
                                     Remove
