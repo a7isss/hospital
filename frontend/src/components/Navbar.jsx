@@ -47,6 +47,9 @@ const Navbar = () => {
                 <NavLink to="/doctors" className="hover:text-primary">
                     {t("all_doctors")}
                 </NavLink>
+                <NavLink to="/services" className="hover:text-primary"> {/* Services Link */}
+                    {t("services")}
+                </NavLink>
                 <NavLink to="/about" className="hover:text-primary">
                     {t("about")}
                 </NavLink>
@@ -62,7 +65,7 @@ const Navbar = () => {
                     <img
                         src={cartIcon}
                         alt="Cart Icon"
-                        className="w-6 h-6 object-contain" // Properly sized and responsive
+                        className="w-6 h-6 object-contain"
                     />
                     {/* Cart Item Count Badge */}
                     <span className="absolute top-0 -right-4 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -91,12 +94,6 @@ const Navbar = () => {
                                 {t("my_profile")}
                             </p>
                             <p
-                                onClick={() => navigate("/my-appointments")}
-                                className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                            >
-                                {t("my_appointments")}
-                            </p>
-                            <p
                                 onClick={logout}
                                 className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
                             >
@@ -106,7 +103,7 @@ const Navbar = () => {
                     )}
                 </div>
             ) : (
-                <NavLink to="/login" className="text-primary font-medium">
+                <NavLink to="/login" className="text-primary hover:text-secondary">
                     {t("login")}
                 </NavLink>
             )}
