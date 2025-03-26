@@ -108,6 +108,90 @@ export const fetchCart = async (req, res) => {
         res.status(500).json({ success: false, message: "Failed to fetch cart.", error: error.message });
     }
 };
+// Update quantity of an item in the cart
+export const updateCartItemQuantity = async (req, res) => {
+    const { userId, visitorId, serviceId, quantity } = req.body;
+
+    if (!serviceId || quantity < 1) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid serviceId or quantity.",
+        });
+    }
+
+    try {
+        if (userId) {
+            const cart = await CartModel.findOne({ userId });
+            if (!cart) {
+                return res.status(404).json({
+                    success: false,
+                    message: "User cart not found.",
+                });
+            }
+
+            const item = cart.items.find((item) => item.serviceId.toString() === serviceId);
+            if (!item) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Item not found in cart.",
+                });
+            }
+
+            // Update quantity and adjust total price
+            const priceDifference = item.price * (quantity - item.quantity);
+            item.quantity = quantity;
+            cart.totalPrice += priceDifference;
+
+            await cart.save();
+            return res.status(200).json({
+                success: true,
+                message: "Cart item quantity updated.",
+                cart,
+            });
+        }
+
+        if (visitorId) {
+            const visitor = await VisitorModel.findOne({ visitorId });
+            if (!visitor || !visitor.sessionData.cart) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Visitor cart not found.",
+                });
+            }
+
+            const cart = visitor.sessionData.cart;
+            const item = cart.find((item) => item.serviceId.toString() === serviceId);
+            if (!item) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Item not found in visitor cart.",
+                });
+            }
+
+            // Update quantity
+            item.quantity = quantity;
+            visitor.sessionData.cart = cart;
+
+            await visitor.save();
+            return res.status(200).json({
+                success: true,
+                message: "Visitor cart item quantity updated.",
+                cart,
+            });
+        }
+
+        return res.status(400).json({
+            success: false,
+            message: "Either userId or visitorId is required.",
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Failed to update item quantity for cart.",
+            error: error.message,
+        });
+    }
+};
 
 // Add item to cart
 export const addToCart = async (req, res) => {
@@ -166,7 +250,7 @@ export const addToCart = async (req, res) => {
     }
 };
 
-// Clear Cart
+// Clear the entire cart
 export const clearCart = async (req, res) => {
     const { userId, visitorId } = req.body;
 
@@ -174,28 +258,51 @@ export const clearCart = async (req, res) => {
         if (userId) {
             const cart = await CartModel.findOne({ userId });
             if (!cart) {
-                return res.status(404).json({ success: false, message: "User cart not found." });
+                return res.status(404).json({
+                    success: false,
+                    message: "User cart not found.",
+                });
             }
 
+            // Clear items and reset total price
             cart.items = [];
             cart.totalPrice = 0;
+
             await cart.save();
-            return res.status(200).json({ success: true, message: "Cart cleared.", cart });
+            return res.status(200).json({
+                success: true,
+                message: "Cart cleared successfully.",
+            });
         }
 
         if (visitorId) {
             const visitor = await VisitorModel.findOne({ visitorId });
-            if (!visitor) {
-                return res.status(404).json({ success: false, message: "Visitor session not found." });
+            if (!visitor || !visitor.sessionData.cart) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Visitor cart not found.",
+                });
             }
 
+            // Clear visitor's cart
             visitor.sessionData.cart = [];
             await visitor.save();
-            return res.status(200).json({ success: true, message: "Visitor cart cleared." });
+
+            return res.status(200).json({
+                success: true,
+                message: "Visitor cart cleared successfully.",
+            });
         }
 
-        res.status(400).json({ success: false, message: "Either userId or visitorId is required." });
+        return res.status(400).json({
+            success: false,
+            message: "Either userId or visitorId is required.",
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: "Failed to clear cart.", error: error.message });
+        res.status(500).json({
+            success: false,
+            message: "Failed to clear cart.",
+            error: error.message,
+        });
     }
 };
