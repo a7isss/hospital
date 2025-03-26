@@ -5,18 +5,12 @@ import { toast } from "react-toastify";
 
 const Banner = () => {
     const { services } = useContext(AppContext); // Access services from AppContext
-    const { addToCart } = useContext(CartContext); // Access addToCart function from CartContext
+    const { cart, addToCart } = useContext(CartContext); // Access cart and addToCart function from CartContext
     const [rotatingId, setRotatingId] = useState(null);
 
-    // Debugging to check if CartContext and services are working
+    // Debugging to check cart and services context
+    console.log("Cart:", cart);
     console.log("Services:", services);
-    console.log("addToCart function:", addToCart);
-
-    // Check if addToCart function exists
-    if (typeof addToCart !== "function") {
-        console.error("addToCart is not a function. Ensure CartContext is properly configured.");
-        return <p>Error: addToCart is not available</p>;
-    }
 
     // Handles adding a service to the cart
     const handleAddToCart = async (service) => {
