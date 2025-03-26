@@ -8,6 +8,7 @@ import doctorRouter from "./routes/doctorRoute.js";
 import adminRouter from "./routes/adminRoute.js";
 import cartRouter from "./routes/cartRouter.js"; // Import cart router
 import visitorRouter from "./routes/visitorRoute.js"; // Import visitor route
+import ServiceModel from "./models/serviceModel.js";
 // App config
 const app = express();
 const port = process.env.PORT || 4000;
@@ -48,6 +49,15 @@ app.use(
         credentials: true, // Allow cookies or authorization headers
     })
 );
+app.get("/api/services", async (req, res) => {
+    try {
+        const services = await ServiceModel.find(); // Fetch all services from the database
+        res.status(200).json({ services });
+    } catch (error) {
+        console.error("Error fetching services:", error);
+        res.status(500).send("Error fetching services.");
+    }
+});
 
 // API endpoints
 app.use("/api/user", userRouter);
