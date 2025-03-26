@@ -1,10 +1,11 @@
+// src/main.jsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import './index.css';
 import { BrowserRouter } from 'react-router-dom';
 import AppContextProvider from './context/AppContext.jsx';
-import CartProvider from './context/CartContext.jsx'; // Import CartProvider
+import { CartContextProvider } from './context/CartContext.jsx'; // Import CartContextProvider by its named export
 import './i18n'; // Import i18n configuration
 import i18n from 'i18next'; // Import i18n instance
 
@@ -16,9 +17,9 @@ i18n.on('languageChanged', (lng) => {
 ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
         <AppContextProvider>
-            <CartProvider> {/* Wrap the app with CartProvider */}
+            <CartContextProvider> {/* Make sure to use the correct provider name */}
                 <App />
-            </CartProvider>
+            </CartContextProvider>
         </AppContextProvider>
     </BrowserRouter>
 );

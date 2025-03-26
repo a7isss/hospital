@@ -5,82 +5,65 @@ import { getVisitorId } from "../utils/cartUtils";
 
 export const CartContext = createContext();
 
-const CartContextProvider = ({ children }) => {
+export const CartContextProvider = ({ children }) => {
     const [cart, setCart] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0);
     const isLoggedIn = !!localStorage.getItem("token");
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token") || ""; // Always provide a fallback
 
-    // Fetch cart from backend
+    // Function to get authorization headers
+    const getHeaders = () => ({
+        Authorization: isLoggedIn ? `Bearer ${token}` : undefined,
+        "visitor-id": !isLoggedIn ? getVisitorId() : undefined,
+    });
+
+    // Fetch the cart from the backend
     const fetchCart = async () => {
         try {
-            const headers = {
-                Authorization: isLoggedIn ? `Bearer ${token}` : undefined,
-                "visitor-id": !isLoggedIn ? getVisitorId() : undefined,
-            };
-
-            const { data } = await axios.get("/api/cart", { headers });
+            const { data } = await axios.get("/api/cart", { headers: getHeaders() });
             setCart(data.cart.items || []);
             setTotalPrice(data.cart.totalPrice || 0);
         } catch (error) {
             console.error("Error fetching cart:", error);
+            setCart([]);
+            setTotalPrice(0); // Reset the cart values
         }
     };
 
-    // Add item to cart
+    // Add an item to the cart
     const addToCart = async (item) => {
         try {
-            const headers = {
-                Authorization: isLoggedIn ? `Bearer ${token}` : undefined,
-                "visitor-id": !isLoggedIn ? getVisitorId() : undefined,
-            };
-
-            await axios.post("/api/cart/add", item, { headers });
-            fetchCart();
+            await axios.post("/api/cart/add", item, { headers: getHeaders() });
+            fetchCart(); // Refresh the cart
         } catch (error) {
             console.error("Error adding to cart:", error);
         }
     };
 
-    // Remove item from cart
+    // Remove an item from the cart
     const removeFromCart = async (itemId) => {
         try {
-            const headers = {
-                Authorization: isLoggedIn ? `Bearer ${token}` : undefined,
-                "visitor-id": !isLoggedIn ? getVisitorId() : undefined,
-            };
-
-            await axios.post("/api/cart/remove", { itemId }, { headers });
-            fetchCart();
+            await axios.post("/api/cart/remove", { itemId }, { headers: getHeaders() });
+            fetchCart(); // Refresh the cart
         } catch (error) {
             console.error("Error removing from cart:", error);
         }
     };
 
-    // Update cart item quantity
+    // Update cart quantity
     const updateCartQuantity = async (itemId, quantity) => {
         try {
-            const headers = {
-                Authorization: isLoggedIn ? `Bearer ${token}` : undefined,
-                "visitor-id": !isLoggedIn ? getVisitorId() : undefined,
-            };
-
-            await axios.post("/api/cart/update", { itemId, quantity }, { headers });
-            fetchCart();
+            await axios.post("/api/cart/update", { itemId, quantity }, { headers: getHeaders() });
+            fetchCart(); // Refresh the cart
         } catch (error) {
             console.error("Error updating cart quantity:", error);
         }
     };
 
-    // Clear cart
+    // Clear all items from the cart
     const clearCart = async () => {
         try {
-            const headers = {
-                Authorization: isLoggedIn ? `Bearer ${token}` : undefined,
-                "visitor-id": !isLoggedIn ? getVisitorId() : undefined,
-            };
-
-            await axios.post("/api/cart/clear", null, { headers });
+            await axios.post("/api/cart/clear", null, { headers: getHeaders() });
             setCart([]);
             setTotalPrice(0);
         } catch (error) {
@@ -88,7 +71,7 @@ const CartContextProvider = ({ children }) => {
         }
     };
 
-    // Fetch cart on mount or when login status changes
+    // Fetch the cart on app load or whenever login state changes
     useEffect(() => {
         fetchCart();
     }, [isLoggedIn]);
@@ -108,6 +91,3 @@ const CartContextProvider = ({ children }) => {
         </CartContext.Provider>
     );
 };
-
-export { CartContextProvider };
-export default CartContext;
