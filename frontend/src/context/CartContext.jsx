@@ -31,15 +31,23 @@ export const CartContextProvider = ({ children }) => {
     };
 
     // Add an item to the cart
+    // CartContext.js or wherever `addToCart` is declared:
     const addToCart = async (item) => {
         try {
+            // Add item to cart via backend API
             await axios.post("/api/cart/add", item, { headers: getHeaders() });
-            fetchCart(); // Refresh the cart
+
+            // Fetch updated cart and update the state
+            await fetchCart(); // Refresh cart data in CartContext
         } catch (error) {
             console.error("Error adding to cart:", error);
+
+            // Handle specific error responses (optional)
+            if (error.response) {
+                console.error("Server Error:", error.response.data.message);
+            }
         }
     };
-
     // Remove an item from the cart
     const removeFromCart = async (itemId) => {
         try {
@@ -72,9 +80,9 @@ export const CartContextProvider = ({ children }) => {
     };
 
     // Fetch the cart on app load or whenever login state changes
-    useEffect(() => {
-        fetchCart();
-    }, [isLoggedIn]);
+   // useEffect(() => {
+      //  fetchCart();
+ //   }, [isLoggedIn]);
 
     return (
         <CartContext.Provider
