@@ -53,6 +53,7 @@ const Navbar = () => {
                 <NavLink to="/contact" className="hover:text-primary">
                     {t("contact")}
                 </NavLink>
+                {/* Cart NavLink */}
                 <button
                     onClick={handleCartClick}
                     className="relative flex items-center hover:text-primary"
@@ -64,11 +65,9 @@ const Navbar = () => {
                         className="w-6 h-6 object-contain" // Properly sized and responsive
                     />
                     {/* Cart Item Count Badge */}
-                    {totalCartItems > 0 && (
-                        <span className="absolute top-0 -right-4 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                            {totalCartItems}
-                        </span>
-                    )}
+                    <span className="absolute top-0 -right-4 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {totalCartItems}
+                    </span>
                 </button>
             </ul>
 
