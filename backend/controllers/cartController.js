@@ -89,7 +89,65 @@ export const addToCart = async (req, res) => {
         return res.status(500).json({ success: false, message: "Failed to add item to cart.", error: error.message });
     }
 };
+export const removeItemFromCart = async (req, res) => {
+    const { userId } = req.body; // For logged-in users
+    const visitorId = req.headers.authorization?.replace("Bearer ", ""); // For guest users
+    const { itemId } = req.body; // ID of the service to be removed
 
+    try {
+        // Logic for logged-in users
+        if (userId) {
+            const cart = await CartModel.findOne({ userId });
+            if (!cart) {
+                return res.status(404).json({ success: false, message: "Cart not found." });
+            }
+
+            // Remove the item from the cart
+            cart.items = cart.items.filter((item) => item.itemId.toString() !== itemId);
+
+            // Recalculate the total price
+            cart.totalPrice = cart.items.reduce(
+                (sum, item) => sum + item.price * item.quantity,
+                0
+            );
+
+            await cart.save();
+            return res.status(200).json({ success: true, message: "Item removed from cart.", cart });
+        }
+
+        // Logic for visitors (guest users)
+        if (visitorId) {
+            const visitor = await VisitorModel.findOne({ visitorId });
+
+            if (!visitor || !visitor.sessionData.cart) {
+                return res.status(404).json({ success: false, message: "Cart not found." });
+            }
+
+            // Remove the item from the visitor's cart
+            visitor.sessionData.cart = visitor.sessionData.cart.filter(
+                (item) => item.itemId.toString() !== itemId
+            );
+
+            // Recalculate the total price
+            const totalPrice = visitor.sessionData.cart.reduce(
+                (sum, item) => sum + item.price * item.quantity,
+                0
+            );
+
+            await visitor.save();
+            return res.status(200).json({
+                success: true,
+                message: "Item removed from cart.",
+                cart: { items: visitor.sessionData.cart, totalPrice },
+            });
+        }
+
+        return res.status(400).json({ success: false, message: "Either userId or visitorId is required." });
+    } catch (error) {
+        console.error("removeItemFromCart - Error:", error.message);
+        return res.status(500).json({ success: false, message: "Failed to remove item from cart.", error: error.message });
+    }
+};
 // Fetch cart for logged-in users or visitors
 export const fetchCart = async (req, res) => {
     const { userId } = req.body; // For logged-in users
