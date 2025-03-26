@@ -101,6 +101,35 @@ export const removeItemFromCart = async (req, res) => {
         return res.status(500).json({ success: false, message: "Failed to remove item from cart.", error: error.message });
     }
 };
+export const ensureVisitorSession = async (req, res, next) => {
+    try {
+        let visitorId = req.headers.authorization?.replace("Bearer ", "");
+
+        if (!visitorId) {
+            // Generate new visitorId if none is provided
+            visitorId = uuidv4();
+
+            // Create a new visitor cart
+            await CartModel.create({ visitorId, items: [], totalPrice: 0 });
+
+            // Add the visitorId to the response header (frontend should save it)
+            res.setHeader("x-visitor-id", visitorId);
+        } else {
+            // Ensure visitor cart exists
+            const visitorCart = await CartModel.findOne({ visitorId });
+            if (!visitorCart) {
+                // If no cart exists, create it
+                await CartModel.create({ visitorId, items: [], totalPrice: 0 });
+            }
+        }
+
+        req.visitorId = visitorId; // Attach to request for later use
+        next();
+    } catch (error) {
+        console.error("Error in ensureVisitorSession:", error.message);
+        res.status(500).json({ success: false, message: "Internal server error.", error: error.message });
+    }
+};
 
 // Update the quantity of an item in the cart
 export const updateCartItemQuantity = async (req, res) => {
