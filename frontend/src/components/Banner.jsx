@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 
 const Banner = () => {
     const { services } = useContext(AppContext); // Access services from AppContext
-    const { addToCart } = useContext(CartContext); // Access addToCart from CartContext
+    const { addToCart } = useContext(CartContext); // Access addToCart function from CartContext
     const [rotatingId, setRotatingId] = useState(null);
 
     // Debugging to check if CartContext and services are working
@@ -28,7 +28,7 @@ const Banner = () => {
                 quantity: 1,
             };
 
-            await addToCart(cartItem); // Add to cart
+            await addToCart(cartItem); // Use `addToCart` from the CartContext
             toast.success(`${service.name} added to your cart!`);
             setRotatingId(service._id);
             setTimeout(() => setRotatingId(null), 500);
