@@ -4,7 +4,6 @@ import {
     addToCart, // Import added
     removeItemFromCart,
     updateCartItemQuantity,
-    clearCart,
 } from "../controllers/cartController.js";
 import authUser from "../middleware/authUser.js";
 import { ensureVisitorSession } from "../middleware/visitorId.js";
@@ -16,6 +15,4 @@ router.get("/cart", ensureVisitorSession, fetchCart);
 router.post("/cart/add", ensureVisitorSession, addToCart); // Ensure visitor session and map route
 router.post("/cart/remove", ensureVisitorSession, removeItemFromCart);
 router.post("/cart/update", ensureVisitorSession, updateCartItemQuantity);
-router.post("/cart/clear", ensureVisitorSession, clearCart);
-
 export default router;
