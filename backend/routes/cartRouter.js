@@ -1,21 +1,21 @@
-const express = require("express");
-const {
+import express from "express";
+import {
     fetchCart,
     addToCart,
     removeItemFromCart,
     // updateCartItemQuantity,
     // clearCart, // Uncomment if needed later
-} = require("../controllers/cartController"); // Use require for CommonJS compatibility
-const authUser = require("../middleware/authUser");
-const { ensureVisitorSession } = require("../middleware/visitorId");
+} from "../controllers/cartController.js"; // Use ES module import
+import authUser from "../middleware/authUser.js";
+import { ensureVisitorSession } from "../middleware/visitorId.js";
 
-const router = express.Router();
+const cartRouter = express.Router();
 
 // Unified Cart Routes for Users and Visitors
-router.get("/cart", ensureVisitorSession, fetchCart); // Fetch cart
-router.post("/cart/add", ensureVisitorSession, addToCart); // Add item to cart
-router.post("/cart/remove", ensureVisitorSession, removeItemFromCart); // Remove item from cart
-// router.post("/cart/update", ensureVisitorSession, updateCartItemQuantity); // Update item quantity in cart
-// router.post("/cart/clear", ensureVisitorSession, clearCart); // Clear the entire cart
+cartRouter.get("/cart", ensureVisitorSession, fetchCart); // Fetch cart
+cartRouter.post("/cart/add", ensureVisitorSession, addToCart); // Add item to cart
+cartRouter.post("/cart/remove", ensureVisitorSession, removeItemFromCart); // Remove item from cart
+// cartRouter.post("/cart/update", ensureVisitorSession, updateCartItemQuantity); // Update item quantity in cart
+// cartRouter.post("/cart/clear", ensureVisitorSession, clearCart); // Clear the entire cart
 
-module.exports = router;
+export default cartRouter; // Use ES module export

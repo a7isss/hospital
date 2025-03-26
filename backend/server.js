@@ -6,7 +6,7 @@ import connectCloudinary from "./config/cloudinary.js"; // Cloudinary connection
 import userRouter from "./routes/userRoute.js";
 import doctorRouter from "./routes/doctorRoute.js";
 import adminRouter from "./routes/adminRoute.js";
-const cartRouter = require("./routes/cartRouter");
+import cartRouter from "./routes/cartRouter.js";
 //import visitorRouter from "./routes/visitorRoute.js"; // Import visitor route
 import ServiceModel from "./models/serviceModel.js";
 
