@@ -11,8 +11,15 @@ export const fetchCart = async (req, res) => {
         if (userId) {
             // Fetch cart for logged-in users
             const cart = await CartModel.findOne({ userId });
-            if (!cart) {
-                return res.status(404).json({ success: false, message: "User cart not found." });
+            if (!cart || (cart.items && cart.items.length === 0)) {
+                // Return empty cart structure if cart doesn't exist or is empty
+                return res.status(200).json({
+                    success: true,
+                    cart: {
+                        items: [],
+                        totalPrice: 0,
+                    },
+                });
             }
             return res.status(200).json({ success: true, cart });
         }
@@ -20,19 +27,28 @@ export const fetchCart = async (req, res) => {
         if (visitorId) {
             // Fetch cart for visitors
             const visitor = await VisitorModel.findOne({ visitorId });
-            if (!visitor || !visitor.sessionData.cart) {
-                return res.status(404).json({ success: false, message: "Visitor cart not found." });
+            if (!visitor || !visitor.sessionData.cart || visitor.sessionData.cart.length === 0) {
+                // Return empty cart structure if visitor cart doesn't exist or is empty
+                return res.status(200).json({
+                    success: true,
+                    cart: {
+                        items: [],
+                        totalPrice: 0,
+                    },
+                });
             }
-            return res.status(200).json({ success: true, cart: visitor.sessionData.cart });
+            const cart = visitor.sessionData.cart;
+            const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            return res.status(200).json({ success: true, cart: { items: cart, totalPrice } });
         }
 
+        // If neither userId nor visitorId is provided
         res.status(400).json({ success: false, message: "Either userId or visitorId is required." });
     } catch (error) {
         console.error("fetchCart - Error:", error.message);
         res.status(500).json({ success: false, message: "Failed to fetch cart.", error: error.message });
     }
 };
-
 // Add an item to the cart
 export const addToCart = async (req, res) => {
     const { userId, itemId, name, price, quantity } = req.body;

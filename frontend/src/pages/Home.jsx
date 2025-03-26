@@ -1,10 +1,20 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Header from '../components/Header';
 import Banner from '../components/Banner'; // Contains services grid
 import { useTranslation } from 'react-i18next';
+import { AppContext } from '../context/AppContext'; // App-wide context for services
 
 const Home = () => {
     const { t } = useTranslation(); // Initialize translation
+    const { services, loading } = useContext(AppContext); // Access services and loading state
+
+    if (loading) {
+        return <div>Loading...</div>; // Display a loader while data is being fetched
+    }
+
+    if (!services || services.length === 0) {
+        return <div>No services available at the moment.</div>; // Gracefully handle missing data
+    }
 
     return (
         <div>

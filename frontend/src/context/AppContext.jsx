@@ -85,15 +85,23 @@ const AppContextProvider = ({ children }) => {
     };
 
     // Fetch services for visitors and users
+    const [error, setError] = useState(null); // New state for tracking errors
+
     const fetchServices = async () => {
         try {
-            const { data } = await axios.get(`${backendUrl}/api/services`); // Replace `/api/services` with your endpoint
-            setServices(data.services); // Assuming the API returns a list of services
+            setLoading(true); // Start loading
+            setError(null); // Reset error before fetching
+
+            const { data } = await axios.get(`${backendUrl}/api/services`); // Update this with your API endpoint
+            setServices(data.services || []); // Ensure undefined services are handled gracefully
         } catch (error) {
-            console.error("Failed to fetch services", error);
+            setServices([]); // Clear services if fetch fails
+            setError('Failed to fetch services. Please try again later.'); // Set a user-friendly error message
+            console.error("Failed to fetch services:", error);
+        } finally {
+            setLoading(false); // Stop loading
         }
     };
-
     // Utility function to get `Authorization` headers
     const getAuthHeaders = () => {
         return {
@@ -124,6 +132,8 @@ const AppContextProvider = ({ children }) => {
                 fetchDoctors,
                 fetchServices,
                 logout,
+                error, // Expose error state
+
             }}
         >
             {children}

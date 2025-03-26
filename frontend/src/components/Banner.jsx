@@ -6,12 +6,15 @@ import doctorImage from "../assets/doc6.png"; // Use the image for cards
 
 const Banner = () => {
     const { services } = useContext(AppContext); // Access services from AppContext
-    const { addToCart } = useContext(CartContext); // Access addToCart function from CartContext
+    const { addToCart, fetchCart } = useContext(CartContext); // Access addToCart and fetchCart from CartContext
     const [rotatingId, setRotatingId] = useState(null);
 
     // Handles adding a service to the cart
     const handleAddToCart = async (service) => {
         try {
+            // Lazily fetch the cart before adding an item, ensures the cart is loaded once
+            await fetchCart();
+
             const cartItem = {
                 serviceId: service._id,
                 name: service.name,
@@ -19,7 +22,8 @@ const Banner = () => {
                 quantity: 1,
             };
 
-            await addToCart(cartItem); // Use `addToCart` from the CartContext
+            // Use the addToCart function from CartContext
+            await addToCart(cartItem);
             toast.success(`${service.name} added to your cart!`);
             setRotatingId(service._id);
             setTimeout(() => setRotatingId(null), 500);
