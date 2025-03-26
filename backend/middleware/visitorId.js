@@ -3,33 +3,36 @@ import VisitorModel from "../models/visitorModel.js";
 
 export const ensureVisitorSession = async (req, res, next) => {
     try {
-        const visitorId = req.headers.authorization?.replace("Bearer ", ""); // Extract visitorId from Authorization header
+        const authorizationHeader = req.headers.authorization;
+        const visitorId = authorizationHeader?.replace("Bearer ", ""); // Extract visitorId from Authorization header
 
-        if (!visitorId) {
-            // Generate new visitorId if none is provided
-            const newVisitorId = uuidv4();
-            console.log("No visitor-id provided; generating new ID:", newVisitorId);
-
-            // Create a new visitor session with an empty cart
-            await VisitorModel.create({
-                visitorId: newVisitorId,
-                sessionData: { cart: [] },
-            });
-
-            req.headers.authorization = `Bearer ${newVisitorId}`;
-        } else {
-            // Ensure visitor session exists
-            let visitor = await VisitorModel.findOne({ visitorId });
-            if (!visitor) {
-                console.log("Visitor does not exist. Creating a new session.");
-                visitor = await VisitorModel.create({
-                    visitorId,
-                    sessionData: { cart: [] },
-                });
+        // Check if visitorId exists and is valid
+        if (visitorId) {
+            const visitor = await VisitorModel.findOne({ visitorId });
+            if (visitor) {
+                // Visitor session exists, proceed to next middleware
+                req.visitorId = visitorId; // Attach to request for further use
+                return next();
+            } else {
+                console.log("Visitor ID provided but session not found, creating a new session.");
             }
         }
 
-        next();
+        // Generate a new visitorId if none exists or session was not found
+        const newVisitorId = uuidv4();
+        console.log("No valid visitor-id; generating new ID:", newVisitorId);
+
+        // Create a new visitor session with an empty cart
+        await VisitorModel.create({
+            visitorId: newVisitorId,
+            sessionData: { cart: [] },
+        });
+
+        // Attach the new visitorId to request and response
+        req.visitorId = newVisitorId;
+        res.setHeader("x-visitor-id", newVisitorId); // Return new visitorId in response for frontend storage
+
+        next(); // Proceed to the next route
     } catch (error) {
         console.error("Error in ensureVisitorSession:", error.message);
         res.status(500).json({ success: false, message: "Internal server error.", error: error.message });

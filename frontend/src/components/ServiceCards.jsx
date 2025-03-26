@@ -1,29 +1,21 @@
 import React, { useContext, useState } from "react";
 import { CartContext } from "../context/CartContext";
 import { toast } from "react-toastify";
-import currIcon from "../assets/curr.svg"; // Import the currency SVG
+import currIcon from "../assets/curr.svg";
 
 const ServiceCards = ({ services }) => {
-    const { addToCart, cart } = useContext(CartContext); // Access addToCart and cart state from CartContext
-    const [loadingStates, setLoadingStates] = useState({}); // Track loading state for each card
+    const { addToCart } = useContext(CartContext); // Access the cart context's addToCart function
+    const [loadingStates, setLoadingStates] = useState({}); // Track loading state for each service
 
     const handleAddToCart = async (service) => {
-        setLoadingStates((prev) => ({ ...prev, [service.id]: true })); // Start loading for the current service
+        setLoadingStates((prev) => ({ ...prev, [service.id]: true })); // Start loading for the specific service
         try {
-            // Check if item already exists in the cart
-            const existingItem = cart.find((item) => item.itemId === service.id);
-            const quantity = existingItem ? existingItem.quantity + 1 : 1;
-
-            await addToCart({
-                itemId: service.id,
-                name: service.name,
-                price: service.price,
-                quantity,
-            });
+            // Only send itemId to the backend; the backend fetches other details
+            await addToCart({ itemId: service.id });
 
             toast.success(`${service.name} added to cart!`);
         } catch (error) {
-            console.error("Error adding to cart:", error);
+            console.error("Error adding item to cart:", error);
             toast.error(`Failed to add ${service.name} to cart.`);
         } finally {
             setLoadingStates((prev) => ({ ...prev, [service.id]: false })); // Stop loading
@@ -54,7 +46,7 @@ const ServiceCards = ({ services }) => {
                         <img
                             src={currIcon}
                             alt="Currency Icon"
-                            className="h-[1em] w-auto object-contain" // Matches the height of the text
+                            className="h-[1em] w-auto object-contain"
                         />
                         {service.price.toFixed(2)}
                     </p>
@@ -67,7 +59,7 @@ const ServiceCards = ({ services }) => {
                         disabled={loadingStates[service.id]} // Disable button while loading
                     >
                         {loadingStates[service.id] ? (
-                            <span className="loader border-t-white w-5 h-5"></span> // Added a spinner style loader
+                            <span className="loader border-t-white w-5 h-5"></span> // Spinner/Loader
                         ) : (
                             "Add to Cart"
                         )}

@@ -13,75 +13,63 @@ const Cart = () => {
 
             {/* Main Content */}
             <div className="flex-1 container mx-auto px-6 py-8">
-                {/* Empty Cart Message */}
                 {cart.length === 0 ? (
+                    // Empty Cart Message
                     <div className="flex flex-col items-center justify-center gap-4 text-gray-600 min-h-[60vh]">
                         <p className="text-xl font-medium">Your cart is currently empty.</p>
-                        <p className="text-sm">Explore our services and add items to your cart!</p>
+                        <p className="text-sm">Explore our services and add items to your cart.</p>
                     </div>
                 ) : (
-                    <div className="space-y-6">
-                        {/* List of Cart Items */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                         {cart.map((item) => (
-                            <div
-                                key={item.itemId}
-                                className="border border-gray-300 p-4 rounded-lg flex flex-col sm:flex-row items-center justify-between"
-                            >
+                            <div key={item.itemId} className="border border-gray-200 rounded-lg p-4 flex items-center gap-4">
+                                {/* Item Image */}
+                                <img
+                                    src={item.image || "https://via.placeholder.com/100"}
+                                    alt={item.name}
+                                    className="w-16 h-16 object-cover rounded-md"
+                                />
+
                                 {/* Item Details */}
-                                <div className="flex items-center gap-4">
-                                    <img
-                                        src={item.image || "https://via.placeholder.com/100"}
-                                        alt={item.name}
-                                        className="w-20 h-20 object-cover rounded-md"
-                                    />
-                                    <div>
-                                        <h2 className="text-lg font-semibold">{item.name}</h2>
-                                        <p className="text-sm text-gray-600">
-                                            Price: ₹{item.price.toFixed(2)}
-                                        </p>
-                                        <p className="text-sm text-gray-600">
-                                            Total: ₹{(item.price * item.quantity).toFixed(2)}
-                                        </p>
-                                    </div>
+                                <div className="flex-1">
+                                    <h2 className="text-md font-semibold text-gray-800">
+                                        {item.name}
+                                    </h2>
+                                    <p className="text-sm text-gray-600">
+                                        Price: ₹{item.price.toFixed(2)}
+                                    </p>
+                                    <p className="text-sm text-gray-600">
+                                        Total: ₹{(item.price * item.quantity).toFixed(2)}
+                                    </p>
                                 </div>
 
-                                {/* Item Actions */}
-                                <div className="flex items-center gap-3 mt-4 sm:mt-0">
+                                {/* Actions */}
+                                <div className="flex flex-col gap-2">
+                                    {/* Increase Quantity */}
                                     <button
-                                        onClick={() =>
-                                            updateCartQuantity(item.itemId, item.quantity + 1)
-                                        }
-                                        className="bg-primary text-white px-3 py-1 rounded-md"
+                                        onClick={() => updateCartQuantity(item.itemId, item.quantity + 1)}
+                                        className="bg-primary text-white px-2 py-1 rounded-md"
                                     >
                                         +
                                     </button>
-                                    <span className="text-gray-800 text-sm font-semibold">
-                                        {item.quantity}
-                                    </span>
+
+                                    {/* Quantity */}
+                                    <div className="text-center">{item.quantity}</div>
+
+                                    {/* Decrease or Remove */}
                                     <button
                                         onClick={() =>
                                             item.quantity > 1
                                                 ? updateCartQuantity(item.itemId, item.quantity - 1)
                                                 : removeFromCart(item.itemId)
                                         }
-                                        className="bg-secondary text-white px-3 py-1 rounded-md"
+                                        className="bg-secondary text-white px-2 py-1 rounded-md"
                                     >
                                         −
-                                    </button>
-                                    <button
-                                        onClick={() => removeFromCart(item.itemId)}
-                                        className="bg-red-500 text-white px-3 py-1 rounded-md"
-                                    >
-                                        Remove
                                     </button>
                                 </div>
                             </div>
                         ))}
-
-                        {/* Total Price */}
-                        <div className="text-right font-semibold text-lg text-gray-800">
-                            Total Price: ₹{totalPrice.toFixed(2)}
-                        </div>
                     </div>
                 )}
             </div>

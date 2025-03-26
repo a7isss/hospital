@@ -1,139 +1,110 @@
-import React, { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
-import { v4 as uuidv4 } from 'uuid'; // Import UUID generator for unique visitorIDs
+import React, { createContext, useState, useEffect } from "react";
+import axios from "axios";
+import { v4 as uuidv4 } from "uuid"; // Import UUID generator to create unique visitor IDs
 
 export const AppContext = createContext();
 
 const AppContextProvider = ({ children }) => {
-    const currencySymbol = '₹'; // Currency symbol for global use
-    const backendUrl = import.meta.env.VITE_BACKEND_URL; // Backend URL from environment
+    const currencySymbol = "₹"; // Global currency symbol
+    const backendUrl = import.meta.env.VITE_BACKEND_URL; // Backend API URL from environment variables
 
-    // State for managing app-wide needs
-    const [token, setToken] = useState(localStorage.getItem('token') || null); // Manage user login state
-    const [userData, setUserData] = useState(null); // Logged-in user information
-    const [doctors, setDoctors] = useState([]); // List of doctors for use across components
-    const [services, setServices] = useState([]); // List of services for banner/component display
-    const [loading, setLoading] = useState(false); // Global loading state for API calls
+    // State for managing app-wide variables
+    const [token, setToken] = useState(localStorage.getItem("token") || null); // User token for authentication
+    const [userData, setUserData] = useState(null); // Store user-specific data (e.g., name, email)
+    const [visitorID, setVisitorID] = useState(localStorage.getItem("visitorID") || null); // Visitor ID for guests
+    const [services, setServices] = useState([]); // List of services (e.g., for display in the frontend)
+    const [doctors, setDoctors] = useState([]); // List of doctors (used globally on different components/pages)
+    const [loading, setLoading] = useState(false); // Loading state for API requests
+    const [error, setError] = useState(null); // State for storing errors (e.g., from API calls)
 
-    // **New: State for visitorID**
-    const [visitorID, setVisitorID] = useState(localStorage.getItem('visitorID') || null);
-
-    // **New: Generate visitorID when none exists**
+    // Generate a unique visitor ID if none exists
     useEffect(() => {
         if (!visitorID) {
-            // Log that visitorID generation is starting
-            console.log("No visitorID found. Generating a new one...");
-
-            try {
-                // Generate a new unique visitorID
-                const newVisitorID = uuidv4();
-
-                console.log("Generated visitorID:", newVisitorID); // Debug: Log the generated visitorID
-
-                // Set visitorID in React state and persist it in localStorage
-                setVisitorID(newVisitorID);
-                localStorage.setItem("visitorID", newVisitorID);
-
-                // Debug: Confirm that the visitorID is now set in localStorage
-                console.log("Persisted visitorID in localStorage:", localStorage.getItem("visitorID"));
-            } catch (error) {
-                // Handle potential errors during visitorID generation/storage
-                console.error("Error generating or saving visitorID:", error);
-            }
+            console.log("No visitorID found. Creating a new one...");
+            const newVisitorID = uuidv4();
+            setVisitorID(newVisitorID);
+            localStorage.setItem("visitorID", newVisitorID); // Persist visitor ID in localStorage
+            console.log("Generated and stored visitorID:", newVisitorID);
         } else {
-            // Debug: Log that visitorID already exists
-            console.log("Existing visitorID found in state or localStorage:", visitorID);
+            console.log("Existing visitorID found:", visitorID);
         }
     }, [visitorID]);
 
-    // Fetch user data if logged in
+    // Fetch current user data (if logged in)
     const fetchUserData = async () => {
-        if (!token) return; // No need to fetch if not logged in
-        try {
-            setLoading(true); // Start loading
-            const { data } = await axios.get(`${backendUrl}/api/user/me`, {
-                headers: { Authorization: `Bearer ${token}` }, // Token already has the "Bearer" prefix
-            });
-            setUserData(data.user); // Set user data
-        } catch (error) {
-            console.error("Error fetching user data", error);
-            setToken(null); // Clear token on failure
-            localStorage.removeItem('token'); // Cleanup localStorage
-        } finally {
-            setLoading(false); // Stop loading
-        }
-    };
-
-    // Global logout handler
-    const logout = () => {
-        setToken(null);
-        setUserData(null);
-        localStorage.removeItem('token'); // Clear token from storage
-    };
-
-    // Fetch doctors (shared global data)
-    const fetchDoctors = async () => {
+        if (!token) return; // Skip if no token is available
         try {
             setLoading(true);
-            const { data } = await axios.get(`${backendUrl}/api/doctors`);
-            setDoctors(data.doctors); // Set the list of doctors
+            const { data } = await axios.get(`${backendUrl}/api/user/me`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setUserData(data.user); // Store user data (received from API response)
         } catch (error) {
-            console.error("Failed to fetch doctors", error);
+            console.error("Error fetching user data:", error);
+            setToken(null); // Clear invalid token
+            localStorage.removeItem("token"); // Remove token from localStorage
         } finally {
             setLoading(false);
         }
     };
 
-    // Fetch services for visitors and users
-    const [error, setError] = useState(null); // New state for tracking errors
-
+    // Fetch services from the backend
     const fetchServices = async () => {
         try {
-            setLoading(true); // Start loading
-            setError(null); // Reset error before fetching
-
-            const { data } = await axios.get(`${backendUrl}/api/services`); // Update this with your API endpoint
-            setServices(data.services || []); // Ensure undefined services are handled gracefully
+            setLoading(true);
+            const { data } = await axios.get(`${backendUrl}/api/services`);
+            setServices(data.services); // Store services in the state
         } catch (error) {
-            setServices([]); // Clear services if fetch fails
-            setError('Failed to fetch services. Please try again later.'); // Set a user-friendly error message
-            console.error("Failed to fetch services:", error);
+            console.error("Error fetching services:", error);
+            setError("Failed to load services.");
         } finally {
-            setLoading(false); // Stop loading
+            setLoading(false);
         }
     };
-    // Utility function to get `Authorization` headers
-    const getAuthHeaders = () => {
-        return {
-            Authorization: token
-                ? `Bearer ${token}` // Add "Bearer" prefix for logged-in user's token
-                : `Bearer ${visitorID}`, // Add "Bearer" prefix for visitorID for visitors
-        };
+
+    // Fetch doctors (for the doctors listing page or banner)
+    const fetchDoctors = async () => {
+        try {
+            setLoading(true);
+            const { data } = await axios.get(`${backendUrl}/api/doctors`);
+            setDoctors(data.doctors); // Store doctors in the state
+        } catch (error) {
+            console.error("Error fetching doctors:", error);
+        } finally {
+            setLoading(false);
+        }
     };
+
+    // Global logout function
+    const logout = () => {
+        setToken(null); // Clear token state
+        setUserData(null); // Remove user data
+        localStorage.removeItem("token"); // Clear token from localStorage
+    };
+
+    // Fetch initial data when the component mounts
+    useEffect(() => {
+        fetchServices(); // Load all services
+        fetchDoctors(); // Load doctors
+        fetchUserData(); // Load current user data (only if token exists)
+    }, [token]); // Refetch user data if the token changes
 
     return (
         <AppContext.Provider
             value={{
                 currencySymbol,
                 backendUrl,
+                visitorID,
                 token,
                 setToken,
                 userData,
-                setUserData,
                 doctors,
-                setDoctors,
                 services,
-                setServices,
                 loading,
-                setLoading,
-                visitorID,
-                getAuthHeaders, // Expose the function for child components
-                fetchUserData,
-                fetchDoctors,
-                fetchServices,
+                error,
                 logout,
-                error, // Expose error state
-
+                fetchServices,
+                fetchUserData,
             }}
         >
             {children}

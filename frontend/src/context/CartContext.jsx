@@ -5,90 +5,89 @@ import { AppContext } from "./AppContext";
 export const CartContext = createContext();
 
 export const CartContextProvider = ({ children }) => {
-    const { visitorID, token, backendUrl } = useContext(AppContext);
-    const [cart, setCart] = useState([]);
-    const [totalPrice, setTotalPrice] = useState(0);
+    const { visitorID, token, backendUrl } = useContext(AppContext); // Access global app state from AppContext
+    const [cart, setCart] = useState([]); // Cart items state
+    const [totalPrice, setTotalPrice] = useState(0); // Total price of the cart items
 
-    console.log("CartContext - visitorID:", visitorID);
-    console.log("CartContext - token:", token);
-
-    // Check login status
+    // Check if the user is logged in based on token
     const isLoggedIn = !!token;
-    console.log("CartContext - isLoggedIn:", isLoggedIn);
 
-    // Generate headers for requests
+    // Generate headers for requests (uses either token or visitorID)
     const getHeaders = () => {
-        const headers = {
+        return {
             Authorization: isLoggedIn
-                ? `Bearer ${token}` // Include token if the user is logged in
-                : `Bearer ${visitorID}`, // Add "Bearer" prefix for visitorID
+                ? `Bearer ${token}` // Token for logged-in users
+                : `Bearer ${visitorID}`, // Visitor ID for guest users
         };
-        console.log("CartContext - Request headers:", headers);
-        return headers;
     };
 
-    // Function to fetch the cart
+    // Function to fetch the cart from backend
     const fetchCart = async () => {
-        console.log("CartContext - Fetching cart data...");
         try {
             const { data } = await axios.get(`${backendUrl}/api/cart`, { headers: getHeaders() });
-            console.log("CartContext - Cart data fetched:", data);
             setCart(data.cart.items || []); // Update cart items
             setTotalPrice(data.cart.totalPrice || 0); // Update total price
         } catch (error) {
             console.error("CartContext - Error fetching cart:", error);
-            setCart([]); // Reset cart state
+            setCart([]); // Reset cart if the fetch fails
             setTotalPrice(0); // Reset total price
         }
     };
 
-    // Add an item to the cart
+    // Function to add an item to the cart
     const addToCart = async (item) => {
-        console.log("CartContext - Adding item to cart:", item);
         try {
-            await axios.post(`${backendUrl}/api/cart/add`, item, { headers: getHeaders() });
+            console.log("CartContext - Adding item to cart:", item);
+            await axios.post(
+                `${backendUrl}/api/cart/add`,
+                { itemId: item.itemId }, // Only itemId is sent to backend
+                { headers: getHeaders() }
+            );
             console.log("CartContext - Item added successfully.");
-            await fetchCart(); // Refresh cart after addition
+            await fetchCart(); // Fetch the updated cart after adding the item
         } catch (error) {
             console.error("CartContext - Error adding to cart:", error);
-
             if (error.response) {
                 console.error("CartContext - Server Error:", error.response.data.message); // Log server errors
             }
         }
     };
 
-    // Remove an item from the cart
+    // Function to remove an item from the cart
     const removeFromCart = async (itemId) => {
-        console.log("CartContext - Removing item from cart:", itemId);
         try {
-            await axios.post(`${backendUrl}/api/cart/remove`, { itemId }, { headers: getHeaders() });
+            console.log("CartContext - Removing item from cart:", itemId);
+            await axios.post(
+                `${backendUrl}/api/cart/remove`,
+                { itemId },
+                { headers: getHeaders() }
+            );
             console.log("CartContext - Item removed successfully.");
-            await fetchCart(); // Refresh cart after removal
+            await fetchCart(); // Update cart after removal
         } catch (error) {
             console.error("CartContext - Error removing from cart:", error);
         }
     };
 
-    // Update the quantity of an item in the cart
+    // Function to update the quantity of an item in the cart
     const updateCartQuantity = async (itemId, quantity) => {
-        console.log(`CartContext - Updating item (${itemId}) quantity to:`, quantity);
         try {
+            console.log(`CartContext - Updating item (${itemId}) quantity to:`, quantity);
             await axios.post(
                 `${backendUrl}/api/cart/update`,
                 { itemId, quantity },
                 { headers: getHeaders() }
             );
             console.log("CartContext - Item quantity updated successfully.");
-            await fetchCart(); // Refresh cart after update
+            await fetchCart(); // Update cart to reflect new quantity
         } catch (error) {
             console.error("CartContext - Error updating cart quantity:", error);
         }
     };
 
-    // Fetch cart on component mount
+    // Fetches the cart on component mount or when user/visitor changes
     useEffect(() => {
-        if (visitorID || token) { // Only fetch if visitorID or token is available
+        if (visitorID || token) {
             fetchCart();
         }
     }, [visitorID, token]);
