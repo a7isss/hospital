@@ -21,12 +21,30 @@ const AppContextProvider = ({ children }) => {
     // **New: Generate visitorID when none exists**
     useEffect(() => {
         if (!visitorID) {
-            const newVisitorID = uuidv4(); // Generate a new unique visitorID
-            setVisitorID(newVisitorID); // Store in React state
-            localStorage.setItem('visitorID', newVisitorID); // Persist in localStorage
+            // Log that visitorID generation is starting
+            console.log("No visitorID found. Generating a new one...");
+
+            try {
+                // Generate a new unique visitorID
+                const newVisitorID = uuidv4();
+
+                console.log("Generated visitorID:", newVisitorID); // Debug: Log the generated visitorID
+
+                // Set visitorID in React state and persist it in localStorage
+                setVisitorID(newVisitorID);
+                localStorage.setItem("visitorID", newVisitorID);
+
+                // Debug: Confirm that the visitorID is now set in localStorage
+                console.log("Persisted visitorID in localStorage:", localStorage.getItem("visitorID"));
+            } catch (error) {
+                // Handle potential errors during visitorID generation/storage
+                console.error("Error generating or saving visitorID:", error);
+            }
+        } else {
+            // Debug: Log that visitorID already exists
+            console.log("Existing visitorID found in state or localStorage:", visitorID);
         }
     }, [visitorID]);
-
     // Fetch user data if logged in
     const fetchUserData = async () => {
         if (!token) return; // No need to fetch if not logged in
