@@ -1,7 +1,6 @@
-// src/context/AppContext.jsx
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
-import login from "../pages/Login.jsx";
+import { v4 as uuidv4 } from 'uuid'; // Import UUID generator for unique visitorIDs
 
 export const AppContext = createContext();
 
@@ -15,6 +14,18 @@ const AppContextProvider = ({ children }) => {
     const [doctors, setDoctors] = useState([]); // List of doctors for use across components
     const [services, setServices] = useState([]); // List of services for banner/component display
     const [loading, setLoading] = useState(false); // Global loading state for API calls
+
+    // **New: State for visitorID**
+    const [visitorID, setVisitorID] = useState(localStorage.getItem('visitorID') || null);
+
+    // **New: Generate visitorID when none exists**
+    useEffect(() => {
+        if (!visitorID) {
+            const newVisitorID = uuidv4(); // Generate a new unique visitorID
+            setVisitorID(newVisitorID); // Store in React state
+            localStorage.setItem('visitorID', newVisitorID); // Persist in localStorage
+        }
+    }, [visitorID]);
 
     // Fetch user data if logged in
     const fetchUserData = async () => {
@@ -81,7 +92,6 @@ const AppContextProvider = ({ children }) => {
         setToken,
         userData,
         setUserData,
-        login,
         logout,
         doctors,
         fetchDoctors,
@@ -89,6 +99,7 @@ const AppContextProvider = ({ children }) => {
         currencySymbol,
         backendUrl,
         loading,
+        visitorID, // **Expose visitorID in the context value**
     };
 
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
