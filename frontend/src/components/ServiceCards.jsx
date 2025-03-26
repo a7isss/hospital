@@ -4,14 +4,22 @@ import { toast } from "react-toastify";
 import currIcon from "../assets/curr.svg";
 
 const ServiceCards = ({ services }) => {
-    const { addToCart } = useContext(CartContext); // Access the cart context's addToCart function
+    const { cart, addToCart } = useContext(CartContext); // Access the cart and addToCart function
     const [loadingStates, setLoadingStates] = useState({}); // Track loading state for each service
 
     const handleAddToCart = async (service) => {
+        // Check if the item is already in the cart
+        const existingItem = cart.find((item) => item.id === service.id);
+        if (existingItem) {
+            toast.info(`${service.name} is already in the cart!`);
+            return;
+        }
+
         setLoadingStates((prev) => ({ ...prev, [service.id]: true })); // Start loading for the specific service
+
         try {
-            // Only send itemId to the backend; the backend fetches other details
-            await addToCart({ itemId: service.id });
+            // Add the service to the cart via CartContext
+            await addToCart({ itemId: service.id, ...service });
 
             toast.success(`${service.name} added to cart!`);
         } catch (error) {

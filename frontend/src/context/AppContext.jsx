@@ -1,6 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
-import { v4 as uuidv4 } from "uuid"; // UUID generator for unique visitor IDs
 
 export const AppContext = createContext();
 
@@ -11,24 +10,11 @@ const AppContextProvider = ({ children }) => {
     // State variables
     const [token, setToken] = useState(localStorage.getItem("token") || null); // Token for logged-in users
     const [userData, setUserData] = useState(null); // Logged-in user data (e.g. name, email, etc.)
-    const [visitorID, setVisitorID] = useState(localStorage.getItem("visitorID") || null); // Visitor ID for guest users
     const [services, setServices] = useState([]); // List of services offered, fetched globally
-    const [doctors, setDoctors] = useState([]); // List of doctors globally
+    const [doctors, setDoctors] = useState([]); // List of doctors fetched globally
     const [loading, setLoading] = useState(false); // Loader state (for API interactions)
     const [error, setError] = useState(null); // Error state for global error messages
-
-    // Generate a new visitor ID if not already present
-    useEffect(() => {
-        if (!visitorID) {
-            console.log("No visitorID found. Creating a new one...");
-            const newVisitorID = uuidv4(); // Create unique visitor ID
-            setVisitorID(newVisitorID);
-            localStorage.setItem("visitorID", newVisitorID); // Persist it in localStorage
-            console.log("Generated and stored visitorID:", newVisitorID);
-        } else {
-            console.log("Existing visitorID found:", visitorID);
-        }
-    }, [visitorID]);
+    const visitorID = localStorage.getItem("visitorID") || null; // Visitor ID persisted in local storage
 
     // Fetch current user data using login token
     const fetchUserData = async () => {
@@ -78,34 +64,34 @@ const AppContextProvider = ({ children }) => {
 
     // Logout function: clears user-specific data
     const logout = () => {
-        setToken(null); // Clear token from state
+        setToken(null); // Clear the token from state
         setUserData(null); // Clear user data
         localStorage.removeItem("token"); // Remove token from localStorage
     };
 
-    // Fetch initial data on app load and whenever the token changes
+    // Initialize services, doctors, and user data on app load or token change
     useEffect(() => {
-        fetchServices(); // Load global services
-        fetchDoctors(); // Load global doctors
-        fetchUserData(); // Load user-specific data
-    }, [token]); // Re-run if the token changes
+        fetchServices(); // Fetch global services
+        fetchDoctors(); // Fetch global doctors
+        fetchUserData(); // Fetch user-specific data (if token is available)
+    }, [token]); // Dependencies: Re-run if token changes
 
-    // Return values/functions to be available throughout the app
+    // Return `AppContext` values and functions for use throughout the app
     return (
         <AppContext.Provider
             value={{
                 currencySymbol,
                 backendUrl,
                 token,
+                setToken,
                 userData,
-                visitorID,
+                setUserData,
+                visitorID, // Visitor ID is now read-only here
                 services,
                 doctors,
                 loading,
                 error,
-                setToken, // Function to set authentication token manually
-                logout, // Global logout function
-                fetchUserData, // Explicitly fetch user data when required
+                logout,
             }}
         >
             {children}
