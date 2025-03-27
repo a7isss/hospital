@@ -35,39 +35,49 @@ const Banner = () => {
                 services.map((service) => (
                     <div
                         key={service._id}
-                        className="service-card border-2 border-gray-200 rounded-lg shadow-md overflow-hidden transform transition-transform hover:scale-105"
+                        className="bg-white border border-gray-300 rounded-lg overflow-hidden flex flex-col items-stretch shadow hover:shadow-lg transition-shadow"
                     >
                         {/* Service Image */}
-                        <img
-                            src={doctorImage}
-                            alt={service.name}
-                            className="w-full h-40 object-cover rounded-t-lg"
-                        />
+                        <div className="w-full flex items-center justify-center bg-gray-100">
+                            <img
+                                src={service.image || "https://via.placeholder.com/150"}
+                                alt={service.name}
+                                className="w-full object-contain" // Adjusts to keep the image proportional
+                            />
+                        </div>
 
                         {/* Service Details */}
-                        <div className="p-4 flex flex-col items-start">
-                            <h3 className="font-bold text-lg text-gray-700">{service.name}</h3>
-                            <p className="mt-2 text-gray-500 text-sm">Price: ₹{service.price}</p>
+                        <div className="p-4 flex flex-col items-center">
+                            {/* Service Name */}
+                            <h3 className="text-lg font-semibold text-gray-800 text-center mb-2">
+                                {service.name}
+                            </h3>
+
+                            {/* Service Price */}
+                            <div className="flex items-center text-primary font-semibold text-lg mb-4">
+                                <img
+                                    src="/frontend/src/assets/curr.svg" // Path to the currency icon
+                                    alt="Currency Icon"
+                                    className="h-[1.25em] w-[1.25em] mr-1 object-contain" // Presizes and aligns to match price font
+                                />
+                                {service.price.toFixed(2)}
+                            </div>
 
                             {/* Add to Cart Button */}
                             <button
                                 onClick={() => handleAddToCart(service)}
-                                className={`mt-4 px-4 py-2 rounded-md text-white font-semibold ${
-                                    loadingStates[service._id]
-                                        ? "bg-gray-400 cursor-not-allowed animate-pulse"
-                                        : "bg-blue-500 hover:bg-blue-700 transition-colors"
-                                }`}
+                                className={`w-full bg-primary text-white text-center px-4 py-2 rounded-md hover:bg-primary-dark transition 
+                ${loadingStates[service._id] && "opacity-50 cursor-not-allowed"}`}
                                 disabled={loadingStates[service._id]} // Disable button while loading
                             >
-                                {loadingStates[service._id] ? "Adding..." : "Add to Cart"}
+                                {loadingStates[service._id] ? (
+                                    <span className="loader border-t-white w-5 h-5"></span> // Spinner/Loader
+                                ) : (
+                                    "Add to Cart"
+                                )}
                             </button>
                         </div>
                     </div>
-                ))
-            ) : (
-                <p className="text-center text-gray-500">No services available.</p> // Fallback for no services
-            )}
-        </div>
     );
 };
 
