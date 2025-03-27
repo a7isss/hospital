@@ -9,7 +9,6 @@ import Contact from './pages/Contact';
 import Appointment from './pages/Appointment';
 import MyAppointments from './pages/MyAppointments';
 import MyProfile from './pages/MyProfile';
-import Footer from './components/Footer';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Verify from './pages/Verify';
@@ -58,8 +57,6 @@ const App = () => {
                         <Route path="/cart" element={<Cart />} /> {/* Add this route for the cart */}
                     </Routes>
 
-                    {/* Footer */}
-                    <Footer />
                     // At the bottom of your App component
                     <div className="pb-16"> {/* Add padding to prevent content overlap */}
                         {/* Your existing routes */}

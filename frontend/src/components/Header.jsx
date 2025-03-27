@@ -6,8 +6,7 @@ const Header = () => {
     const { t } = useTranslation(); // Initialize translation
 
     return (
-        <div className='flex flex-col md:flex-row flex-wrap bg-primary rounded-lg px-6 md:px-10 lg:px-20 '>
-
+        <div className='flex flex-col md:flex-row flex-wrap bg-primary rounded-lg px-6 md:px-10 lg:px-20 min-h-screen flex-col'>
             {/* --------- Header Left --------- */}
             <div className='md:w-1/2 flex flex-col items-start justify-center gap-4 py-10 m-auto md:py-[10vw] md:mb-[-30px]'>
                 <p className='text-3xl md:text-4xl lg:text-5xl text-white font-semibold leading-tight md:leading-tight lg:leading-tight'>
@@ -33,6 +32,28 @@ const Header = () => {
             <div className='absolute top-4 right-4'>
                 <img className='w-8' src={assets.cart_icon} alt="Cart" /> {/* Assuming there's a cart icon in assets */}
             </div>
+
+            {/* --------- Footer --------- */}
+            <footer className="bg-gray-100 py-4 mt-auto">
+                <div className="container mx-auto text-center">
+                    <div className='flex flex-col sm:grid grid-cols-[3fr_1fr_1fr] gap-14 my-10 mt-40 text-sm'>
+                        <ul>
+                            <li>920025092</li>
+                            <li>info@lahm.sa</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <hr />
+                        <p className='py-5 text-sm text-center'>
+                            {t('copyright', { year: 2025 })} {/* Replace hardcoded text with translation key */}
+                        </p>
+                        <p className='py-5 text-xsm text-center'>
+                            www.lahm.sa {/* Correctly formatted text */}
+                        </p>
+                    </div>
+                </div>
+            </footer>
         </div>
     );
 };
