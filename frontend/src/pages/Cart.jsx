@@ -95,11 +95,6 @@ const Cart = () => {
             {/* Footer with Total Price and Pay Button */}
             <footer className="bg-gray-100 py-4 mt-auto">
                 <div className="container mx-auto text-center">
-                    <img
-                        src={curry} // Use the imported currency image
-                        alt="Currency Icon"
-                        className="h-[1.25em] w-[1.25em] mr-1 object-contain" // Presizes and aligns to match price font
-                    />
                     <p className="text-lg font-medium text-gray-800 mb-4">
                         {t(Total_Price)}: <span className="text-primary font-bold">{totalPrice.toFixed(2)}</span>
                     </p>
