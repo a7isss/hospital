@@ -15,45 +15,51 @@ import 'react-toastify/dist/ReactToastify.css';
 import Verify from './pages/Verify';
 import Service from './pages/Service';
 import Services from './pages/Services';
+import { CartContextProvider } from './context/CartContext'; // Import CartContextProvider
+import AppContextProvider from './context/AppContext'; // Keep AppContextProvider
 
 const App = () => {
     return (
-        <div className='mx-2 sm:mx-[5%] lg:mx-[10%]'>
-            {/* Toast notifications */}
-            <ToastContainer
-                position={document.documentElement.getAttribute('dir') === 'rtl' ? 'top-left' : 'top-right'}
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={document.documentElement.getAttribute('dir') === 'rtl'}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-            />
+        <AppContextProvider>
+            <CartContextProvider>
+                <div className='mx-2 sm:mx-[5%] lg:mx-[10%]'>
+                    {/* Toast notifications */}
+                    <ToastContainer
+                        position={document.documentElement.getAttribute('dir') === 'rtl' ? 'top-left' : 'top-right'}
+                        autoClose={5000}
+                        hideProgressBar={false}
+                        newestOnTop={false}
+                        closeOnClick
+                        rtl={document.documentElement.getAttribute('dir') === 'rtl'}
+                        pauseOnFocusLoss
+                        draggable
+                        pauseOnHover
+                    />
 
-            {/* Navbar */}
-            <Navbar />
+                    {/* Navbar */}
+                    <Navbar />
 
-            {/* Main Routes */}
-            <Routes>
-                <Route path="/services" element={<Services />} />
-                <Route path="/" element={<Home />} />
-                <Route path="/doctors" element={<Doctors />} />
-                <Route path="/doctors/:speciality" element={<Doctors />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/appointment/:docId" element={<Appointment />} />
-                <Route path="/my-appointments" element={<MyAppointments />} />
-                <Route path="/my-profile" element={<MyProfile />} />
-                <Route path="/verify" element={<Verify />} />
-                <Route path="/service/:id" element={<Service />} /> {/* New Route for Service Page */}
-            </Routes>
+                    {/* Main Routes */}
+                    <Routes>
+                        <Route path="/services" element={<Services />} />
+                        <Route path="/" element={<Home />} />
+                        <Route path="/doctors" element={<Doctors />} />
+                        <Route path="/doctors/:speciality" element={<Doctors />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/about" element={<About />} />
+                        <Route path="/contact" element={<Contact />} />
+                        <Route path="/appointment/:docId" element={<Appointment />} />
+                        <Route path="/my-appointments" element={<MyAppointments />} />
+                        <Route path="/my-profile" element={<MyProfile />} />
+                        <Route path="/verify" element={<Verify />} />
+                        <Route path="/service/:id" element={<Service />} />
+                    </Routes>
 
-            {/* Footer */}
-            <Footer />
-        </div>
+                    {/* Footer */}
+                    <Footer />
+                </div>
+            </CartContextProvider>
+        </AppContextProvider>
     );
 };
 
