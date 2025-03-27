@@ -2,13 +2,8 @@ import React, { useContext, useState } from "react";
 import { AppContext } from "../context/AppContext"; // Context for global services and data
 import { CartContext } from "../context/CartContext"; // Context for cart operations
 import { toast } from "react-toastify";
-import doctorImage1 from "../assets/doc6.png"; // Placeholder image for services
+import curry from "../assets/curr.svg"; // Placeholder image for currency
 import doctorImage2 from "../assets/doc1.png"; // Placeholder image for services
-import doctorImage3 from "../assets/doc2.png"; // Placeholder image for services
-import doctorImage4 from "../assets/doc3.png.png"; // Placeholder image for services
-import doctorImage5 from "../assets/doc4.png"; // Placeholder image for services
-import curry from "../assets/curr.svg"; // Placeholder image for services
-
 const Banner = () => {
     const { services } = useContext(AppContext); // Get services from AppContext
     const { addToCart } = useContext(CartContext); // Add to cart function from CartContext

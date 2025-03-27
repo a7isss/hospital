@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { CartContext } from "../context/CartContext"; // Access CartContext for cart operations
 import { AppContext } from "../context/AppContext"; // Access AppContext for additional service details
+import curry from "../assets/curr.svg"; // Adjust the path as necessary
 
 const Cart = () => {
     const { cart, totalPrice, removeFromCart, updateCartQuantity } = useContext(CartContext); // Access Cart context
@@ -44,11 +45,21 @@ const Cart = () => {
                                         <h2 className="text-md font-semibold text-gray-800">
                                             {serviceDetails.name || "Service Name"}
                                         </h2>
+                                        <img
+                                            src={curry} // Use the imported currency image
+                                            alt="Currency Icon"
+                                            className="h-[1.25em] w-[1.25em] mr-1 object-contain" // Presizes and aligns to match price font
+                                        />
                                         <p className="text-sm text-gray-600">
-                                            Price: ₹{item.price.toFixed(2)}
+                                            Price: {item.price.toFixed(2)}
                                         </p>
+                                        <img
+                                            src={curry} // Use the imported currency image
+                                            alt="Currency Icon"
+                                            className="h-[1.25em] w-[1.25em] mr-1 object-contain" // Presizes and aligns to match price font
+                                        />
                                         <p className="text-sm text-gray-600">
-                                            Total: ₹{(item.price * item.quantity).toFixed(2)}
+                                            Total: {(item.price * item.quantity).toFixed(2)}
                                         </p>
                                     </div>
 
