@@ -96,9 +96,9 @@ const Cart = () => {
             <footer className="bg-gray-100 py-4 mt-auto">
                 <div className="container mx-auto text-center">
                     <p className="text-lg font-medium text-gray-800 mb-4">
-                        Total Price: <span className="text-primary font-bold">₹{totalPrice.toFixed(2)}</span>
+                        t(Total_Price): <span className="text-primary font-bold">{totalPrice.toFixed(2)}</span>
                     </p>
-                    <button className="bg-white border border-primary text-primary px-6 py-2 rounded-md shadow hover:bg-primary hover:text-white transition">
+                    <button className="bg-white border border-primary text-primary w-6/10 py-2 rounded-md shadow hover:bg-primary hover:text-white transition">
                         Pay
                     </button>
                 </div>

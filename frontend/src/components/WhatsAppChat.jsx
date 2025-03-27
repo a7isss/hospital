@@ -1,5 +1,5 @@
 import React from 'react';
-import Waimg from '../assets/wa.png'; // Adjust the path if necessary
+import Waimg from '../assets/wa.svg'; // Adjust the path if necessary
 
 const WhatsAppChat = () => {
     const handleClick = () => {
