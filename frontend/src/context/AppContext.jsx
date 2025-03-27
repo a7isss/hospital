@@ -15,6 +15,8 @@ const AppContextProvider = ({ children }) => {
     const [loading, setLoading] = useState(false); // Loader state (for API interactions)
     const [error, setError] = useState(null); // Error state for global error messages
     const visitorID = localStorage.getItem("visitorID") || null; // Visitor ID persisted in local storage
+    const [registrationData, setRegistrationData] = useState(null); // Track registration progress
+    const [registrationError, setRegistrationError] = useState(null); // Handle signup errors
 
     // Fetch current user data using login token
     const fetchUserData = async () => {
@@ -63,10 +65,11 @@ const AppContextProvider = ({ children }) => {
     };
 
     // Logout function: clears user-specific data
-    const logout = () => {
-        setToken(null); // Clear the token from state
-        setUserData(null); // Clear user data
-        localStorage.removeItem("token"); // Remove token from localStorage
+    logout: () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("visitorID");
+        setToken(null);
+        setUserData(null);
     };
 
     // Initialize services, doctors, and user data on app load or token change
@@ -92,6 +95,10 @@ const AppContextProvider = ({ children }) => {
                 loading,
                 error,
                 logout,
+                registrationData,
+                setRegistrationData,
+                registrationError,
+                setRegistrationError,
             }}
         >
             {children}

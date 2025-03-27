@@ -2,87 +2,106 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../context/AppContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 const Login = () => {
-  const { t, i18n } = useTranslation(); // Initialize translation
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const navigate = useNavigate();
-  const { backendUrl, aToken, setAToken } = useContext(AppContext); // Use consistent naming
-
-  const onSubmitHandler = async (event) => {
-    event.preventDefault();
-
-    try {
-      const { data } = await axios.post(backendUrl + '/api/admin/login', { username, password });
-
-      if (data.success) {
-        localStorage.setItem('aToken', data.aToken); // Store token in localStorage
-        setAToken(data.aToken); // Update context state
-        console.log('Token set in localStorage:', data.aToken);
-        console.log('Current aToken in context:', aToken);
-        toast.success(t('login_successful'));
-        navigate('/'); // Redirect to the home page or dashboard
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      toast.error(t('login_failed'));
-    }
-  };
-
-  useEffect(() => {
-    if (aToken) {
-      navigate('/'); // Redirect if already logged in
-    }
-  }, [aToken, navigate]);
-
-  // Language switcher (optional)
-  const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng); // Change language dynamically
-  };
+  const [isRegistering, setIsRegistering] = useState(false);
 
   return (
-    <form onSubmit={onSubmitHandler} className="min-h-[80vh] flex items-center">
-      <div className="flex flex-col gap-3 m-auto items-start p-8 min-w-[340px] sm:min-w-96 border rounded-xl text-[#5E5E5E] text-sm shadow-lg">
-        {/* Language Switcher */}
-        <div className="mb-4">
-          <button onClick={() => changeLanguage('en')} className="mr-2">English</button>
-          <button onClick={() => changeLanguage('ar')}>العربية</button>
-        </div>
+      <div className="min-h-[80vh] flex items-center">
+        <form
+            onSubmit={onSubmitHandler}
+            className={`flex flex-col gap-3 m-auto items-start p-8 min-w-[340px] sm:min-w-96 border rounded-xl text-[#5E5E5E] text-sm shadow-lg transition-all duration-300 ${
+                isRegistering ? 'scale-105' : 'scale-100'
+            }`}
+        >
+          {/* Toggle Button */}
+          <button
+              type="button"
+              onClick={() => setIsRegistering(!isRegistering)}
+              className="text-sm text-gray-500 hover:text-black transition-colors self-end"
+          >
+            {isRegistering ? t('have_account') : t('need_account')}
+          </button>
 
-        <p className="text-2xl font-semibold">{t('login')}</p>
-        <p>{t('please_log_in')}</p>
+          {/* Animated Form Container */}
+          <div className="relative w-full overflow-hidden">
+            <div className={`transition-all duration-300 ${isRegistering ? '-translate-x-full opacity-0' : 'translate-x-0 opacity-100'}`}>
+              {/* Email Input */}
+              <div className="w-full">
+                <p>{t('email')}</p>
+                <input
+                    // ... existing email input props
+                />
+              </div>
 
-        <div className="w-full">
-          <p>{t('email')}</p>
-          <input
-            onChange={(e) => setEmail(e.target.value)}
-            value={email}
-            className="border border-[#DADADA] rounded w-full p-2 mt-1"
-            type="email"
-            required
-          />
-        </div>
-        <div className="w-full">
-          <p>{t('password')}</p>
-          <input
-            onChange={(e) => setPassword(e.target.value)}
-            value={password}
-            className="border border-[#DADADA] rounded w-full p-2 mt-1"
-            type="password"
-            required
-          />
-        </div>
-        <button className="bg-primary text-white w-full py-2 my-2 rounded-md text-base">
-          {t('login')}
-        </button>
+              {/* Password Input */}
+              <div className="w-full">
+                <p>{t('password')}</p>
+                <input
+                    // ... existing password input props
+                />
+              </div>
+            </div>
+
+            {/* Registration Fields */}
+            <div className={`absolute top-0 left-0 w-full transition-all duration-300 ${isRegistering ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}>
+              {/* Name Input */}
+              {isRegistering && (
+                  <div className="w-full">
+                    <p>{t('name')}</p>
+                    <input
+                        // ... add name input props
+                    />
+                  </div>
+              )}
+
+              {/* Phone Input */}
+              {isRegistering && (
+                  <div className="w-full">
+                    <p>{t('phone')}</p>
+                    <input
+                        // ... add phone input props
+                    />
+                  </div>
+              )}
+
+              {/* Age Input */}
+              {isRegistering && (
+                  <div className="w-full">
+                    <p>{t('age')}</p>
+                    <input
+                        // ... add age input props
+                    />
+                  </div>
+              )}
+
+              {/* Gender Input */}
+              {isRegistering && (
+                  <div className="w-full">
+                    <p>{t('gender')}</p>
+                    <select
+                        // ... add gender select props
+                    >
+                      <option value="male">{t('male')}</option>
+                      <option value="female">{t('female')}</option>
+                      <option value="other">{t('other')}</option>
+                    </select>
+                  </div>
+              )}
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <button
+              type="submit"
+              className="bg-black text-white w-full py-2 rounded-md text-base hover:bg-gray-800 transition-colors"
+          >
+            {isRegistering ? t('register') : t('login')}
+          </button>
+        </form>
       </div>
-    </form>
   );
 };
 
