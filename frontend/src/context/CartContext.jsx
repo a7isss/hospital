@@ -15,6 +15,10 @@ export const CartContextProvider = ({ children }) => {
             return newVisitorID;
         }
     });
+// Add this to CartContext.jsx
+    useEffect(() => {
+        fetchCart();
+    }, []); // Fetch cart on initial load
 
     const [cart, setCart] = useState(() => {
         const savedCart = localStorage.getItem("cart");
