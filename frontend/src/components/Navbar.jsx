@@ -55,26 +55,26 @@ const Navbar = () => {
                 <NavLink to="/contact" className="hover:text-primary">
                     {t("contact")}
                 </NavLink>
-
-                {/* Re-added Cart Button */}
-                <button
-                    onClick={handleCartClick}
-                    className="relative flex items-center hover:text-primary"
-                >
-                    {/* Cart Icon */}
-                    <img
-                        src={cartIcon}
-                        alt="Cart Icon"
-                        className="w-6 h-6 object-contain"
-                    />
-                    {/* Cart Item Count Badge */}
-                    {totalCartItems > 0 && (
-                        <span className="absolute top-0 -right-4 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                            {totalCartItems}
-                        </span>
-                    )}
-                </button>
             </ul>
+
+            {/* Cart Button */}
+            <button
+                onClick={handleCartClick}
+                className="relative flex items-center hover:text-primary"
+            >
+                {/* Cart Icon */}
+                <img
+                    src={cartIcon}
+                    alt="Cart Icon"
+                    className="w-6 h-6 object-contain"
+                />
+                {/* Cart Item Count Badge */}
+                {totalCartItems > 0 && (
+                    <span className="absolute top-0 -right-4 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {totalCartItems}
+                    </span>
+                )}
+            </button>
 
             {/* User Profile or Login */}
             {token && userData ? (
