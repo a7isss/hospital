@@ -1,5 +1,5 @@
 import React from 'react';
-import { assets } from '../assets/assets'; // Adjust the path if necessary
+import { assets } from '../assets/wa.png'; // Adjust the path if necessary
 
 const WhatsAppChat = () => {
     const handleClick = () => {
