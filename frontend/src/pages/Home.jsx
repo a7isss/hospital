@@ -3,6 +3,7 @@ import Header from '../components/Header';
 import Banner from '../components/Banner'; // Contains services grid
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context/AppContext'; // App-wide context for services
+import WhatsAppChat from '../components/WhatsAppChat'; // Import WhatsAppChat component
 
 const Home = () => {
     const { t } = useTranslation(); // Initialize translation
@@ -40,7 +41,7 @@ const Home = () => {
                     {t('login')} {/* Translated text for login */}
                 </button>
             </div>
-
+            <WhatsAppChat />
             {/* Main Sections (Removed for now) */}
             {/* <SpecialityMenu /> */}
             {/* <TopDoctors /> */}
