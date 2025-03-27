@@ -1,4 +1,3 @@
-// src/components/Navbar.jsx
 import React, { useContext, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -15,27 +14,11 @@ const Navbar = () => {
     const { token, logout, userData } = useContext(AppContext); // AppContext: Handle user data and auth
 
     const [showMenu, setShowMenu] = useState(false); // State: Toggling dropdown visibility
-    {/* Cart NavLink */}
-    <button
-        onClick={handleCartClick}
-        className="relative flex items-center hover:text-primary"
-    >
-        {/* Cart Icon */}
-        <img
-            src={cartIcon}
-            alt="Cart Icon"
-            className="w-6 h-6 object-contain"
-        />
-        {/* Cart Item Count Badge */}
-        <span className="absolute top-0 -right-4 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-        {totalCartItems}
-    </span>
-    </button>
 
     // Calculate the total number of items in the cart
     const totalCartItems = cart.reduce((acc, item) => acc + item.quantity, 0);
 
-    // Handle cart fetching when cart icon is clicked
+    // Handle cart navigation when cart icon is clicked
     const handleCartClick = async () => {
         try {
             await fetchCart(); // Fetch the latest cart state
@@ -63,7 +46,7 @@ const Navbar = () => {
                 <NavLink to="/doctors" className="hover:text-primary">
                     {t("all_doctors")}
                 </NavLink>
-                <NavLink to="/services" className="hover:text-primary"> {/* Services Link */}
+                <NavLink to="/services" className="hover:text-primary">
                     {t("services")}
                 </NavLink>
                 <NavLink to="/about" className="hover:text-primary">
@@ -72,7 +55,8 @@ const Navbar = () => {
                 <NavLink to="/contact" className="hover:text-primary">
                     {t("contact")}
                 </NavLink>
-                {/* Cart NavLink */}
+
+                {/* Re-added Cart Button */}
                 <button
                     onClick={handleCartClick}
                     className="relative flex items-center hover:text-primary"
@@ -84,9 +68,11 @@ const Navbar = () => {
                         className="w-6 h-6 object-contain"
                     />
                     {/* Cart Item Count Badge */}
-                    <span className="absolute top-0 -right-4 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                        {totalCartItems}
-                    </span>
+                    {totalCartItems > 0 && (
+                        <span className="absolute top-0 -right-4 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                            {totalCartItems}
+                        </span>
+                    )}
                 </button>
             </ul>
 
