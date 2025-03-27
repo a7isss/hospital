@@ -29,8 +29,8 @@ const Footer = () => {
         <div>
           <p className='text-xl font-medium mb-5'>{t('get_in_touch')}</p> {/* Replace hardcoded text with translation key */}
           <ul className='flex flex-col gap-2 text-gray-600'>
-            <li>+966</li>
-            <li>Lahom_Medical@gmail.com</li>
+            <li>920025092</li>
+            <li>info@lahm.sa</li>
           </ul>
         </div>
 
@@ -40,6 +40,9 @@ const Footer = () => {
         <hr />
         <p className='py-5 text-sm text-center'>
           {t('copyright', { year: 2025 })} {/* Replace hardcoded text with translation key */}
+        </p>
+        <p className='py-5 text-xsm text-center'>
+          {('WWW.lahm.sa')} {/* Replace hardcoded text with translation key */}
         </p>
       </div>
 

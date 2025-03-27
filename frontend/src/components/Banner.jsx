@@ -2,7 +2,11 @@ import React, { useContext, useState } from "react";
 import { AppContext } from "../context/AppContext"; // Context for global services and data
 import { CartContext } from "../context/CartContext"; // Context for cart operations
 import { toast } from "react-toastify";
-import doctorImage from "../assets/doc6.png"; // Placeholder image for services
+import doctorImage1 from "../assets/doc6.png"; // Placeholder image for services
+import doctorImage2 from "../assets/doc1.png"; // Placeholder image for services
+import doctorImage3 from "../assets/doc2.png"; // Placeholder image for services
+import doctorImage4 from "../assets/doc3.png.png"; // Placeholder image for services
+import doctorImage5 from "../assets/doc4.png"; // Placeholder image for services
 
 const Banner = () => {
     const { services } = useContext(AppContext); // Get services from AppContext
@@ -40,7 +44,7 @@ const Banner = () => {
                         {/* Service Image */}
                         <div className="w-full flex items-center justify-center bg-gray-100">
                             <img
-                                src={service.image || "https://via.placeholder.com/150"}
+                                src={service.image || doctorImage2}
                                 alt={service.name}
                                 className="w-full object-contain" // Adjusts to keep the image proportional
                             />
