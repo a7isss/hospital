@@ -15,6 +15,22 @@ const Navbar = () => {
     const { token, logout, userData } = useContext(AppContext); // AppContext: Handle user data and auth
 
     const [showMenu, setShowMenu] = useState(false); // State: Toggling dropdown visibility
+    {/* Cart NavLink */}
+    <button
+        onClick={handleCartClick}
+        className="relative flex items-center hover:text-primary"
+    >
+        {/* Cart Icon */}
+        <img
+            src={cartIcon}
+            alt="Cart Icon"
+            className="w-6 h-6 object-contain"
+        />
+        {/* Cart Item Count Badge */}
+        <span className="absolute top-0 -right-4 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+        {totalCartItems}
+    </span>
+    </button>
 
     // Calculate the total number of items in the cart
     const totalCartItems = cart.reduce((acc, item) => acc + item.quantity, 0);
