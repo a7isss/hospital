@@ -4,11 +4,13 @@ import { CartContext } from "../context/CartContext"; // Context for cart operat
 import { toast } from "react-toastify";
 import curry from "../assets/curr.svg"; // Placeholder image for currency
 import doctorImage2 from "../assets/doc1.png"; // Placeholder image for services
+import { useTranslation } from 'react-i18next';
 
 const Banner = () => {
     const { services } = useContext(AppContext); // Get services from AppContext
     const { addToCart } = useContext(CartContext); // Add to cart function from CartContext
     const [loadingStates, setLoadingStates] = useState({}); // Tracks loading state for each service
+    const { t } = useTranslation(); // Initialize translation
 
     // Handles adding a service to the cart
     const handleAddToCart = async (service) => {
@@ -79,7 +81,7 @@ const Banner = () => {
                                 {loadingStates[service._id] ? (
                                     <span className="loader border-t-white w-5 h-5"></span> // Spinner/Loader when loading
                                 ) : (
-                                    "Add to Cart" // Button text when not loading
+                                    t("Add_to_Cart") // Button text when not loading
                                 )}
                             </button>
                         </div>
