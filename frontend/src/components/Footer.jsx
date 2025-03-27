@@ -6,26 +6,24 @@ const Footer = () => {
   const { t } = useTranslation(); // Initialize translation
 
   return (
-    <div className='md:mx-10'>
-      <div className='flex flex-col sm:grid grid-cols-[3fr_1fr_1fr] gap-14 my-10 mt-40 text-sm'>
+      <div className='md:mx-10'>
+        <div className='flex flex-col sm:grid grid-cols-[3fr_1fr_1fr] gap-14 my-10 mt-40 text-sm'>
+          <ul>
             <li>920025092</li>
             <li>info@lahm.sa</li>
           </ul>
         </div>
 
+        <div>
+          <hr />
+          <p className='py-5 text-sm text-center'>
+            {t('copyright', { year: 2025 })} {/* Replace hardcoded text with translation key */}
+          </p>
+          <p className='py-5 text-xsm text-center'>
+            www.lahm.sa {/* Correctly formatted text */}
+          </p>
+        </div>
       </div>
-
-      <div>
-        <hr />
-        <p className='py-5 text-sm text-center'>
-          {t('copyright', { year: 2025 })} {/* Replace hardcoded text with translation key */}
-        </p>
-        <p className='py-5 text-xsm text-center'>
-          {('www.lahm.sa')} {/* Replace hardcoded text with translation key */}
-        </p>
-      </div>
-
-    </div>
   );
 };
 
