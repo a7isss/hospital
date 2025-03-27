@@ -17,6 +17,7 @@ import Service from './pages/Service';
 import Services from './pages/Services';
 import { CartContextProvider } from './context/CartContext'; // Import CartContextProvider
 import AppContextProvider from './context/AppContext'; // Keep AppContextProvider
+import Cart from './pages/Cart'; // Import the Cart component
 
 const App = () => {
     return (
@@ -53,6 +54,7 @@ const App = () => {
                         <Route path="/my-profile" element={<MyProfile />} />
                         <Route path="/verify" element={<Verify />} />
                         <Route path="/service/:id" element={<Service />} />
+                        <Route path="/cart" element={<Cart />} /> {/* Add this route for the cart */}
                     </Routes>
 
                     {/* Footer */}
