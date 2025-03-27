@@ -57,7 +57,6 @@ const App = () => {
                         <Route path="/cart" element={<Cart />} /> {/* Add this route for the cart */}
                     </Routes>
 
-                    // At the bottom of your App component
                     <div className="pb-16"> {/* Add padding to prevent content overlap */}
                         {/* Your existing routes */}
                     </div>
