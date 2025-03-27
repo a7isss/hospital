@@ -18,7 +18,7 @@ export const CartContextProvider = ({ children }) => {
 
     const [cart, setCart] = useState(() => {
         const savedCart = localStorage.getItem("cart");
-        return savedCart ? JSON.parse(savedCart) : []; // Load initial cart from localStorage
+        return savedCart && visitorID === localStorage.getItem("visitorID") ? JSON.parse(savedCart) : []; // Load initial cart if visitorID matches
     });
 
     const [totalPrice, setTotalPrice] = useState(() => {

@@ -7,7 +7,7 @@ const Cart = () => {
     const { services } = useContext(AppContext); // Access services globally from AppContext
 
     // Helper: Get full service details based on itemId in the cart
-    const getServiceDetails = (serviceId) => services.find((service) => service.id === serviceId) || {};
+    const getServiceDetails = (serviceId) => services.find((service) => service._id === serviceId) || {};
 
     return (
         <div className="min-h-screen flex flex-col">
