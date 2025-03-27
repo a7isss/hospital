@@ -4,6 +4,7 @@ import { CartContext } from "../context/CartContext"; // Context for cart operat
 import { toast } from "react-toastify";
 import curry from "../assets/curr.svg"; // Placeholder image for currency
 import doctorImage2 from "../assets/doc1.png"; // Placeholder image for services
+
 const Banner = () => {
     const { services } = useContext(AppContext); // Get services from AppContext
     const { addToCart } = useContext(CartContext); // Add to cart function from CartContext
@@ -13,8 +14,13 @@ const Banner = () => {
     const handleAddToCart = async (service) => {
         setLoadingStates((prev) => ({ ...prev, [service._id]: true })); // Set loading for the clicked service
         try {
-            // Add the service to the cart (only sending the itemId)
-            await addToCart({ itemId: service._id });
+            // Add the service to the cart with all relevant details
+            await addToCart({
+                itemId: service._id,
+                price: service.price,
+                name: service.name,
+                image: service.image || null, // Pass image or null as fallback
+            });
 
             // Notify success
             toast.success(`${service.name} added to the cart!`);
