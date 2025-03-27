@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
 
 export const AppContext = createContext();
@@ -17,8 +17,6 @@ const AppContextProvider = ({ children }) => {
     const visitorID = localStorage.getItem("visitorID") || null; // Visitor ID persisted in local storage
     const [registrationData, setRegistrationData] = useState(null); // Track registration progress
     const [registrationError, setRegistrationError] = useState(null);
-    const { logout } = useContext(AppContext); // Destructure logout
-
 
     // Fetch current user data using login token
     const fetchUserData = async () => {
@@ -67,12 +65,12 @@ const AppContextProvider = ({ children }) => {
     };
 
     // Logout function: clears user-specific data
-    logout: () => {
+    const logout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("visitorID");
         setToken(null);
         setUserData(null);
-    }
+    };
     // Initialize services, doctors, and user data on app load or token change
     useEffect(() => {
         fetchServices(); // Fetch global services
