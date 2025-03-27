@@ -18,6 +18,7 @@ import Services from './pages/Services';
 import { CartContextProvider } from './context/CartContext'; // Import CartContextProvider
 import AppContextProvider from './context/AppContext'; // Keep AppContextProvider
 import Cart from './pages/Cart'; // Import the Cart component
+import Nav from './components/Nav.jsx'
 
 const App = () => {
     return (
