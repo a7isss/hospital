@@ -31,12 +31,12 @@
   "booking_slots": "أوقات الحجز",
   "book_an_appointment": "احجز موعدًا",
   "our_office": "مكتبنا",
-  "address": "العنوان",
+  "address": "العنوان : حائل , المملكة الهربية السعودية",
   "54709_willms_station": "54709 محطة ويلمز",
   "suite_350,_washington,_usa": "الجناح 350، واشنطن، الولايات المتحدة",
   "tel": "الهاتف: (415) 555-0132",
   "email": "البريد الإلكتروني: prescripto@gmail.com",
-  "careers_at_prescripto": "الوظائف في Prescripto",
+  "careers_at_prescripto": "الوظائف في لهم",
   "learn_more_about_our_teams_and_job_openings": "تعرف على فرقنا وفرص العمل المتاحة.",
   "explore_jobs": "استكشاف الوظائف",
   "filters": "الفلاتر",
@@ -60,7 +60,7 @@
   "completed": "مكتمل",
   "cancel_appointment": "إلغاء الموعد",
   "appointment_cancelled": "تم إلغاء الموعد",
-  "contact_information": "معلومات الاتصال",
+  "contact_information": "معلومات الاتصال : 920025092",
   "email_id": "البريد الإلكتروني:",
   "phone": "الهاتف:",
   "basic_information": "المعلومات الأساسية",
@@ -101,5 +101,7 @@
   "personalization:": "تجربة مصممة لك أنت:",
   "tailored_recommenations_and_remainders_to_help_you_stay_on_top_of_your_health.": "عناية ممتدة لتبقى دائما متطمن",
   "services": "الخدمات",
-  "Your_Shopping_Cart": "يسعدنا خدمتك"
+  "Your_Shopping_Cart": "يسعدنا خدمتك",
+  "Your_Cart_Is_Empty": "لم تضف منتجات",
+  "Browse_Our_Services":"تصفح خدماتنا"
 }
