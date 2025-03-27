@@ -59,6 +59,11 @@ const App = () => {
 
                     {/* Footer */}
                     <Footer />
+                    // At the bottom of your App component
+                    <div className="pb-16"> {/* Add padding to prevent content overlap */}
+                        {/* Your existing routes */}
+                    </div>
+                    <Nav />
                 </div>
             </CartContextProvider>
         </AppContextProvider>

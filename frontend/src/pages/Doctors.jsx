@@ -1,136 +1,53 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { AppContext } from '../context/AppContext';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useTranslation } from 'react-i18next'; // Import useTranslation hook
+import React from 'react';
 
 const Doctors = () => {
-  const { t } = useTranslation(); // Initialize translation
-  const { speciality } = useParams();
-
-  const [filterDoc, setFilterDoc] = useState([]);
-  const [showFilter, setShowFilter] = useState(false);
-  const navigate = useNavigate();
-
-  const { doctors } = useContext(AppContext);
-
-  const applyFilter = () => {
-    if (speciality) {
-      setFilterDoc(doctors.filter((doc) => doc.speciality === speciality));
-    } else {
-      setFilterDoc(doctors);
-    }
-  };
-
-  useEffect(() => {
-    applyFilter();
-  }, [doctors, speciality]);
+  // Sample partner data (replace with your actual data)
+  const Doctors = [
+    { id: 1, name: 'HealthTech Innovations', image: 'https://picsum.photos/200/200?random=1', description: 'Leading medical technology provider' },
+    { id: 2, name: 'CarePlus Labs', image: 'https://picsum.photos/200/200?random=2', description: 'Diagnostic testing specialists' },
+    { id: 3, name: 'MediSolutions', image: 'https://picsum.photos/200/200?random=3', description: 'Pharmaceutical partners' },
+    { id: 4, name: 'Surgical Experts', image: 'https://picsum.photos/200/200?random=4', description: 'Surgical equipment manufacturers' },
+    { id: 5, name: 'Digital Health Co.', image: 'https://picsum.photos/200/200?random=5', description: 'Telemedicine platform' },
+    { id: 6, name: 'BioResearch Ltd', image: 'https://picsum.photos/200/200?random=6', description: 'Clinical research organization' },
+  ];
 
   return (
-    <div>
-      <p className="text-gray-600">{t('browse_doctors')}</p>
-      <div className="flex flex-col sm:flex-row items-start gap-5 mt-5">
-        <button
-          onClick={() => setShowFilter(!showFilter)}
-          className={`py-1 px-3 border rounded text-sm transition-all sm:hidden ${
-            showFilter ? 'bg-primary text-white' : ''
-          }`}
-        >
-          {t('filters')}
-        </button>
-        <div className={`flex-col gap-4 text-sm text-gray-600 ${showFilter ? 'flex' : 'hidden sm:flex'}`}>
-          <p
-            onClick={() =>
-              speciality === 'General physician' ? navigate('/doctors') : navigate('/doctors/General physician')
-            }
-            className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${
-              speciality === 'General physician' ? 'bg-[#E2E5FF] text-black ' : ''
-            }`}
-          >
-            {t('general_physician')}
-          </p>
-          <p
-            onClick={() =>
-              speciality === 'Gynecologist' ? navigate('/doctors') : navigate('/doctors/Gynecologist')
-            }
-            className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${
-              speciality === 'Gynecologist' ? 'bg-[#E2E5FF] text-black ' : ''
-            }`}
-          >
-            {t('gynecologist')}
-          </p>
-          <p
-            onClick={() =>
-              speciality === 'Dermatologist' ? navigate('/doctors') : navigate('/doctors/Dermatologist')
-            }
-            className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${
-              speciality === 'Dermatologist' ? 'bg-[#E2E5FF] text-black ' : ''
-            }`}
-          >
-            {t('dermatologist')}
-          </p>
-          <p
-            onClick={() =>
-              speciality === 'Pediatricians' ? navigate('/doctors') : navigate('/doctors/Pediatricians')
-            }
-            className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${
-              speciality === 'Pediatricians' ? 'bg-[#E2E5FF] text-black ' : ''
-            }`}
-          >
-            {t('pediatricians')}
-          </p>
-          <p
-            onClick={() =>
-              speciality === 'Neurologist' ? navigate('/doctors') : navigate('/doctors/Neurologist')
-            }
-            className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${
-              speciality === 'Neurologist' ? 'bg-[#E2E5FF] text-black ' : ''
-            }`}
-          >
-            {t('neurologist')}
-          </p>
-          <p
-            onClick={() =>
-              speciality === 'Gastroenterologist' ? navigate('/doctors') : navigate('/doctors/Gastroenterologist')
-            }
-            className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${
-              speciality === 'Gastroenterologist' ? 'bg-[#E2E5FF] text-black ' : ''
-            }`}
-          >
-            {t('gastroenterologist')}
-          </p>
-        </div>
-        <div className="w-full grid grid-cols-auto gap-4 gap-y-6">
-          {filterDoc.map((item, index) => (
-            <div
-              onClick={() => {
-                navigate(`/appointment/${item._id}`);
-                scrollTo(0, 0);
-              }}
-              className="border border-[#C9D8FF] rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-500"
-              key={index}
-            >
-              <img className="bg-[#EAEFFF]" src={item.image} alt="" />
-              <div className="p-4">
+      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-12">
+            Our Trusted Partners
+          </h2>
+
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {Doctors.map((partner) => (
                 <div
-                  className={`flex items-center gap-2 text-sm text-center ${
-                    item.available ? 'text-green-500' : 'text-gray-500'
-                  }`}
+                    key={partner.id}
+                    className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all hover:scale-105 hover:shadow-xl"
                 >
-                  <p
-                    className={`w-2 h-2 rounded-full ${
-                      item.available ? 'bg-green-500' : 'bg-gray-500'
-                    }`}
-                  ></p>
-                  <p>{item.available ? t('available') : t('not_available')}</p>
+                  <div className="p-6">
+                    <div className="flex items-center justify-center">
+                      <img
+                          className="h-32 w-32 rounded-full object-cover border-4 border-white shadow-lg"
+                          src={partner.image}
+                          alt={partner.name}
+                          loading="lazy"
+                      />
+                    </div>
+                    <div className="mt-4 text-center">
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        {partner.name}
+                      </h3>
+                      <p className="mt-2 text-sm text-gray-500">
+                        {partner.description}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-[#262626] text-lg font-medium">{item.name}</p>
-                <p className="text-[#5C5C5C] text-sm">{item.speciality}</p>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
-    </div>
   );
 };
 

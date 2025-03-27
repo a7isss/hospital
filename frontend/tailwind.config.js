@@ -4,6 +4,11 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  safelist: [
+    'pb-16',     // Padding bottom
+    'max-w-2xl', // Container max width
+    'h-16'       // Footer height
+  ],
   theme: {
     extend: {
       gridTemplateColumns:{

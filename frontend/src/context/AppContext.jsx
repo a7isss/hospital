@@ -37,19 +37,31 @@ const AppContextProvider = ({ children }) => {
         }
     };
 
-    // Fetch available services from the backend
-    const fetchServices = async () => {
-        try {
-            setLoading(true);
-            const { data } = await axios.get(`${backendUrl}/api/services`);
-            setServices(data.services); // Store fetched services globally
-        } catch (error) {
-            console.error("AppContext - Error fetching services:", error);
-            setError("Failed to load services.");
-        } finally {
-            setLoading(false);
-        }
-    };
+// Update your services fetch useEffect
+    const AppContextProvider = ({ children }) => {
+        const [services, setServices] = useState([]);
+        const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+        // Define fetchServices function
+        const fetchServices = async () => {
+            try {
+                const { data } = await axios.get(`${backendUrl}/api/services`);
+                if(data.services && Array.isArray(data.services)) {
+                    setServices(data.services);
+                } else {
+                    console.error("Invalid services format:", data);
+                    setServices([]);
+                }
+            } catch (error) {
+                console.error("Error fetching services:", error);
+                setServices([]);
+            }
+        };
+
+        // Call fetchServices in useEffect
+        useEffect(() => {
+            fetchServices(); // Now properly defined
+        }, []); // Empty dependency array = runs once on mount
 
     // Fetch available doctors from the backend
     const fetchDoctors = async () => {
@@ -104,5 +116,3 @@ const AppContextProvider = ({ children }) => {
         </AppContext.Provider>
     );
 };
-
-export default AppContextProvider;
