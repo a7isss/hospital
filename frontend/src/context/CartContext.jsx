@@ -82,7 +82,19 @@ export const CartContextProvider = ({ children }) => {
         setTotalPrice(updatedTotalPrice);
         saveCartToLocalStorage(updatedCart, updatedTotalPrice);
     };
-
+// Fetch the cart based on visitorID
+    const fetchCart = async () => {
+        const savedVisitorID = localStorage.getItem("visitorID");
+        const savedCart = localStorage.getItem("cart");
+        if (savedVisitorID === visitorID && savedCart) {
+            setCart(JSON.parse(savedCart)); // Update the cart state
+            setTotalPrice(recalculateTotalPrice(JSON.parse(savedCart))); // Recalculate total price
+        } else {
+            // If no cart is found or visitorID mismatch, reset the cart
+            setCart([]);
+            setTotalPrice(0);
+        }
+    };
     // Clear the cart
     const clearCart = () => {
         setCart([]);
@@ -99,6 +111,7 @@ export const CartContextProvider = ({ children }) => {
                 updateCartQuantity,
                 removeFromCart,
                 clearCart,
+                fetchCart,
             }}
         >
             {children}
