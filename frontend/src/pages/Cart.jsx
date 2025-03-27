@@ -53,7 +53,7 @@ const Cart = () => {
                                                 alt="Currency Icon"
                                                 className="h-[1.25em] w-[1.25em] mr-1 object-contain" // Presizes and aligns to match price font
                                             />
-                                            <span>{(item.price.toFixed*(2))}</span>
+                                            <span>{(item.price.toFixed(2))}</span>
                                         </div>
                                         <p className="text-sm text-gray-600 mt-1">
                                             Total: {(item.price * item.quantity).toFixed(2)}
