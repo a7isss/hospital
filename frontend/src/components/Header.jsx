@@ -28,11 +28,6 @@ const Header = () => {
                 <img className='w-full md:absolute bottom-0 h-auto rounded-lg' src={assets.header_img} alt="" />
             </div>
 
-            {/* --------- Cart Icon --------- */}
-            <div className='absolute top-4 right-4'>
-                <img className='w-8' src={assets.cart_icon} alt="Cart" /> {/* Assuming there's a cart icon in assets */}
-            </div>
-
             {/* --------- Footer --------- */}
             <footer className="bg-gray-100 py-4 mt-auto">
                 <div className="container mx-auto text-center">
