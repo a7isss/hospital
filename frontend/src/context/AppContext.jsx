@@ -37,31 +37,21 @@ const AppContextProvider = ({ children }) => {
         }
     };
 
-// Update your services fetch useEffect
-    const AppContextProvider = ({ children }) => {
-        const [services, setServices] = useState([]);
-        const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
-        // Define fetchServices function
-        const fetchServices = async () => {
-            try {
-                const { data } = await axios.get(`${backendUrl}/api/services`);
-                if(data.services && Array.isArray(data.services)) {
-                    setServices(data.services);
-                } else {
-                    console.error("Invalid services format:", data);
-                    setServices([]);
-                }
-            } catch (error) {
-                console.error("Error fetching services:", error);
+    // Define fetchServices function
+    const fetchServices = async () => {
+        try {
+            const { data } = await axios.get(`${backendUrl}/api/services`);
+            if(data.services && Array.isArray(data.services)) {
+                setServices(data.services);
+            } else {
+                console.error("Invalid services format:", data);
                 setServices([]);
             }
-        };
-
-        // Call fetchServices in useEffect
-        useEffect(() => {
-            fetchServices(); // Now properly defined
-        }, []); // Empty dependency array = runs once on mount
+        } catch (error) {
+            console.error("Error fetching services:", error);
+            setServices([]);
+        }
+    };
 
     // Fetch available doctors from the backend
     const fetchDoctors = async () => {
@@ -83,6 +73,7 @@ const AppContextProvider = ({ children }) => {
         setToken(null);
         setUserData(null);
     };
+
     // Initialize services, doctors, and user data on app load or token change
     useEffect(() => {
         fetchServices(); // Fetch global services
@@ -116,3 +107,5 @@ const AppContextProvider = ({ children }) => {
         </AppContext.Provider>
     );
 };
+
+export default AppContextProvider;
