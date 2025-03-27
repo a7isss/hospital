@@ -1,5 +1,5 @@
 import React from 'react';
-import { assets } from '../assets/wa.png'; // Adjust the path if necessary
+import waimg from '../assets/wa.png'; // Adjust the path if necessary
 
 const WhatsAppChat = () => {
     const handleClick = () => {
@@ -19,7 +19,7 @@ const WhatsAppChat = () => {
             onClick={handleClick}
         >
             <img
-                src={assets.wa}
+                src= waimg
                 alt="WhatsApp"
                 style={{
                     width: '60px', // Adjust size as needed
