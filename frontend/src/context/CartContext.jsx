@@ -21,9 +21,17 @@ export const CartContextProvider = ({ children }) => {
     }, []); // Fetch cart on initial load
 
     const [cart, setCart] = useState(() => {
-        const savedCart = localStorage.getItem("cart");
-        return savedCart && visitorID === localStorage.getItem("visitorID") ? JSON.parse(savedCart) : []; // Load initial cart if visitorID matches
+        try {
+            const savedCart = localStorage.getItem("cart");
+            return savedCart && visitorID === localStorage.getItem("visitorID")
+                ? JSON.parse(savedCart)
+                : [];
+        } catch (e) {
+            console.error("Cart parse error:", e);
+            return [];
+        }
     });
+
 
     const [totalPrice, setTotalPrice] = useState(() => {
         const savedPrice = localStorage.getItem("totalPrice");
