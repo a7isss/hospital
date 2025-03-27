@@ -17,6 +17,7 @@ const AppContextProvider = ({ children }) => {
     const visitorID = localStorage.getItem("visitorID") || null; // Visitor ID persisted in local storage
     const [registrationData, setRegistrationData] = useState(null); // Track registration progress
     const [registrationError, setRegistrationError] = useState(null);
+    const { logout } = useContext(AppContext); // Destructure logout
 
 
     // Fetch current user data using login token
@@ -71,7 +72,6 @@ const AppContextProvider = ({ children }) => {
         localStorage.removeItem("visitorID");
         setToken(null);
         setUserData(null);
-        setRegistrationError(null); // Add this
     }
     // Initialize services, doctors, and user data on app load or token change
     useEffect(() => {

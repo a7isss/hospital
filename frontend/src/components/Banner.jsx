@@ -5,7 +5,6 @@ import { toast } from "react-toastify";
 import curry from "../assets/curr.svg"; // Placeholder image for currency
 import doctorImage2 from "../assets/doc1.png"; // Placeholder image for services
 import { useTranslation } from 'react-i18next';
-
 const Banner = () => {
     const { services } = useContext(AppContext); // Get services from AppContext
     const { addToCart } = useContext(CartContext); // Add to cart function from CartContext
