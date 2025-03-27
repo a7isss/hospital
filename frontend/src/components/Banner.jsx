@@ -63,12 +63,12 @@ const Banner = () => {
 
                             {/* Service Price */}
                             <div className="flex items-center text-primary font-semibold text-lg mb-4">
+                                {service.price.toFixed(2)}
                                 <img
                                     src={curry} // Use the imported currency image
                                     alt="Currency Icon"
                                     className="h-[1.25em] w-[1.25em] mr-1 object-contain" // Presizes and aligns to match price font
                                 />
-                                {service.price.toFixed(2)}
                             </div>
 
                             {/* Add to Cart Button */}
