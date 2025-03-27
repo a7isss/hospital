@@ -11,7 +11,7 @@ const WhatsAppChat = () => {
         <div
             style={{
                 position: 'fixed',
-                bottom: '20px',
+                bottom: '80px', // Adjusted to be above the Nav component
                 left: '20px',
                 cursor: 'pointer',
                 zIndex: 1000,
@@ -19,7 +19,7 @@ const WhatsAppChat = () => {
             onClick={handleClick}
         >
             <img
-                src= {Waimg}
+                src={Waimg}
                 alt="WhatsApp"
                 style={{
                     width: '60px', // Adjust size as needed
