@@ -40,7 +40,7 @@ const ServiceCards = ({ services }) => {
                     {/* Service Image */}
                     <div className="w-full h-[200px] bg-gray-100 flex items-center justify-center">
                         <img
-                            src={service.image || "https://via.placeholder.com/150"}
+                            src={service.image || "https://via.placeholder.com/150"} // Use the image link from Cloudinary
                             alt={service.name}
                             className="w-full object-contain h-full"
                         />

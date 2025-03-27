@@ -7,6 +7,7 @@ import doctorImage2 from "../assets/doc1.png"; // Placeholder image for services
 import doctorImage3 from "../assets/doc2.png"; // Placeholder image for services
 import doctorImage4 from "../assets/doc3.png.png"; // Placeholder image for services
 import doctorImage5 from "../assets/doc4.png"; // Placeholder image for services
+import curry from "../assets/curr.svg"; // Placeholder image for services
 
 const Banner = () => {
     const { services } = useContext(AppContext); // Get services from AppContext
@@ -60,7 +61,7 @@ const Banner = () => {
                             {/* Service Price */}
                             <div className="flex items-center text-primary font-semibold text-lg mb-4">
                                 <img
-                                    src="/frontend/src/assets/curr.svg" // Path to the currency icon
+                                    src={curry} // Use the imported currency image
                                     alt="Currency Icon"
                                     className="h-[1.25em] w-[1.25em] mr-1 object-contain" // Presizes and aligns to match price font
                                 />
