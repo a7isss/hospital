@@ -67,17 +67,22 @@ const Banner = () => {
                             <button
                                 onClick={() => handleAddToCart(service)}
                                 className={`w-full bg-primary text-white text-center px-4 py-2 rounded-md hover:bg-primary-dark transition 
-                ${loadingStates[service._id] && "opacity-50 cursor-not-allowed"}`}
+                                ${loadingStates[service._id] && "opacity-50 cursor-not-allowed"}`}
                                 disabled={loadingStates[service._id]} // Disable button while loading
                             >
                                 {loadingStates[service._id] ? (
-                                    <span className="loader border-t-white w-5 h-5"></span> // Spinner/Loader
+                                    <span className="loader border-t-white w-5 h-5"></span> // Spinner/Loader when loading
                                 ) : (
-                                    "Add to Cart"
+                                    "Add to Cart" // Button text when not loading
                                 )}
                             </button>
                         </div>
                     </div>
+                ))
+            ) : (
+                <p className="text-center text-gray-500">No services available.</p>
+            )}
+        </div>
     );
 };
 
