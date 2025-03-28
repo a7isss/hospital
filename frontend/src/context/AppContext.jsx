@@ -37,20 +37,29 @@ const AppContextProvider = ({ children }) => {
     };
 
     // Define fetchServices function
-    const fetchServices = async () => {
-        try {
-            const { data } = await axios.get(`${backendUrl}/api/services`);
-            if(data.services && Array.isArray(data.services)) {
-                setServices(data.services);
-            } else {
-                console.error("Invalid services format:", data);
+    useEffect(() => {
+        const fetchServices = async () => {
+            try {
+                setLoading(true);
+                const { data } = await axios.get(`${backendUrl}/api/services`);
+
+                if (data.services && Array.isArray(data.services)) {
+                    setServices(data.services);
+                } else {
+                    console.error("Invalid services data format:", data);
+                    setServices([]);
+                }
+            } catch (error) {
+                console.error("Failed to fetch services:", error);
+                setError(t("serviceFetchError")); // Use translation if available
                 setServices([]);
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            console.error("Error fetching services:", error);
-            setServices([]);
-        }
-    };
+        };
+
+        fetchServices();
+    }, []); // Empty dependency array = runs once on mount
 
     // Fetch available doctors from the backend
     const fetchDoctors = async () => {

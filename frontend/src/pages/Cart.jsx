@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { CartContext } from "../context/CartContext";
-import { VisitorProvider } from "../context/VisitorContext";
+import { VisitorContext } from "../context/VisitorContext";
 import { AppContext } from "../context/AppContext";
 import currIcon from "../assets/curr.svg";
 import { useTranslation } from "react-i18next";
@@ -8,16 +8,15 @@ import { useTranslation } from "react-i18next";
 const Cart = () => {
     const { t } = useTranslation();
     const { cart, totalPrice, updateCartQuantity, removeFromCart } = useContext(CartContext);
-    const { visitorId } = VisitorProvider();
+    const { visitorId } = useContext(VisitorContext); // Fixed context consumption
     const { services } = useContext(AppContext);
 
-    // Helper: Get service details (name, image) from AppContext
     const getServiceDetails = (itemId) => {
         return services.find((service) => service._id === itemId) || {};
     };
 
     if (!visitorId) {
-        return <div>{t("loading")}</div>; // Handle visitorId initialization
+        return <div>{t("loading")}</div>;
     }
 
     return (
