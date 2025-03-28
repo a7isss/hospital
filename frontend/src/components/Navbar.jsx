@@ -10,7 +10,7 @@ const Navbar = () => {
     const { t } = useTranslation(); // Localization with i18n
     const navigate = useNavigate(); // Navigation hook
 
-    const { cart, fetchCart } = useContext(CartContext); // CartContext: Handle cart states and fetchCart
+    const { cart } = useContext(CartContext); // CartContext: Handle cart states and fetchCart
     const { token, logout, userData } = useContext(AppContext); // AppContext: Handle user data and auth
 
     const [showMenu, setShowMenu] = useState(false); // State: Toggling dropdown visibility
@@ -19,13 +19,8 @@ const Navbar = () => {
     const totalCartItems = cart.reduce((acc, item) => acc + item.quantity, 0);
 
     // Handle cart navigation when cart icon is clicked
-    const handleCartClick = async () => {
-        try {
-            await fetchCart(); // Fetch the latest cart state
-            navigate("/cart"); // Navigate to the cart page
-        } catch (error) {
-            console.error("Error fetching cart:", error);
-        }
+    const handleCartClick = () => {
+        navigate("/cart"); // No need to fetchCart - it's handled by CartContext
     };
 
     return (
