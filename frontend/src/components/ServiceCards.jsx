@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import { AppContext } from "../context/AppContext"; // Context for global services and data
+import { VisitorProvider } from "../context/VisitorContext"; // Context for cart operations
 import { CartContext } from "../context/CartContext"; // Context for cart operations
 import { toast } from "react-toastify";
 import curry from "../assets/curr.svg"; // Placeholder image for currency
