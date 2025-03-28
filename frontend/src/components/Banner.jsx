@@ -5,33 +5,38 @@ import { toast } from "react-toastify";
 import curry from "../assets/curr.svg"; // Placeholder image for currency
 import doctorImage2 from "../assets/doc1.png"; // Placeholder image for services
 import { useTranslation } from 'react-i18next';
+import { useVisitor } from "../context/VisitorContext"; // Add this import
 
 const Banner = () => {
     const { services } = useContext(AppContext); // Get services from AppContext
     const { addToCart } = useContext(CartContext); // Add to cart function from CartContext
+    const { visitorId } = useVisitor(); // ✅ Get visitorId from VisitorContext
     const [loadingStates, setLoadingStates] = useState({}); // Tracks loading state for each service
     const { t } = useTranslation(); // Initialize translation
 
     // Handles adding a service to the cart
     const handleAddToCart = async (service) => {
-        setLoadingStates((prev) => ({ ...prev, [service._id]: true })); // Set loading for the clicked service
+        setLoadingStates((prev) => ({ ...prev, [service._id]: true }));
         try {
-            // Add the service to the cart with all relevant details
+            if (!visitorId) { // Safety check
+                toast.error("Session not initialized. Please refresh the page.");
+                return;
+            }
+
+            // If CartContext's addToCart still requires visitorId:
             await addToCart({
                 itemId: service._id,
                 price: service.price,
                 name: service.name,
-                image: service.image || null, // Pass image or null as fallback
+                image: service.image || null,
+                // visitorId: visitorId // Only include if CartContext still needs it explicitly
             });
 
-            // Notify success
-            toast.success(`${service.name} added to the cart!`);
+            toast.success(`${service.name} ${t("added_to_cart")}`);
         } catch (error) {
-            // Notify error
-            toast.error(`Failed to add ${service.name} to the cart.`);
-            console.error("Error adding service to the cart:", error);
+            toast.error(t("cart_error"));
+            console.error("Cart error:", error);
         } finally {
-            // Reset loading state for the service
             setLoadingStates((prev) => ({ ...prev, [service._id]: false }));
         }
     };
