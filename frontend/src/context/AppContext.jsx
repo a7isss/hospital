@@ -37,29 +37,37 @@ const AppContextProvider = ({ children }) => {
     };
 
     // Define fetchServices function
-    useEffect(() => {
-        const fetchServices = async () => {
-            try {
-                setLoading(true);
-                const { data } = await axios.get(`${backendUrl}/api/services`);
+    const fetchServices = async () => {
+        try {
+            setLoading(true);
+            const { data } = await axios.get(`${backendUrl}/api/services`);
 
-                if (data.services && Array.isArray(data.services)) {
-                    setServices(data.services);
-                } else {
-                    console.error("Invalid services data format:", data);
-                    setServices([]);
-                }
-            } catch (error) {
-                console.error("Failed to fetch services:", error);
-                setError(t("serviceFetchError")); // Use translation if available
+            if (data.services && Array.isArray(data.services)) {
+                setServices(data.services);
+            } else {
+                console.error("Invalid services data format:", data);
                 setServices([]);
-            } finally {
-                setLoading(false);
             }
-        };
+        } catch (error) {
+            console.error("Failed to fetch services:", error);
+            setError(t("serviceFetchError"));
+            setServices([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        fetchServices();
+    // Initialize services
+    useEffect(() => {
+        fetchServices(); // Now properly defined
     }, []); // Empty dependency array = runs once on mount
+
+    // Other useEffect that might need to call fetchServices
+    useEffect(() => {
+        fetchServices(); // ✅ Now accessible here
+        fetchDoctors();
+        fetchUserData();
+    }, [token]); // Dependencies: Re-run if token changes
 
     // Fetch available doctors from the backend
     const fetchDoctors = async () => {
@@ -81,12 +89,6 @@ const AppContextProvider = ({ children }) => {
         setUserData(null);
     };
 
-    // Initialize services, doctors, and user data on app load or token change
-    useEffect(() => {
-        fetchServices(); // Fetch global services
-        fetchDoctors(); // Fetch global doctors
-        fetchUserData(); // Fetch user-specific data (if token is available)
-    }, [token]); // Dependencies: Re-run if token changes
 
     // Return `AppContext` values and functions for use throughout the app
     return (
