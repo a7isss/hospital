@@ -64,7 +64,25 @@ export const CartContextProvider = ({ children }) => {
             return updatedCart;
         });
     };
+    // In CartContext.js
+    const updateCartQuantity = (itemId, newQuantity) => {
+        setCart((prevCart) => {
+            const updatedCart = prevCart.map((item) =>
+                item.itemId === itemId ? { ...item, quantity: newQuantity } : item
+            );
+            setTotalPrice(recalculateTotalPrice(updatedCart));
+            return updatedCart;
+        });
+    };
 
+    const removeFromCart = (itemId) => {
+        setCart((prevCart) => {
+            const updatedCart = prevCart.filter((item) => item.itemId !== itemId);
+            setTotalPrice(recalculateTotalPrice(updatedCart));
+            return updatedCart;
+        });
+    };
+    ```
     return (
         <CartContext.Provider value={{ cart, totalPrice, addToCart }}>
             {children}
