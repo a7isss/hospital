@@ -68,5 +68,5 @@ const App = () => {
         </AppContextProvider>
     </VisitorProvider>
 );
-
+};
 export default App;
