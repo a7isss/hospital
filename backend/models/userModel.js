@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
     phone: { type: String, default: ' /* input phone */ ' },
+    Nid: { type: String, default: ' /* input National ID */ ' },
     age: { type: Number, required: [true, 'Age is required'], min: 10, max: 120 },
     gender: { type: String, default: 'Not Selected' },
     password: { type: String, required: true },
