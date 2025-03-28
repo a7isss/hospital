@@ -10,7 +10,7 @@ const Navbar = () => {
     const { t } = useTranslation(); // Localization with i18n
     const navigate = useNavigate(); // Navigation hook
 
-    const { cart } = useContext(CartContext); // CartContext: Handle cart states and fetchCart
+    const { cart } = useContext(CartContext); // CartContext: Handle cart states
     const { token, logout, userData } = useContext(AppContext); // AppContext: Handle user data and auth
 
     const [showMenu, setShowMenu] = useState(false); // State: Toggling dropdown visibility
