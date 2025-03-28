@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next'; // Import useTranslation hook
-import FormSubmit from './FormSubmit'; // Import the FormSubmit component
+import FormSubmit from '../components/FormSubmit.jsx'; // Import the FormSubmit component
 
 const Login = () => {
   const { t } = useTranslation(); // Initialize translation
