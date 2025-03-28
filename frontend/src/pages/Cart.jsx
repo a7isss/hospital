@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { CartContext } from "../context/CartContext";
-import { useVisitor } from "../context/VisitorContext";
+import { VisitorProvider } from "../context/VisitorContext";
 import { AppContext } from "../context/AppContext";
 import currIcon from "../assets/curr.svg";
 import { useTranslation } from "react-i18next";
@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 const Cart = () => {
     const { t } = useTranslation();
     const { cart, totalPrice, updateCartQuantity, removeFromCart } = useContext(CartContext);
-    const { visitorId } = useVisitor();
+    const { visitorId } = VisitorProvider();
     const { services } = useContext(AppContext);
 
     // Helper: Get service details (name, image) from AppContext
