@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
 
 export const AppContext = createContext();
@@ -14,7 +14,6 @@ const AppContextProvider = ({ children }) => {
     const [doctors, setDoctors] = useState([]); // List of doctors fetched globally
     const [loading, setLoading] = useState(false); // Loader state (for API interactions)
     const [error, setError] = useState(null); // Error state for global error messages
-    const visitorID = localStorage.getItem("visitorID") || null; // Visitor ID persisted in local storage
     const [registrationData, setRegistrationData] = useState(null); // Track registration progress
     const [registrationError, setRegistrationError] = useState(null);
 
@@ -69,7 +68,6 @@ const AppContextProvider = ({ children }) => {
     // Logout function: clears user-specific data
     const logout = () => {
         localStorage.removeItem("token");
-        localStorage.removeItem("visitorID");
         setToken(null);
         setUserData(null);
     };
@@ -91,7 +89,6 @@ const AppContextProvider = ({ children }) => {
                 setToken,
                 userData,
                 setUserData,
-                visitorID, // Visitor ID is now read-only here
                 services,
                 doctors,
                 loading,

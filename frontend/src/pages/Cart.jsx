@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { CartContext } from "../context/CartContext"; // Access CartContext for cart operations
 import { AppContext } from "../context/AppContext"; // Access AppContext for additional service details
+import { VisitorContext } from "../context/VisitorContext"; // Import VisitorContext
 import curry from "../assets/curr.svg"; // Adjust the path as necessary
 import { useTranslation } from 'react-i18next'; // Import useTranslation hook
 
@@ -8,6 +9,7 @@ const Cart = () => {
     const { t } = useTranslation(); // Initialize translation
     const { cart, totalPrice, removeFromCart, updateCartQuantity } = useContext(CartContext); // Access Cart context
     const { services } = useContext(AppContext); // Access services globally from AppContext
+    const { visitorId } = useContext(VisitorContext); // Access visitorId from VisitorContext
 
     // Helper: Get full service details based on itemId in the cart
     const getServiceDetails = (serviceId) => services.find((service) => service._id === serviceId) || {};
@@ -53,7 +55,7 @@ const Cart = () => {
                                                 alt="Currency Icon"
                                                 className="h-[1.25em] w-[1.25em] mr-1 object-contain" // Presizes and aligns to match price font
                                             />
-                                            <span>{(item.price.toFixed(2))}</span>
+                                            <span>{item.price.toFixed(2)}</span>
                                         </div>
                                         <p className="text-sm text-gray-600 mt-1">
                                             Total: {(item.price * item.quantity).toFixed(2)}
@@ -96,9 +98,9 @@ const Cart = () => {
             <footer className="bg-gray-100 py-4 mt-auto">
                 <div className="container mx-auto text-center">
                     <p className="text-lg font-medium text-gray-800 mb-4">
-                        {t('Total_Price')}: <span>{totalPrice.toFixed(2)}</span>
+                        Total Price: <span className="text-primary font-bold">₹{totalPrice.toFixed(2)}</span>
                     </p>
-                    <button className="bg-white border border-primary text-primary w-6/10 py-2 rounded-md shadow hover:bg-primary hover:text-white transition">
+                    <button className="bg-white border border-primary text-primary px-6 py-2 rounded-md shadow hover:bg-primary hover:text-white transition">
                         Pay
                     </button>
                 </div>

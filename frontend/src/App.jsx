@@ -15,13 +15,15 @@ import Verify from './pages/Verify';
 import Service from './pages/Service';
 import Services from './pages/Services';
 import { CartContextProvider } from './context/CartContext'; // Import CartContextProvider
+import { VisitorProvider } from './context/VisitorContextContext'; // Import CartContextProvider
 import AppContextProvider from './context/AppContext'; // Keep AppContextProvider
 import Cart from './pages/Cart'; // Import the Cart component
 import Nav from './components/Nav.jsx'
 
 const App = () => {
     return (
-        <AppContextProvider>
+        <VisitorProvider> {/* Wrap your application with VisitorProvider */}
+            <AppContextProvider>
             <CartContextProvider>
                 <div className='mx-2 sm:mx-[5%] lg:mx-[10%]'>
                     {/* Toast notifications */}
@@ -64,7 +66,8 @@ const App = () => {
                 </div>
             </CartContextProvider>
         </AppContextProvider>
-    );
+            <VisitorProvider> {/* Wrap your application with VisitorProvider */}
+                );
 };
 
 export default App;
