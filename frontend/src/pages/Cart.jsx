@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { CartContext } from "../context/CartContext";
+import { CartContextProvider } from "../context/CartContext";
 import { VisitorProvider } from "../context/VisitorContext";
 import { AppContext } from "../context/AppContext";
 import currIcon from "../assets/curr.svg";
@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 
 const Cart = () => {
     const { t } = useTranslation();
-    const { cart, totalPrice, updateCartQuantity, removeFromCart } = useContext(CartContext);
+    const { cart, totalPrice, updateCartQuantity, removeFromCart } = useContext(CartContextProvider);
     const { visitorId } = VisitorProvider();
     const { services } = useContext(AppContext);
 
