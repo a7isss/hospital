@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next'; // Import useTranslation hook
+import FormSubmit from './FormSubmit'; // Import the FormSubmit component
 
 const Login = () => {
   const { t } = useTranslation(); // Initialize translation
@@ -9,6 +10,7 @@ const Login = () => {
     phone: '',
     age: '',
     gender: 'male', // Default gender
+    email: '', // Add email for login
     password: '',
   });
 
@@ -20,10 +22,14 @@ const Login = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission (not assigned backend-wise yet)
-    console.log(formData);
+    try {
+      const responseData = await FormSubmit(formData, isRegistering);
+      console.log(responseData); // Handle success response
+    } catch (error) {
+      console.error("Submission failed:", error); // Handle error response
+    }
   };
 
   return (
@@ -72,6 +78,15 @@ const Login = () => {
                 </select>
               </>
           )}
+          <input
+              type="email" // Change to email type for login
+              name="email"
+              placeholder={t('Email')}
+              value={formData.email}
+              onChange={handleInputChange}
+              required={!isRegistering} // Email is required only for login
+              className="border border-gray-300 rounded-md p-2 w-full"
+          />
           <input
               type="password"
               name="password"
