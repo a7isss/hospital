@@ -46,72 +46,58 @@ export const getServices = async (req, res) => {
         });
     }
 };
-// API to register user
 const registerUser = async (req, res) => {
-    const { name, phone, age, gender, password } = req.body;
+    const { name, phone, age, gender, email, password } = req.body;
 
-    // checking for all data to register user
-    if (!name || !phone || !age || !gender || !password) {
-        return res.json({ success: false, message: 'Missing Details' })
+    // Validate input data
+    if (!name || !phone || !age || !gender || !email || !password) {
+        return res.status(400).json({ success: false, message: 'Missing Details' });
     }
 
-        // validating phone format
-        if (!validator.isMobilePhone(phone)) {
-            return res.json({ success: false, message: "Invalid phone number" })
-        // validating strong password
-        if (password.length < 8) {
-            return res.json({ success: false, message: "Please enter a strong password" })
-        }
-
-        // hashing user password
-        const salt = await bcrypt.genSalt(10); // the more no. round the more time it will take
-        const hashedPassword = await bcrypt.hash(password, salt)
-
-    const userData = {
-        name,
-        phone,
-        age,
-        gender,
-        password: hashedPassword
+    // Check if the user already exists
+    const existingUser = await UserModel.findOne({ email });
+    if (existingUser) {
+        return res.status(400).json({ success: false, message: 'User already exists' });
     }
 
-        const newUser = new userModel(userData)
-        const user = await newUser.save()
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET)
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-        res.json({ success: true, token })
-
-    } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
-    }
-}
-
-// API to login user
-const loginUser = async (req, res) => {
+    // Create a new user
+    const newUser = new UserModel({ name, phone, age, gender, email, password: hashedPassword });
 
     try {
-        const { email, password } = req.body;
-        const user = await userModel.findOne({ email })
-
-        if (!user) {
-            return res.json({ success: false, message: "User does not exist" })
-        }
-
-        const isMatch = await bcrypt.compare(password, user.password)
-
-        if (isMatch) {
-            const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET)
-            res.json({ success: true, token })
-        }
-        else {
-            res.json({ success: false, message: "Invalid credentials" })
-        }
+        await newUser.save();
+        res.status(201).json({ success: true, message: 'User registered successfully' });
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
+        res.status(500).json({ success: false, message: error.message });
     }
-}
+};
+
+const loginUser = async (req, res) => {
+    const { email, password } = req.body;
+
+    // Validate input data
+    if (!email || !password) {
+        return res.status(400).json({ success: false, message: 'Missing credentials' });
+    }
+
+    // Find the user by email
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Compare the password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+        return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    res.status(200).json({ success: true, token });
+};
 
 // API to get user profile data
 const getProfile = async (req, res) => {
