@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import Header from '../components/Header';
-import Banner from '../components/Banner'; // Contains services grid
+import ServiceCards from '../components/ServiceCards.jsx'; // Contains services grid
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context/AppContext'; // App-wide context for services
 import WhatsAppChat from '../components/WhatsAppChat'; // Import WhatsAppChat component
@@ -20,7 +20,7 @@ const Home = () => {
     return (
         <div>
             {/* Banner with Services - Now at the top */}
-            <Banner />
+            <ServiceCards />
 
             {/* Optional: Add Header Here If Necessary */}
             <Header />

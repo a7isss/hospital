@@ -57,6 +57,7 @@ const App = () => {
                         <Route path="/verify" element={<Verify />} />
                         <Route path="/service/:id" element={<Service />} />
                         <Route path="/cart" element={<Cart />} /> {/* Add this route for the cart */}
+
                     </Routes>
 
                     <div className="pb-16"> {/* Add padding to prevent content overlap */}
