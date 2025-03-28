@@ -5,12 +5,12 @@ import { toast } from "react-toastify";
 import curry from "../assets/curr.svg"; // Placeholder image for currency
 import doctorImage2 from "../assets/doc1.png"; // Placeholder image for services
 import { useTranslation } from 'react-i18next';
-import { useVisitor } from "../context/VisitorContext"; // Add this import
+import { VisitorProvider } from "../context/VisitorContext"; // Add this import
 
 const Banner = () => {
     const { services } = useContext(AppContext); // Get services from AppContext
     const { addToCart } = useContext(CartContext); // Add to cart function from CartContext
-    const { visitorId } = useVisitor(); // ✅ Get visitorId from VisitorContext
+    const { visitorId } = VisitorProvider(); // ✅ Get visitorId from VisitorContext
     const [loadingStates, setLoadingStates] = useState({}); // Tracks loading state for each service
     const { t } = useTranslation(); // Initialize translation
 
