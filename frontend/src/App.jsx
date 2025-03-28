@@ -66,8 +66,7 @@ const App = () => {
                 </div>
             </CartContextProvider>
         </AppContextProvider>
-            <VisitorProvider> {/* Wrap your application with VisitorProvider */}
-                );
-};
+    </VisitorProvider>
+);
 
 export default App;
