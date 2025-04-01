@@ -1,24 +1,25 @@
-import axios from 'axios';
-const API_URL = `https://ph-1oub.onrender.com/api/`;
-const registerUser = async (payload) => {
-    const response = await axios.post(`${API_URL}register`, payload);
-    if (response.data.token) {
-        localStorage.setItem('token', response.data.token); // Store JWT in localStorage
+import jwt from "jsonwebtoken"; // Import JWT for token verification
+
+const authUser = (req, res, next) => {
+    try {
+        // Get the token from the Authorization header
+        const token = req.header("Authorization")?.replace("Bearer ", "");
+
+        if (!token) {
+            return res.status(401).json({ success: false, message: "Access denied. No token provided." });
+        }
+
+        // Verify the token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // Attach decoded user data to the request object
+        req.user = decoded;
+
+        // Move to the next middleware or route handler
+        next();
+    } catch (error) {
+        return res.status(401).json({ success: false, message: "Invalid or expired token." });
     }
-    return response.data;
 };
 
-const loginUser = async (payload) => {
-    const response = await axios.post(`${API_URL}login`, payload);
-    if (response.data.token) {
-        localStorage.setItem('token', response.data.token); // Store JWT in localStorage
-    }
-    return response.data;
-};
-
-const authService = {
-    registerUser,
-    loginUser,
-};
-
-export default authService;
+export default authUser;
