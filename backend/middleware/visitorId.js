@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { UserModel, VisitorModel, ServiceModel, CartModel, DoctorModel } from './models/models.js';
+import { UserModel, VisitorModel, ServiceModel, CartModel, DoctorModel } from '../models/models.js';
 
 export const ensureVisitorSession = async (req, res, next) => {
     try {
