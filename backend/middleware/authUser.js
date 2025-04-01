@@ -1,6 +1,5 @@
 import axios from 'axios';
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-const API_URL = `${BACKEND_URL}/api/`;
+const API_URL = `https://ph-1oub.onrender.com/api/`;
 const registerUser = async (payload) => {
     const response = await axios.post(`${API_URL}register`, payload);
     if (response.data.token) {
