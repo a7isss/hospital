@@ -9,7 +9,7 @@
   "get_in_touch": "تواصل معنا",
   "lahom_medical@gmail.com": "lahom_medical@gmail.com",
   "copyright_2025_@_lahm.sa_-_all_right_reserved.": "حقوق النشر 2025 @ lahm.sa - جميع الحقوق محفوظة.",
-  "all_doctors": "جميع الأطباء",
+  "all_doctors": "شركاء لهم",
   "about": "حول",
   "contact": "اتصل",
   "my_profile": "ملفي الشخصي",
@@ -105,6 +105,7 @@
   "Your_Cart_Is_Empty": "لم تضف منتجات",
   "Browse_Our_Services":"تصفح خدماتنا",
   "Total_Price": "الاجمالي",
-  "Add_to_Cart":"احجز موعدك"
+  "Add_to_Cart":"احجز موعدك",
+  "Subscriptions": "الاشتراكات"
 
 }

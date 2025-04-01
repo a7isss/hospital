@@ -19,6 +19,7 @@ import { VisitorProvider } from './context/VisitorContext'; // Import CartContex
 import AppContextProvider from './context/AppContext'; // Keep AppContextProvider
 import Cart from './pages/Cart'; // Import the Cart component
 import Nav from './components/Nav.jsx'
+import Subscriptions from "./pages/Subscriptions.jsx";
 
 const App = () => {
     return (
@@ -44,6 +45,7 @@ const App = () => {
 
                     {/* Main Routes */}
                     <Routes>
+                        <Route path="/Subscriptions" element={<Subscriptions />} />
                         <Route path="/services" element={<Services />} />
                         <Route path="/" element={<Home />} />
                         <Route path="/doctors" element={<Doctors />} />

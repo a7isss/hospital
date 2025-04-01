@@ -50,6 +50,11 @@ const Navbar = () => {
                 <NavLink to="/contact" className="hover:text-primary">
                     {t("contact")}
                 </NavLink>
+                {/* New Subscriptions Page Link */}
+                <NavLink to="/subscriptions" className="hover:text-primary">
+                    {t("subscriptions")} {/* Localization using i18n */}
+                </NavLink>
+
             </ul>
 
             {/* Cart Button */}
@@ -103,6 +108,7 @@ const Navbar = () => {
                 <NavLink to="/login" className="text-primary hover:text-secondary">
                     {t("login")}
                 </NavLink>
+
             )}
         </nav>
     );
