@@ -15,8 +15,14 @@ export const VisitorProvider = ({ children }) => {
         localStorage.setItem("visitorID", visitorId);
     }, [visitorId]);
 
+    // Function to clear visitor ID when user is authenticated
+    const clearVisitorId = () => {
+        setVisitorId(null);
+        localStorage.removeItem("visitorID"); // Clear visitor ID from local storage
+    };
+
     return (
-        <VisitorContext.Provider value={{ visitorId, setVisitorId }}>
+        <VisitorContext.Provider value={{ visitorId, setVisitorId, clearVisitorId }}>
             {children}
         </VisitorContext.Provider>
     );

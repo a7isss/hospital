@@ -1,14 +1,18 @@
-import axios from 'axios';
+import authService from '../services/authService'; // Adjust the path as necessary
 
 const FormSubmit = async (formData, isRegistering) => {
     try {
         let response;
         if (isRegistering) {
-            // Send registration data to the backend
-            response = await axios.post('/api/register', formData);
+            // Use the authService to register the user
+            response = await authService.registerUser({
+                name: formData.name,
+                phone: formData.phone,
+                age: formData.age,
+            });
         } else {
-            // Send login data to the backend
-            response = await axios.post('/api/login', {
+            // Use the authService to log in the user
+            response = await authService.loginUser({
                 email: formData.email, // Assuming email is part of the login form
                 password: formData.password,
             });

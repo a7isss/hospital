@@ -7,9 +7,7 @@ import userRouter from "./routes/userRoute.js";
 import doctorRouter from "./routes/doctorRoute.js";
 import adminRouter from "./routes/adminRoute.js";
 import cartRouter from "./routes/cartRouter.js";
-//import visitorRouter from "./routes/visitorRoute.js"; // Import visitor route
-import ServiceModel from "./models/serviceModel.js";
-
+import { UserModel, VisitorModel, ServiceModel, CartModel, DoctorModel } from '../models/models.js';
 // App config
 const app = express();
 const port = process.env.PORT || 4000;
