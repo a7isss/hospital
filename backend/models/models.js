@@ -3,10 +3,12 @@ import bcrypt from "bcrypt";
 // User Schema
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    email: { type: String, required: false, unique: true },
     password: { type: String, required: true },
-    subscription: {
-        plan: { type: String, required: true, default: 'free' }, // Plan name (e.g., free, premium)
+    age: { type: Number, required: true },
+    Phone: { type: String, required: true },
+    sub: {
+        plan: { type: String, required: false, default: 'free' }, // Plan name (e.g., free, premium)
         trial: { type: Boolean, default: false }, // Whether the user is on a trial
         startedAt: { type: Date, default: Date.now }, // Subscription start date
         expiresAt: { type: Date, default: null }, // For trials or time-limited subscriptions
@@ -88,7 +90,8 @@ const doctorSchema = new mongoose.Schema({
     slots_booked: { type: Object, default: {} },
     address: { type: Object, required: true },
     date: { type: Number, required: true },
-    subscribers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Array of User IDs
+    subscriptions: { type: [String], required: true },
+    services: { type: [String], required: true },
 }, { minimize: false });
 const DoctorModel = mongoose.models.Doctor || mongoose.model("Doctor", doctorSchema);
 
