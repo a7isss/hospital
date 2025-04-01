@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
-const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/`; // Use the environment variable
+const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/user/`; // Use the environment variable
 
 const registerUser = async (payload) => {
     const response = await axios.post(`${API_URL}register`, payload);
