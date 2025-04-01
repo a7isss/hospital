@@ -1,4 +1,4 @@
-import { UserModel } from "./models.js"; // Adjust the import path based on your project structure
+import { UserModel } from "../models/models.js"; // Adjust the import path based on your project structure
 
 /**
  * Middleware to search users with a specific doctorId in 'accessibleDoctors'.
