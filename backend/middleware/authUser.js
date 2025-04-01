@@ -1,6 +1,6 @@
 import axios from 'axios';
-const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/`; // Use the environment variable
-
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const API_URL = `${BACKEND_URL}/api/`;
 const registerUser = async (payload) => {
     const response = await axios.post(`${API_URL}register`, payload);
     if (response.data.token) {

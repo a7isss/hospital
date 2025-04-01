@@ -2,7 +2,9 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import appointmentModel from "../models/appointmentModel.js";
 import { UserModel, VisitorModel, ServiceModel, CartModel, DoctorModel } from '../models/models.js';
-// API for doctor Login 
+import findUsersByDoctorId from "../middleware/findUsersByDoctorId.js"; // Import the middleware
+
+// API for doctor Login
 const loginDoctor = async (req, res) => {
 
     try {
@@ -101,7 +103,7 @@ const doctorList = async (req, res) => {
 
 }
 
-// API to change doctor availablity for Admin and Doctor Panel
+// ((fixx this )) API to change doctor availablity for Admin and Doctor Panel
 const changeAvailablity = async (req, res) => {
     try {
 
@@ -188,9 +190,35 @@ const doctorDashboard = async (req, res) => {
         res.json({ success: false, message: error.message })
     }
 }
+// API to get users with access to a doctor (new API using middleware)
+const doctorUsers = [
+    async (req, res, next) => {
+        // Add `docId` from body to query params for the middleware's sake
+        req.query.doctorId = req.body.docId;
+        return next();
+    },
+    findUsersByDoctorId, // Use the middleware to fetch users
+    async (req, res) => {
+        try {
+            // Retrieve the found users from the middleware
+            const users = req.foundUsers;
+
+            // Return the data as a response
+            res.json({
+                success: true,
+                users,
+            });
+        } catch (error) {
+            console.log(error);
+            res.json({ success: false, message: error.message });
+        }
+    },
+];
 
 export {
     loginDoctor,
+    findUsersByDoctorId, // Add the new API export
+    // Other APIs (appointmentsDoctor, appointmentCancel, etc.)
     appointmentsDoctor,
     appointmentCancel,
     doctorList,

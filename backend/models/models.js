@@ -17,18 +17,12 @@ const userSchema = new mongoose.Schema({
         },
     },
     usage: {
-        clients: { type: Number, default: 0 },
-        groups: { type: Number, default: 0 },
-        other: { type: Number, default: 0 },
         doctors: { type: Number, default: 0 },
     },
 });
 const planSchema = new mongoose.Schema({
     name: { type: String, unique: true, required: true }, // Plan name (e.g., free, premium)
     limits: {
-        clients: { type: Number, default: null }, // Maximum number of allowed clients (null = unlimited)
-        groups: { type: Number, default: null }, // Maximum groups
-        other: { type: Number, default: null }, // Miscellaneous usage
         doctors: { type: Number, default: null }, // Maximum number of allowed doctors
     },
     price: { type: Number, default: 0 }, // Price for the plan (if applicable)
@@ -36,21 +30,6 @@ const planSchema = new mongoose.Schema({
     description: { type: String }, // Optional description of the plan
 });
 
-const PlanModel = mongoose.model('Plan', planSchema);
-// Pre-save hook to hash the password before saving
-userSchema.pre("save", async function (next) {
-    // Only hash the password if it was modified or is new
-    if (!this.isModified("password")) return next();
-
-    try {
-        // Generate a salt and hash the password
-        const salt = await bcrypt.genSalt(10); // Salt rounds can remain 10 (default)
-        this.password = await bcrypt.hash(this.password, salt);
-        next();
-    } catch (error) {
-        next(error); // Pass the error to Mongoose for proper error handling
-    }
-});
 
 // Create User Model
 const UserModel = mongoose.models.User || mongoose.model("User", userSchema);
