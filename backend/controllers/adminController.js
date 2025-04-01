@@ -1,13 +1,11 @@
 // Import necessary modules
 import jwt from "jsonwebtoken";
 import appointmentModel from "../models/appointmentModel.js";
-import doctorModel from "../models/doctorModel.js";
 import bcrypt from "bcrypt";
 import validator from "validator";
 import { v2 as cloudinary } from "cloudinary";
-import userModel from "../models/userModel.js";
-import Service from "../models/serviceModel.js"; // Ensure `.js` is included
 import mongoose from "mongoose";
+import { UserModel, VisitorModel, ServiceModel, CartModel, DoctorModel } from '../models/models.js';
 
 // API to log in an admin
 const loginAdmin = async (req, res) => {
@@ -57,7 +55,7 @@ const addDoctor = async (req, res) => {
         }
 
         // Check if the email is already in use
-        const existingDoctor = await doctorModel.findOne({ email });
+        const existingDoctor = await DoctorModel.findOne({ email });
         if (existingDoctor) {
             return res.status(400).json({ success: false, message: "Doctor with this email already exists" });
         }
@@ -66,7 +64,7 @@ const addDoctor = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Create a new doctor
-        const newDoctor = await doctorModel.create({
+        const newDoctor = await DoctorModel.create({
             name,
             specialty,
             email,
@@ -112,13 +110,13 @@ const deleteDoctor = async (req, res) => {
     try {
         const { id: doctorId } = req.params; // Extract doctor ID from request parameters
 
-        const doctor = await doctorModel.findById(doctorId);
+        const doctor = await DoctorModel.findById(doctorId);
         if (!doctor) {
             return res.status(404).json({ success: false, message: "Doctor not found" });
         }
 
         // Delete the doctor from the database
-        await doctorModel.findByIdAndDelete(doctorId);
+        await DoctorModel.findByIdAndDelete(doctorId);
 
         res.status(200).json({ success: true, message: "Doctor deleted successfully" });
     } catch (error) {
@@ -145,9 +143,9 @@ const appointmentsAdmin = async (req, res) => {
 // Admin dashboard function
 const adminDashboard = async (req, res) => {
     try {
-        const totalDoctors = await doctorModel.countDocuments();
+        const totalDoctors = await DoctorModel.countDocuments();
         const totalAppointments = await appointmentModel.countDocuments();
-        const totalUsers = await userModel.countDocuments();
+        const totalUsers = await UserModel.countDocuments();
 
         res.status(200).json({
             success: true,
@@ -166,7 +164,7 @@ const adminDashboard = async (req, res) => {
 // API to get all doctors
 const allDoctors = async (req, res) => {
     try {
-        const doctors = await doctorModel.find();
+        const doctors = await DoctorModel.find();
 
         res.status(200).json({
             success: true,
@@ -181,7 +179,7 @@ const allDoctors = async (req, res) => {
 // Fetch all services
 const getAllServices = async (req, res) => {
     try {
-        const services = await Service.find();
+        const services = await ServiceModel.find();
         res.status(200).json({ success: true, services });
     } catch (error) {
         console.error("Error fetching services:", error);

@@ -1,14 +1,11 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import validator from "validator";
-import userModel from "../models/userModel.js";
-import doctorModel from "../models/doctorModel.js";
 import appointmentModel from "../models/appointmentModel.js";
 import { v2 as cloudinary } from 'cloudinary'
 import stripe from "stripe";
 import razorpay from 'razorpay';
-import ServiceModel from "../models/serviceModel.js";
-
+import { UserModel, VisitorModel, ServiceModel, CartModel, DoctorModel } from '../models/models.js';
 // Gateway Initialize
 const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY)
 const razorpayInstance = new razorpay({
@@ -104,7 +101,7 @@ const getProfile = async (req, res) => {
 
     try {
         const { userId } = req.body
-        const userData = await userModel.findById(userId).select('-password')
+        const userData = await UserModel.findById(userId).select('-password')
 
         res.json({ success: true, userData })
 
@@ -126,7 +123,7 @@ const updateProfile = async (req, res) => {
             return res.json({ success: false, message: "Data Missing" })
         }
 
-        await userModel.findByIdAndUpdate(userId, { name, phone, address: JSON.parse(address), dob, gender })
+        await UserModel.findByIdAndUpdate(userId, { name, phone, address: JSON.parse(address), dob, gender })
 
         if (imageFile) {
 
@@ -134,7 +131,7 @@ const updateProfile = async (req, res) => {
             const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" })
             const imageURL = imageUpload.secure_url
 
-            await userModel.findByIdAndUpdate(userId, { image: imageURL })
+            await UserModel.findByIdAndUpdate(userId, { image: imageURL })
         }
 
         res.json({ success: true, message: 'Profile Updated' })
@@ -151,7 +148,7 @@ const bookAppointment = async (req, res) => {
     try {
 
         const { userId, docId, slotDate, slotTime } = req.body
-        const docData = await doctorModel.findById(docId).select("-password")
+        const docData = await DoctorModel.findById(docId).select("-password")
 
         if (!docData.available) {
             return res.json({ success: false, message: 'Doctor Not Available' })
@@ -172,7 +169,7 @@ const bookAppointment = async (req, res) => {
             slots_booked[slotDate].push(slotTime)
         }
 
-        const userData = await userModel.findById(userId).select("-password")
+        const userData = await UserModel.findById(userId).select("-password")
 
         delete docData.slots_booked
 
@@ -191,7 +188,7 @@ const bookAppointment = async (req, res) => {
         await newAppointment.save()
 
         // save new slots data in docData
-        await doctorModel.findByIdAndUpdate(docId, { slots_booked })
+        await DoctorModel.findByIdAndUpdate(docId, { slots_booked })
 
         res.json({ success: true, message: 'Appointment Booked' })
 
@@ -219,13 +216,13 @@ const cancelAppointment = async (req, res) => {
         // releasing doctor slot 
         const { docId, slotDate, slotTime } = appointmentData
 
-        const doctorData = await doctorModel.findById(docId)
+        const doctorData = await DoctorModel.findById(docId)
 
         let slots_booked = doctorData.slots_booked
 
         slots_booked[slotDate] = slots_booked[slotDate].filter(e => e !== slotTime)
 
-        await doctorModel.findByIdAndUpdate(docId, { slots_booked })
+        await DoctorModel.findByIdAndUpdate(docId, { slots_booked })
 
         res.json({ success: true, message: 'Appointment Cancelled' })
 

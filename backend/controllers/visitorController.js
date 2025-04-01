@@ -1,5 +1,5 @@
-import VisitorModel from "../models/visitorModel.js";
 import { v4 as uuidv4 } from "uuid"; // Use uuid to generate unique visitor IDs
+import { UserModel, VisitorModel, ServiceModel, CartModel, DoctorModel } from '../models/models.js';
 
 // Create a new visitor session
 export const createVisitorSession = async (req, res) => {

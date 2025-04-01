@@ -1,6 +1,4 @@
-import CartModel from "../models/cartModel.js";
-import VisitorModel from "../models/visitorModel.js";
-import ServiceModel from "../models/serviceModel.js";
+import { UserModel, VisitorModel, ServiceModel, CartModel, DoctorModel } from '../models/models.js';
 
 // Add an item to the cart
 export const addToCart = async (req, res) => {

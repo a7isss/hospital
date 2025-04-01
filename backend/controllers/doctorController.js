@@ -1,15 +1,14 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import doctorModel from "../models/doctorModel.js";
 import appointmentModel from "../models/appointmentModel.js";
-
+import { UserModel, VisitorModel, ServiceModel, CartModel, DoctorModel } from '../models/models.js';
 // API for doctor Login 
 const loginDoctor = async (req, res) => {
 
     try {
 
         const { username, password } = req.body
-        const user = await doctorModel.findOne({ username })
+        const user = await DoctorModel.findOne({ username })
 
         if (!user) {
             return res.json({ success: false, message: "Invalid credentials" })
@@ -92,7 +91,7 @@ const appointmentComplete = async (req, res) => {
 const doctorList = async (req, res) => {
     try {
 
-        const doctors = await doctorModel.find({}).select(['-password', '-email'])
+        const doctors = await DoctorModel.find({}).select(['-password', '-email'])
         res.json({ success: true, doctors })
 
     } catch (error) {
@@ -108,8 +107,8 @@ const changeAvailablity = async (req, res) => {
 
         const { docId } = req.body
 
-        const docData = await doctorModel.findById(docId)
-        await doctorModel.findByIdAndUpdate(docId, { available: !docData.available })
+        const docData = await DoctorModel.findById(docId)
+        await DoctorModel.findByIdAndUpdate(docId, { available: !docData.available })
         res.json({ success: true, message: 'Availablity Changed' })
 
     } catch (error) {
@@ -123,7 +122,7 @@ const doctorProfile = async (req, res) => {
     try {
 
         const { docId } = req.body
-        const profileData = await doctorModel.findById(docId).select('-password')
+        const profileData = await DoctorModel.findById(docId).select('-password')
 
         res.json({ success: true, profileData })
 
@@ -139,7 +138,7 @@ const updateDoctorProfile = async (req, res) => {
 
         const { docId, fees, address, available } = req.body
 
-        await doctorModel.findByIdAndUpdate(docId, { fees, address, available })
+        await DoctorModel.findByIdAndUpdate(docId, { fees, address, available })
 
         res.json({ success: true, message: 'Profile Updated' })
 
