@@ -16,15 +16,15 @@ i18n.on('languageChanged', (lng) => {
 });
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-        <BrowserRouter>
-            <VisitorProvider> {/* Wrap everything */}
+    <BrowserRouter>
+        <UserProvider>
+        <VisitorProvider> {/* Wrap everything */}
                 <AppContextProvider>
                     <CartContextProvider> {/* Make sure to use the correct provider name */}
-                        <UserProvider>
                         <App />
-                        </UserProvider>
                     </CartContextProvider>
                 </AppContextProvider>
             </VisitorProvider>
-        </BrowserRouter>
+        </UserProvider>
+    </BrowserRouter>
 );

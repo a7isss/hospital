@@ -18,7 +18,7 @@ import { CartContextProvider } from './context/CartContext'; // Import CartConte
 import { VisitorProvider } from './context/VisitorContext'; // Import CartContextProvider
 import AppContextProvider from './context/AppContext'; // Keep AppContextProvider
 import Cart from './pages/Cart'; // Import the Cart component
-//import Nav from './components/Nav.jsx'
+import Nav from './components/Nav.jsx'
 import Subscriptions from "./pages/Subscriptions.jsx";
 import Doctors from "./components/Doctors"; // Import Doctors page
 import UserProvider from './context/UserContext'; // Import the UserProvider
@@ -26,6 +26,7 @@ import UserProvider from './context/UserContext'; // Import the UserProvider
 
 const App = () => {
     return (
+        <UserProvider>
         <VisitorProvider> {/* Wrap your application with VisitorProvider */}
             <AppContextProvider>
                 <CartContextProvider>
@@ -67,16 +68,15 @@ const App = () => {
                     <div className="pb-16"> {/* Add padding to prevent content overlap */}
                         {/* Your existing routes */}
                     </div>
-{/* Your existing routes                     <Nav />*/}
+                    <Nav />
                 </div>
-                    <UserProvider>
-                        <Route path="/my-appointments" element={<MyAppointments />} />
-                        <Route path="/my-profile" element={<MyProfile />} />
-                    </UserProvider>
-
                 </CartContextProvider>
         </AppContextProvider>
         </VisitorProvider>
+            <Route path="/my-appointments" element={<MyAppointments />} />
+            <Route path="/my-profile" element={<MyProfile />} />
+        </UserProvider>
+
 
     );
 };
