@@ -26,9 +26,9 @@ import UserProvider from './context/UserContext'; // Import the UserProvider
 
 const App = () => {
     return (
-        <UserProvider>
         <VisitorProvider> {/* Wrap your application with VisitorProvider */}
             <AppContextProvider>
+                <UserProvider>
                 <CartContextProvider>
                         <div className='mx-2 sm:mx-[5%] lg:mx-[10%]'>
                     {/* Toast notifications */}
@@ -71,11 +71,12 @@ const App = () => {
                     <Nav />
                 </div>
                 </CartContextProvider>
+                <Route path="/my-appointments" element={<MyAppointments />} />
+                <Route path="/my-profile" element={<MyProfile />} />
+            </UserProvider>
         </AppContextProvider>
         </VisitorProvider>
-            <Route path="/my-appointments" element={<MyAppointments />} />
-            <Route path="/my-profile" element={<MyProfile />} />
-        </UserProvider>
+
 
 
     );
