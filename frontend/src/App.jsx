@@ -2,7 +2,7 @@ import React from 'react';
 import Navbar from './components/Navbar';
 import { Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
-import Doctors from './pages/Doctors';
+import Partners from './pages/Partners';
 import Login from './pages/Login';
 import About from './pages/About';
 import Contact from './pages/Contact';
@@ -48,7 +48,7 @@ const App = () => {
                         <Route path="/Subscriptions" element={<Subscriptions />} />
                         <Route path="/services" element={<Services />} />
                         <Route path="/" element={<Home />} />
-                        <Route path="/doctors" element={<Doctors />} />
+                        <Route path="/Partners" element={<Partners />} />
                         <Route path="/doctors/:speciality" element={<Doctors />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/about" element={<About />} />
