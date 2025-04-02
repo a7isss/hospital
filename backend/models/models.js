@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
     email: { type: String, required: false, unique: true },
     password: { type: String, required: true },
     age: { type: Number, required: true },
-    Phone: { type: String, required: true },
+    phone: { type: String, required: true },
     sub: {
         plan: { type: String, required: false, default: 'free' }, // Plan name (e.g., free, premium)
         trial: { type: Boolean, default: false }, // Whether the user is on a trial
