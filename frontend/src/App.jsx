@@ -18,7 +18,7 @@ import { CartContextProvider } from './context/CartContext'; // Import CartConte
 import { VisitorProvider } from './context/VisitorContext'; // Import CartContextProvider
 import AppContextProvider from './context/AppContext'; // Keep AppContextProvider
 import Cart from './pages/Cart'; // Import the Cart component
-import Nav from './components/Nav.jsx'
+//import Nav from './components/Nav.jsx'
 import Subscriptions from "./pages/Subscriptions.jsx";
 import Doctors from "./components/Doctors"; // Import Doctors page
 import UserProvider from './context/UserContext'; // Import the UserProvider
@@ -72,7 +72,7 @@ const App = () => {
                     <div className="pb-16"> {/* Add padding to prevent content overlap */}
                         {/* Your existing routes */}
                     </div>
-                    <Nav />
+{/* Your existing routes                     <Nav />*/}
                 </div>
 
                 </CartContextProvider>
