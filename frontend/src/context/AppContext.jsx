@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
-import axios from "axios";
+import authService from "../services/authService";
 
 export const AppContext = createContext();
 
@@ -8,89 +8,126 @@ const AppContextProvider = ({ children }) => {
     const backendUrl = import.meta.env.VITE_BACKEND_URL; // Backend API URL from environment variables
 
     // State variables
-    const [token, setToken] = useState(localStorage.getItem("token") || null); // Token for logged-in users
-    const [userData, setUserData] = useState(null); // Logged-in user data (e.g. name, email, etc.)
-    const [services, setServices] = useState([]); // List of services offered, fetched globally
-    const [doctors, setDoctors] = useState([]); // List of doctors fetched globally
-    const [loading, setLoading] = useState(false); // Loader state (for API interactions)
-    const [error, setError] = useState(null); // Error state for global error messages
-    const [registrationData, setRegistrationData] = useState(null); // Track registration progress
-    const [registrationError, setRegistrationError] = useState(null);
+    const [token, setToken] = useState(authService.getToken()); // Initialize token from authService
+    const [userData, setUserData] = useState(null); // User data state
+    const [services, setServices] = useState([]); // List of services offered
+    const [doctors, setDoctors] = useState([]); // List of doctors globally
+    const [loading, setLoading] = useState(false); // Loading state
+    const [error, setError] = useState(null); // Error state
+    const [servicesLoading, setServicesLoading] = useState(false); // Services loading state
 
-    // Fetch current user data using login token
+    // Handle session expiration globally
+    const handleSessionExpiry = () => {
+        authService.logoutUser(); // Clear token in authService
+        setToken(null); // Clear token
+        setUserData(null); // Clear user data
+        console.warn("Session expired. Please log in again."); // Add appropriate warnings
+        // Optional UX improvement: Notify users (e.g., Toast)
+        // toast.info("Your session has expired. Please log in again.");
+    };
+
+    // Fetch the current user's data
     const fetchUserData = async () => {
-        if (!token) return; // Skip if the user isn't logged in
+        const token = authService.getToken();
+        if (!token || authService.isTokenExpired(token)) {
+            handleSessionExpiry(); // Handle token expiration or absence
+            return;
+        }
         try {
+            setError(null); // Reset any previous errors
             setLoading(true);
-            const { data } = await axios.get(`${backendUrl}/api/user/me`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            setUserData(data.user); // Store received user data
-        } catch (error) {
-            console.error("AppContext - Error fetching user data:", error);
-            // Clear invalid token if API call fails
-            setToken(null);
-            localStorage.removeItem("token");
+            const { user } = await authService.getProfile(); // Profile fetch handles tokenExpiry
+            setUserData(user);
+        } catch (err) {
+            console.error("Error fetching user data:", err);
+            handleSessionExpiry(); // Catch errors related to invalid/expired tokens
         } finally {
             setLoading(false);
         }
     };
 
-    // Define fetchServices function
-    const fetchServices = async () => {
-        try {
-            setLoading(true);
-            const { data } = await axios.get(`${backendUrl}/api/services`);
-
-            if (data.services && Array.isArray(data.services)) {
-                setServices(data.services);
-            } else {
-                console.error("Invalid services data format:", data);
-                setServices([]);
-            }
-        } catch (error) {
-            console.error("Failed to fetch services:", error);
-            setError(t("serviceFetchError"));
-            setServices([]);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Initialize services
-    useEffect(() => {
-        fetchServices(); // Now properly defined
-    }, []); // Empty dependency array = runs once on mount
-
-    // Other useEffect that might need to call fetchServices
-    useEffect(() => {
-        fetchServices(); // ✅ Now accessible here
-        fetchDoctors();
-        fetchUserData();
-    }, [token]); // Dependencies: Re-run if token changes
-
-    // Fetch available doctors from the backend
+    // Fetch globally available doctors
     const fetchDoctors = async () => {
+        const token = authService.getToken();
+        if (!token || authService.isTokenExpired(token)) {
+            handleSessionExpiry(); // Handle expired or missing token
+            return;
+        }
         try {
+            setError(null);
             setLoading(true);
-            const { data } = await axios.get(`${backendUrl}/api/doctors`);
-            setDoctors(data.doctors); // Store fetched doctors globally
-        } catch (error) {
-            console.error("AppContext - Error fetching doctors:", error);
+            const { data } = await authService.getDoctors(); // Adjust API
+            setDoctors(data.doctors);
+        } catch (err) {
+            console.error("Error fetching doctors:", err);
+            setError("Unable to fetch doctors.");
         } finally {
             setLoading(false);
         }
     };
 
-    // Logout function: clears user-specific data
-    const logout = () => {
-        localStorage.removeItem("token");
-        setToken(null);
-        setUserData(null);
+    // Fetch globally available services
+    const fetchServices = async () => {
+        const token = authService.getToken();
+        if (!token || authService.isTokenExpired(token)) {
+            handleSessionExpiry(); // Handle expired or missing token
+            return;
+        }
+        try {
+            setError(null); // Reset error state
+            setServicesLoading(true);
+            const { data } = await authService.getServices(); // Adjust API
+            setServices(data.services || []);
+        } catch (err) {
+            console.error("Error fetching services:", err);
+            setError("Unable to fetch services.");
+        } finally {
+            setServicesLoading(false);
+        }
     };
 
+    // Clear session when token is invalid or user logs out
+    const clearSession = () => {
+        authService.logoutUser(); // Clear token in authService
+        setToken(null); // Clear token
+        setUserData(null); // Clear user data
+        console.log("Session cleared due to logout or token invalidation.");
+        // Optional: Show toast
+        // toast.info("Your session has expired. Please log in again.");
+    };
 
-    // Return `AppContext` values and functions for use throughout the app
+    // Monitor token changes with cleanup
+    useEffect(() => {
+        const controller = new AbortController();
+        const signal = controller.signal;
+
+        const fetchUserDataSafe = async () => {
+            if (!token || authService.isTokenExpired(token)) {
+                handleSessionExpiry(); // Check token validity during token change
+                return;
+            }
+            try {
+                setLoading(true);
+                const { user } = await authService.getProfile({ signal });
+                setUserData(user);
+            } catch (err) {
+                if (err.name === "AbortError") {
+                    console.log("Fetch aborted");
+                } else {
+                    console.error("Error fetching user data:", err);
+                    handleSessionExpiry();
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserDataSafe();
+
+        // Cleanup on unmount or token change
+        return () => controller.abort();
+    }, [token]);
+
     return (
         <AppContext.Provider
             value={{
@@ -99,16 +136,17 @@ const AppContextProvider = ({ children }) => {
                 token,
                 setToken,
                 userData,
-                setUserData,
                 services,
+                setServices,
                 doctors,
                 loading,
                 error,
-                logout,
-                registrationData,
-                setRegistrationData,
-                registrationError,
-                setRegistrationError,
+                servicesLoading,
+                fetchDoctors,
+                fetchServices,
+                fetchUserData, // Explicit for token refresh scenarios
+                clearSession,
+                handleSessionExpiry, // Explicit for manual session expiration
             }}
         >
             {children}

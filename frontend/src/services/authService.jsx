@@ -1,43 +1,57 @@
-import axios from 'axios';
-import { useHistory } from 'react-router-dom';
-const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/user/`; // Use the environment variable
+import axiosInstance from "../utils/axiosInstance";
+const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/user/`;
 
-const registerUser = async (payload) => {
-    const response = await axios.post(`${API_URL}register`, payload);
-    if (response.data.token) {
-        localStorage.setItem('token', response.data.token); // Store JWT in localStorage
-    }
-    return response.data;
-};
-
-const loginUser = async (payload) => {
-    const response = await axios.post(`${API_URL}login`, payload);
-    if (response.data.token) {
-        localStorage.setItem('token', response.data.token); // Store JWT in localStorage
-    }
-    return response.data;
-};
-
-// Authentication check function
-const checkAuth = (history) => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        history.push('/'); // Redirect to homepage if not authenticated
-    }
-};
-// subscription creation function
-const substart = async (docId, slotDate, slotTime, token) => {
-    const response = await axios.post(`${API_URL}user/book-appointment`, 
-        { docId, slotDate, slotTime }, 
-        { headers: { token } }
-    );
-    return response.data;
-};
 const authService = {
-    registerUser,
-    loginUser,
-    checkAuth,
-    substart, // Exporting the new function
+    // Utility functions for token management
+    getToken: () => localStorage.getItem("token"),
+    setToken: (token) => localStorage.setItem("token", token),
+    clearToken: () => localStorage.removeItem("token"),
+
+    // Helper to check token expiry
+    isTokenExpired: (token) => {
+        if (!token) return true;
+        try {
+            const { exp } = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
+            return Date.now() >= exp * 1000; // Compare current time to expiry
+        } catch (error) {
+            console.error("Failed to decode or validate token:", error);
+            return true; // Treat as expired if decoding fails
+        }
+    },
+
+    // Login
+    loginUser: async (payload) => {
+        const response = await axiosInstance.post(`${API_URL}login`, payload);
+        if (response.data.token) {
+            authService.setToken(response.data.token); // Save token
+        }
+        return response.data;
+    },
+
+    // Register
+    registerUser: async (payload) => {
+        const response = await axiosInstance.post(`${API_URL}register`, payload);
+        if (response.data.token) {
+            authService.setToken(response.data.token); // Save token
+        }
+        return response.data;
+    },
+
+    // Logout
+    logoutUser: () => {
+        authService.clearToken(); // Clear token from storage
+    },
+
+    // Fetch user profile (with token expiry validation)
+    getProfile: async () => {
+        const token = authService.getToken();
+        if (authService.isTokenExpired(token)) {
+            authService.clearToken();
+            throw new Error("Token expired. Please log in again.");
+        }
+        const response = await axiosInstance.get(`${API_URL}me`);
+        return response.data; // Return fetched profile data
+    },
 };
 
 export default authService;

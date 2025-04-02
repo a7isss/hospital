@@ -1,35 +1,56 @@
-import React, { createContext, useState } from "react";
-import authService from '../services/authService'; // Import the authService
+import React, { createContext, useContext, useState, useEffect } from "react";
+import authService from "../services/authService";
+import { AppContext } from "./AppContext";
 
-// Create User Context
 export const UserContext = createContext();
 
 const UserProvider = ({ children }) => {
-    const [user, setUser] = useState(null); // User state to store user info
-    const [isAuthenticated, setIsAuthenticated] = useState(false); // Auth status
+    const { token, setToken, userData, handleSessionExpiry } = useContext(AppContext); // Consume AppContext
+    const [user, setUser] = useState(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-    // Log in a user
-    const logInUser = (userData) => {
-        setUser(userData);
-        setIsAuthenticated(true); // Set authenticated status
-        localStorage.setItem("user", JSON.stringify(userData)); // Persist user info
+    // React to token or user data changes
+    useEffect(() => {
+        if (token && userData) {
+            if (authService.isTokenExpired(token)) {
+                // If the token is expired, expire the session
+                handleSessionExpiry(); // Notify AppContext of session expiration
+                return;
+            }
+            setUser(userData); // Sync user state with AppContext's userData
+            setIsAuthenticated(true);
+        } else {
+            setUser(null); // Clear user state when logged out
+            setIsAuthenticated(false);
+        }
+    }, [token, userData]);
+
+    // Login user
+    const logInUser = async (payload) => {
+        const response = await authService.loginUser(payload); // Get token and user data
+        if (authService.isTokenExpired(response.token)) {
+            // Handle cases where the returned token is already expired (unlikely)
+            handleSessionExpiry();
+            return;
+        }
+        setToken(response.token); // Notify AppContext
     };
 
-    // Log out a user
-    const logOutUser = () => {
-        setUser(null);
-        setIsAuthenticated(false); // Clear authenticated status
-        localStorage.removeItem("user"); // Clear user data from storage
-    };
-
-    // Register a user
+    // Register user
     const registerUser = async (payload) => {
         const response = await authService.registerUser(payload);
-        if (response) {
-            setUser(response.user); // Update user state with the registered user data
-            setIsAuthenticated(true); // Set authenticated status
-            localStorage.setItem("user", JSON.stringify(response.user)); // Persist user info
+        if (authService.isTokenExpired(response.token)) {
+            // Handle cases where the returned token is already expired (unlikely)
+            handleSessionExpiry();
+            return;
         }
+        setToken(response.token); // Notify AppContext
+    };
+
+    // Logout user
+    const logOutUser = () => {
+        authService.logoutUser(); // Clear token from authService
+        setToken(null); // Notify AppContext
     };
 
     return (
