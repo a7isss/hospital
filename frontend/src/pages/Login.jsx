@@ -6,12 +6,10 @@ const Login = () => {
   const { t } = useTranslation(); // Initialize translation
   const [isRegistering, setIsRegistering] = useState(false); // State to toggle between login and registration
   const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    age: '',
-    gender: 'male', // Default gender
-    email: '', // Add email for login
-    password: '',
+    name: '', // Required only for registration
+    phone: '', // Required only for registration
+    age: '', // Required only for registration
+    password: '', // Required for both registration and login
   });
 
   const handleInputChange = (e) => {
@@ -36,6 +34,7 @@ const Login = () => {
       <div className="container mx-auto p-4">
         <h2 className="text-2xl font-bold mb-4">{isRegistering ? t('Register') : t('Login')}</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Fields only visible when the user is registering */}
           {isRegistering && (
               <>
                 <input
@@ -67,26 +66,8 @@ const Login = () => {
                     required
                     className="border border-gray-300 rounded-md p-2 w-full"
                 />
-                <select
-                    name="gender"
-                    value={formData.gender}
-                    onChange={handleInputChange}
-                    className="border border-gray-300 rounded-md p-2 w-full"
-                >
-                  <option value="male">{t('Male')}</option>
-                  <option value="female">{t('Female')}</option>
-                </select>
               </>
           )}
-          <input
-              type="email" // Change to email type for login
-              name="email"
-              placeholder={t('Email')}
-              value={formData.email}
-              onChange={handleInputChange}
-              required={!isRegistering} // Email is required only for login
-              className="border border-gray-300 rounded-md p-2 w-full"
-          />
           <input
               type="password"
               name="password"
@@ -106,7 +87,7 @@ const Login = () => {
               onClick={() => setIsRegistering(!isRegistering)}
               className="text-blue-500 ml-1"
           >
-            {isRegistering ? t('Login') : t('Register')}
+            {isRegistering ? t('Login Here') : t('Register Here')}
           </button>
         </p>
       </div>
