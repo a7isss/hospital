@@ -27,7 +27,7 @@ const authService = {
 
     // Login
     loginUser: async (payload) => {
-        const response = await axiosInstance.post(`${API_URL}login`, payload);
+        const response = await axiosInstance.post(`${API_URL}/login`, payload);
         if (response.data.token) {
             authService.setToken(response.data.token); // Save access token
             if (response.data.refreshToken) {
