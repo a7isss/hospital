@@ -1,48 +1,48 @@
-import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useState } from "react";
+import { NavLink } from "react-router-dom";
 
 const Sidelist = () => {
-    const [isOpen, setIsOpen] = useState(false); // State to track menu open/close
+    const [isOpen, setIsOpen] = useState(false); // State to track if the sidelist is open
 
-    // Toggle the sidelist menu
+    // Function to toggle sidelist open/close state
     const toggleSidelist = () => {
-        setIsOpen((prev) => !prev); // Toggle menu open state
+        setIsOpen((prev) => !prev); // Toggle the state between open and closed
     };
 
     return (
         <div className="relative">
-            {/* Button to toggle the sidelist */}
-            {!isOpen && (
-                <button
-                    onClick={toggleSidelist}
-                    className="fixed bottom-5 right-5 bg-primary text-white p-3 rounded-full shadow-md focus:outline-none"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-6 w-6"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
+            {/* Toggle Button */}
+            {/* This button will center itself with the nav items equally spaced around it */}
+            <div className="absolute inset-x-0 flex justify-center -top-6">
+                {!isOpen && (
+                    <button
+                        onClick={toggleSidelist}
+                        className="bg-black w-20 h-8 flex items-center justify-center shadow-md"
+                        style={{
+                            border: "1px solid white",
+                            backgroundColor: "black",
+                            color: "white",
+                        }}
                     >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M4 6h16M4 12h16m-7 6h7"
-                        />
-                    </svg>
-                </button>
-            )}
+                        {/* Three horizontal lines inside the button */}
+                        <div className="space-y-1">
+                            <div className="w-10 h-[2px] bg-white"></div>
+                            <div className="w-10 h-[2px] bg-white"></div>
+                            <div className="w-10 h-[2px] bg-white"></div>
+                        </div>
+                    </button>
+                )}
+            </div>
 
-            {/* Sidelist container */}
+            {/* Sliding Sidelist */}
+            {/* When `isOpen` is true, the list content will appear below the nav */}
             {isOpen && (
-                <div className="fixed bottom-0 right-0 bg-white w-64 shadow-lg rounded-t-lg pb-5">
-                    {/* Menu Header with Close Button */}
-                    <div className="p-4 border-b flex justify-between items-center">
-                        <h3 className="text-lg font-medium text-primary">Menu</h3>
+                <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-md p-4 transition-all duration-300">
+                    {/* Close Button */}
+                    <div className="flex justify-end">
                         <button
                             onClick={toggleSidelist}
-                            className="text-gray-500 hover:text-primary focus:outline-none"
+                            className="text-gray-600 hover:text-black"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -61,17 +61,16 @@ const Sidelist = () => {
                         </button>
                     </div>
 
-                    {/* Menu Items */}
-                    <ul className="flex flex-col items-end p-4 space-y-4">
-                        {/* Contact page */}
+                    {/* Sidelist Items */}
+                    <ul className="flex flex-col items-start mt-4 space-y-4">
                         <li>
                             <NavLink
                                 to="/contact"
                                 className={({ isActive }) =>
                                     `block px-4 py-2 rounded-md text-sm font-semibold ${
                                         isActive
-                                            ? 'text-primary bg-gray-100'
-                                            : 'text-gray-700 hover:bg-gray-100 hover:text-primary'
+                                            ? "text-primary bg-gray-100"
+                                            : "text-gray-700 hover:bg-gray-100 hover:text-primary"
                                     }`
                                 }
                             >
@@ -79,43 +78,33 @@ const Sidelist = () => {
                             </NavLink>
                         </li>
 
-                        {/* Placeholder 1 */}
                         <li>
                             <NavLink
-                                to="/placeholder1"
-                                className="block px-4 py-2 rounded-md text-sm font-semibold text-gray-700 hover:bg-gray-100 hover:text-primary"
+                                to="/about"
+                                className={({ isActive }) =>
+                                    `block px-4 py-2 rounded-md text-sm font-semibold ${
+                                        isActive
+                                            ? "text-primary bg-gray-100"
+                                            : "text-gray-700 hover:bg-gray-100 hover:text-primary"
+                                    }`
+                                }
                             >
-                                Placeholder 1
+                                About
                             </NavLink>
                         </li>
 
-                        {/* Placeholder 2 */}
                         <li>
                             <NavLink
-                                to="/placeholder2"
-                                className="block px-4 py-2 rounded-md text-sm font-semibold text-gray-700 hover:bg-gray-100 hover:text-primary"
+                                to="/help"
+                                className={({ isActive }) =>
+                                    `block px-4 py-2 rounded-md text-sm font-semibold ${
+                                        isActive
+                                            ? "text-primary bg-gray-100"
+                                            : "text-gray-700 hover:bg-gray-100 hover:text-primary"
+                                    }`
+                                }
                             >
-                                Placeholder 2
-                            </NavLink>
-                        </li>
-
-                        {/* Placeholder 3 */}
-                        <li>
-                            <NavLink
-                                to="/placeholder3"
-                                className="block px-4 py-2 rounded-md text-sm font-semibold text-gray-700 hover:bg-gray-100 hover:text-primary"
-                            >
-                                Placeholder 3
-                            </NavLink>
-                        </li>
-
-                        {/* Placeholder 4 */}
-                        <li>
-                            <NavLink
-                                to="/placeholder4"
-                                className="block px-4 py-2 rounded-md text-sm font-semibold text-gray-700 hover:bg-gray-100 hover:text-primary"
-                            >
-                                Placeholder 4
+                                Help
                             </NavLink>
                         </li>
                     </ul>
@@ -124,5 +113,3 @@ const Sidelist = () => {
         </div>
     );
 };
-
-export default Sidelist;
