@@ -11,6 +11,11 @@ const razorpayInstance = new razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET,
 })
+
+if (!process.env.JWT_SECRET) {
+    console.error('JWT_SECRET is undefined. Check your environment configuration.');
+}
+console.log('JWT_SECRET:', process.env.JWT_SECRET);
 // Fetch a single service by ID
 export const getServiceById = async (req, res) => {
     const { id } = req.params; // Extract the ID from request parameters
@@ -150,7 +155,7 @@ const updateProfile = async (req, res) => {
     }
 }
 
-// API to book appointment 
+// API to book appointment
 const bookAppointment = async (req, res) => {
 
     try {
