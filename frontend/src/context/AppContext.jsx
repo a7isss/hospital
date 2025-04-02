@@ -103,10 +103,12 @@ const AppContextProvider = ({ children }) => {
     };
 
     useEffect(() => {
-        console.log("AppContext -> Initializing fetchUserData...");
-        fetchUserData(); // Fetch user data on component load
-    }, []);
-
+        const token = authService.getToken();
+        if (token && !authService.isTokenExpired(token)) {
+            setToken(token); // Update token state if valid
+            fetchUserData(); // Fetch and update user data
+        }
+    }, []); // Runs once on mount to sync state with localStorage
     return (
         <AppContext.Provider
             value={{
