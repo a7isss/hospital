@@ -3,10 +3,12 @@ import bcrypt from "bcrypt";
 // User Schema
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
-    email: { type: String, required: false, unique: true },
+    phone: { type: String, required: true , unique: true },
     password: { type: String, required: true },
     age: { type: Number, required: true },
-    phone: { type: String, required: true },
+    email: { type: String, required: false },
+    gender: { type: String, enum: ['male', 'female'], required: true }, // Added gender field
+
     sub: {
         plan: { type: String, required: false, default: 'free' }, // Plan name (e.g., free, premium)
         trial: { type: Boolean, default: false }, // Whether the user is on a trial
