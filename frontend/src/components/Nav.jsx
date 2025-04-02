@@ -41,10 +41,14 @@ const Nav = () => {
                             <span className="text-xs">{item.name}</span>
                         </NavLink>
                     ))}
-                    {/* Add the Sidelist component as the last navigation item */}
-                    <Sidelist />
                 </div>
             </div>
+
+            {/* Spacer for the Sidelist button */}
+            <div className="h-16"></div>
+
+            {/* Add the Sidelist component */}
+            <Sidelist />
         </nav>
     );
 };
