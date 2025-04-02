@@ -20,13 +20,21 @@ import AppContextProvider from './context/AppContext'; // Keep AppContextProvide
 import Cart from './pages/Cart'; // Import the Cart component
 import Nav from './components/Nav.jsx'
 import Subscriptions from "./pages/Subscriptions.jsx";
+import Doctors from "./components/Doctors"; // Import Doctors page
+import UserProvider from './context/UserContext'; // Import the UserProvider
+
 
 const App = () => {
     return (
         <VisitorProvider> {/* Wrap your application with VisitorProvider */}
             <AppContextProvider>
-            <CartContextProvider>
-                <div className='mx-2 sm:mx-[5%] lg:mx-[10%]'>
+                <CartContextProvider>
+                    <UserProvider>
+                        <Route path="/my-appointments" element={<MyAppointments />} />
+                        <Route path="/my-profile" element={<MyProfile />} />
+                    </UserProvider>
+
+                        <div className='mx-2 sm:mx-[5%] lg:mx-[10%]'>
                     {/* Toast notifications */}
                     <ToastContainer
                         position={document.documentElement.getAttribute('dir') === 'rtl' ? 'top-left' : 'top-right'}
@@ -53,11 +61,11 @@ const App = () => {
                         <Route path="/about" element={<About />} />
                         <Route path="/contact" element={<Contact />} />
                         <Route path="/appointment/:docId" element={<Appointment />} />
-                        <Route path="/my-appointments" element={<MyAppointments />} />
-                        <Route path="/my-profile" element={<MyProfile />} />
                         <Route path="/verify" element={<Verify />} />
                         <Route path="/service/:id" element={<Service />} />
                         <Route path="/cart" element={<Cart />} /> {/* Add this route for the cart */}
+                        <Route path="/doctors" element={<Doctors />} /> {/* Doctors Page Route */}
+
 
                     </Routes>
 
@@ -66,9 +74,11 @@ const App = () => {
                     </div>
                     <Nav />
                 </div>
-            </CartContextProvider>
+
+                </CartContextProvider>
         </AppContextProvider>
-    </VisitorProvider>
-);
+        </VisitorProvider>
+
+    );
 };
 export default App;
