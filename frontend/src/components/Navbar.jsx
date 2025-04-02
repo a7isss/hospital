@@ -38,8 +38,8 @@ const Navbar = () => {
                 <NavLink to="/" className="hover:text-primary">
                     {t("home")}
                 </NavLink>
-                <NavLink to="/doctors" className="hover:text-primary">
-                    {t("all_doctors")}
+                <NavLink to="/Partners" className="hover:text-primary">
+                    {t("Partners")}
                 </NavLink>
                 <NavLink to="/services" className="hover:text-primary">
                     {t("services")}
