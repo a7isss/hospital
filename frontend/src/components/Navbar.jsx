@@ -11,7 +11,7 @@ const Navbar = () => {
     const navigate = useNavigate(); // Navigation hook
 
     const { cart } = useContext(CartContext); // CartContext: Handle cart states
-    const { token, logout, userData } = useContext(AppContext); // AppContext: Handle user data and auth
+    const { token, logout, userData, logInUser } = useContext(AppContext); // AppContext: Handle user data and auth
 
     const [showMenu, setShowMenu] = useState(false); // State: Toggling dropdown visibility
 
@@ -20,7 +20,12 @@ const Navbar = () => {
 
     // Handle cart navigation when cart icon is clicked
     const handleCartClick = () => {
-        navigate("/cart"); // No need to fetchCart - it's handled by CartContext
+        navigate("/cart"); // Navigate to the cart page
+    };
+
+    // Handle Login Redirection
+    const handleLogin = () => {
+        navigate("/login"); // Redirect to login page
     };
 
     return (
@@ -54,7 +59,6 @@ const Navbar = () => {
                 <NavLink to="/subscriptions" className="hover:text-primary">
                     {t("subscriptions")} {/* Localization using i18n */}
                 </NavLink>
-
             </ul>
 
             {/* Cart Button */}
@@ -77,39 +81,23 @@ const Navbar = () => {
             </button>
 
             {/* User Profile or Login */}
-            {token && userData ? (
-                <div className="flex items-center gap-3 relative">
-                    {/* User Profile Avatar */}
-                    <img
-                        src={userData.image || "https://via.placeholder.com/150"} // Fallback placeholder avatar
-                        alt="User Avatar"
-                        className="w-8 h-8 rounded-full cursor-pointer"
-                        onClick={() => setShowMenu(!showMenu)}
-                    />
-                    {/* Dropdown Menu */}
-                    {showMenu && (
-                        <div className="absolute right-0 mt-2 bg-white shadow-md rounded z-50">
-                            <p
-                                onClick={() => navigate("/my-profile")}
-                                className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                            >
-                                {t("my_profile")}
-                            </p>
-                            <p
-                                onClick={logout}
-                                className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                            >
-                                {t("logout")}
-                            </p>
-                        </div>
-                    )}
-                </div>
-            ) : (
-                <NavLink to="/login" className="text-primary hover:text-secondary">
-                    {t("login")}
-                </NavLink>
-
-            )}
+            {
+                token && userData ? (
+                    // If user is logged in
+                    <div className="flex flex-col items-end text-sm">
+                        <span className="text-gray-800 font-medium">Welcome</span>
+                        <span className="font-bold text-primary">{userData.name}</span>
+                    </div>
+                ) : (
+                    // If user is not logged in
+                    <button
+                        onClick={handleLogin}
+                        className="bg-white text-gray-800 border border-gray-300 px-4 py-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none"
+                    >
+                        {t("login")}
+                    </button>
+                )
+            }
         </nav>
     );
 };
