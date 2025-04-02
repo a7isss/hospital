@@ -43,15 +43,15 @@ export const getServices = async (req, res) => {
     }
 };
 const registerUser = async (req, res) => {
-    const { name, phone, age, gender, email, password } = req.body;
+    const { name, phone, age, password } = req.body;
 
     // Validate input data
-    if (!name || !phone || !age || !gender || !email || !password) {
+    if (!name || !phone || !age || !password) {
         return res.status(400).json({ success: false, message: 'Missing Details' });
     }
 
     // Check if the user already exists
-    const existingUser = await UserModel.findOne({ email });
+    const existingUser = await UserModel.findOne({ phone }); // Use phone instead of email
     if (existingUser) {
         return res.status(400).json({ success: false, message: 'User already exists' });
     }
@@ -60,7 +60,12 @@ const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create a new user
-    const newUser = new UserModel({ name, phone, age, gender, email, password: hashedPassword });
+    const newUser = new UserModel({
+        name,
+        phone,
+        age,
+        password: hashedPassword, // Store the hashed password
+    });
 
     try {
         await newUser.save();

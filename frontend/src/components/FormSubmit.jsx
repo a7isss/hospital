@@ -1,14 +1,14 @@
-import authService from '../services/authService'; // Adjust the path as necessary
-
+import authService from "../services/authService.js";
 const FormSubmit = async (formData, isRegistering) => {
     try {
         let response;
         if (isRegistering) {
-            // Use the authService to register the user
+            // Use the authService to register the user with password
             response = await authService.registerUser({
                 name: formData.name,
                 phone: formData.phone,
                 age: formData.age,
+                password: formData.password, // Add the password field
             });
         } else {
             // Use the authService to log in the user
