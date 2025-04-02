@@ -1,27 +1,19 @@
 import React, { useContext } from 'react';
 import Header from '../components/Header';
-import ServiceCards from '../components/ServiceCards.jsx'; // Contains services grid
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context/AppContext'; // App-wide context for services
 import WhatsAppChat from '../components/WhatsAppChat'; // Import WhatsAppChat component
 
 const Home = () => {
     const { t } = useTranslation(); // Initialize translation
-    const { services, loading } = useContext(AppContext); // Access services and loading state
+    const { loading } = useContext(AppContext); // Access the loading state from AppContext
 
     if (loading) {
         return <div>Loading...</div>; // Display a loader while data is being fetched
     }
 
-    if (!services || services.length === 0) {
-        return <div>No services available at the moment.</div>; // Gracefully handle missing data
-    }
-
     return (
         <div>
-            {/* Banner with Services - Now at the top */}
-            <ServiceCards />
-
             {/* Optional: Add Header Here If Necessary */}
             <Header />
 
@@ -42,9 +34,6 @@ const Home = () => {
                 </button>
             </div>
             <WhatsAppChat />
-            {/* Main Sections (Removed for now) */}
-            {/* <SpecialityMenu /> */}
-            {/* <TopDoctors /> */}
         </div>
     );
 };
