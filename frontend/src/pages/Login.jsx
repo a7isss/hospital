@@ -1,9 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useTranslation } from "react-i18next"; // Import useTranslation hook
+import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
 import FormSubmit from "../components/FormSubmit.jsx"; // Import the FormSubmit component
+import { AppContext } from "../context/AppContext"; // Import AppContext to manage authentication globally
 
 const Login = () => {
   const { t } = useTranslation(); // Initialize translation
+  const navigate = useNavigate(); // Initialize navigate for routing
+  const { logInUser } = useContext(AppContext); // Extract logInUser from AppContext (or use any login method from context)
+
   const [isRegistering, setIsRegistering] = useState(false); // State to toggle between login and registration
   const [formData, setFormData] = useState({
     name: "", // Required only for registration
@@ -12,6 +17,7 @@ const Login = () => {
     password: "", // Required for both registration and login
   });
 
+  // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -20,11 +26,23 @@ const Login = () => {
     }));
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
+      // Submit the form using the custom `FormSubmit` component logic
       const responseData = await FormSubmit(formData, isRegistering);
-      console.log(responseData); // Handle success response
+
+      // Log in the user using AppContext (if in logging-in mode)
+      if (!isRegistering) {
+        await logInUser(responseData); // Assume logInUser updates token/userData into AppContext
+      }
+
+      console.log(responseData); // Handle success response (optional debug)
+
+      // Redirect to the home page after successful login/registration
+      navigate("/");
     } catch (error) {
       console.error("Submission failed:", error); // Handle error response
     }
@@ -32,9 +50,12 @@ const Login = () => {
 
   return (
       <div className="container mx-auto p-4">
+        {/* Title */}
         <h2 className="text-2xl font-bold mb-4">
           {isRegistering ? t("Register") : t("Login")}
         </h2>
+
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Phone input field (Visible for both login and registration) */}
           <input
@@ -84,6 +105,7 @@ const Login = () => {
               className="border border-gray-300 rounded-md p-2 w-full"
           />
 
+          {/* Submit button */}
           <button
               type="submit"
               className="bg-primary text-white px-4 py-2 rounded-md"
@@ -91,6 +113,8 @@ const Login = () => {
             {isRegistering ? t("Register") : t("Login")}
           </button>
         </form>
+
+        {/* Toggle between Login and Register */}
         <p className="mt-4">
           {isRegistering ? t("Already have an account?") : t("Need an account?")}
           <button
