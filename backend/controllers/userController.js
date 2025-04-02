@@ -78,43 +78,47 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
     const { phone, password } = req.body;
 
-    // Validate input data
     if (!phone || !password) {
         return res.status(400).json({ success: false, message: 'Missing credentials' });
     }
 
-    // Find the user by phone
+    // Find the user
     const user = await UserModel.findOne({ phone });
     if (!user) {
         return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    // Compare the password
+    // Verify password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
         return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    // Generate JWT token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.status(200).json({ success: true, token });
-};
+    // Generate access token and refresh token
+    const payload = { id: user._id, role: user.role }; // Include only necessary claims
+    const accessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' }); // 1 hour
+    const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' }); // 7 days
 
+    res.status(200).json({
+        success: true,
+        token: accessToken,
+        refreshToken, // Include refresh token in response
+    });
+};
 // API to get user profile data
 const getProfile = async (req, res) => {
-
     try {
-        const { userId } = req.body
-        const userData = await UserModel.findById(userId).select('-password')
-
-        res.json({ success: true, userData })
-
+        const { userId } = req.body;
+        const userData = await UserModel.findById(userId).select('-password');
+        if (!userData) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+        res.json({ success: true, userData });
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
+        console.error("Error fetching profile:", error);
+        res.status(500).json({ success: false, message: error.message });
     }
-}
-
+};
 // API to update user profile
 const updateProfile = async (req, res) => {
 
