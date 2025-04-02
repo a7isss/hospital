@@ -1,5 +1,5 @@
 import axios from "axios";
-import authService from "../services/authService"; // Importing the updated authService for token handling
+import authService from "../services/authService";
 
 // Create an Axios instance
 const axiosInstance = axios.create();
@@ -10,22 +10,23 @@ axiosInstance.interceptors.request.use(
         // Get token from localStorage
         const token = authService.getToken();
 
-        // Check if the token exists and validate its expiration
-        if (token) {
-            if (authService.isTokenExpired(token)) {
-                // Clear expired token and optionally handle global session cleanup
-                authService.logoutUser();
-                throw new Error("Token expired. Please log in again.");
-            }
-
-            // Add the valid token to the Authorization header
+        // Add user token if available and not expired
+        if (token && !authService.isTokenExpired(token)) {
             config.headers.Authorization = `Bearer ${token}`;
         }
 
-        return config; // Return the modified config
+        // Do not override headers if `x-visitor-id` is already set
+        if (!config.headers["x-visitor-id"]) {
+            // Add visitorId if managing visitor session
+            const visitorId = localStorage.getItem("visitorId");
+            if (visitorId) {
+                config.headers["x-visitor-id"] = visitorId;
+            }
+        }
+
+        return config;
     },
     (error) => {
-        // Handle errors before the request is sent
         return Promise.reject(error);
     }
 );

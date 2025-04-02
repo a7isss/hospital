@@ -1,19 +1,21 @@
-import { UserModel, VisitorModel, ServiceModel, CartModel, DoctorModel } from '../models/models.js';
+import { VisitorModel, CartModel, ServiceModel } from "../models/models.js";
 
-// Add an item to the cart
+/**
+ * Add item to a user or visitor cart.
+ * Differentiates between a logged-in user (userId) or a visitor (visitorId).
+ */
 export const addToCart = async (req, res) => {
-    const { userId } = req.body; // For logged-in users
-    const visitorId = req.headers.authorization?.replace("Bearer ", ""); // For guest users
-    const { itemId } = req.body; // ID of the service to be added
+    const { itemId, quantity = 1 } = req.body; // `quantity` defaults to 1
+    const userId = req.user?.id; // From `authUser` middleware (for authenticated users)
+    const visitorId = req.visitorId; // From `ensureVisitorSession` middleware (for visitors)
 
     try {
-        // Fetch service details (price, name, etc.) from ServiceModel
-        const service = await ServiceModel.findById(itemId);
+        const service = await ServiceModel.findById(itemId); // Query the service
         if (!service) {
             return res.status(404).json({ success: false, message: "Service not found." });
         }
 
-        // Logic for logged-in users
+        // Handle cart for logged-in users
         if (userId) {
             let cart = await CartModel.findOne({ userId });
 
@@ -22,33 +24,19 @@ export const addToCart = async (req, res) => {
                 cart = new CartModel({ userId, items: [], totalPrice: 0 });
             }
 
-            // Check if the item is already in the cart
-            const existingItem = cart.items.find((item) => item.itemId.toString() === itemId);
-            if (existingItem) {
-                existingItem.quantity += 1; // Increment the quantity
-            } else {
-                cart.items.push({
-                    itemId: service._id,
-                    name: service.name,
-                    price: service.price,
-                    quantity: 1,
-                });
-            }
+            // Add the item to the user’s cart
+            await updateCart(cart, service, quantity);
 
-            // Recalculate the total price
-            cart.totalPrice = cart.items.reduce(
-                (sum, item) => sum + item.price * item.quantity,
-                0
-            );
-
-            await cart.save();
-            return res.status(200).json({ success: true, message: `${service.name} added to cart.`, cart });
+            return res.status(200).json({
+                success: true,
+                message: `${service.name} added to cart (user).`,
+                cart,
+            });
         }
 
-        // Logic for visitors (guest users)
+        // Handle cart for visitors
         if (visitorId) {
             const visitor = await VisitorModel.findOne({ visitorId });
-
             if (!visitor) {
                 return res.status(404).json({ success: false, message: "Visitor not found." });
             }
@@ -58,27 +46,15 @@ export const addToCart = async (req, res) => {
                 visitor.sessionData.cart = [];
             }
 
-            // Check if the item is already in the cart
-            const existingItem = visitor.sessionData.cart.find((item) => item.itemId.toString() === itemId);
-            if (existingItem) {
-                existingItem.quantity += 1; // Increment the quantity
-            } else {
-                visitor.sessionData.cart.push({
-                    itemId: service._id,
-                    name: service.name,
-                    price: service.price,
-                    quantity: 1,
-                });
-            }
-
-            // Recalculate the total price
-            const totalPrice = visitor.sessionData.cart.reduce(
-                (sum, item) => sum + item.price * item.quantity,
-                0
-            );
+            // Add the item to the visitor's cart
+            await updateCart(visitor.sessionData, service, quantity);
 
             await visitor.save();
-            return res.status(200).json({ success: true, message: `${service.name} added to cart.`, cart: { items: visitor.sessionData.cart, totalPrice } });
+            return res.status(200).json({
+                success: true,
+                message: `${service.name} added to cart (visitor).`,
+                cart: visitor.sessionData.cart,
+            });
         }
 
         return res.status(400).json({ success: false, message: "Either userId or visitorId is required." });
@@ -87,97 +63,95 @@ export const addToCart = async (req, res) => {
         return res.status(500).json({ success: false, message: "Failed to add item to cart.", error: error.message });
     }
 };
-export const removeItemFromCart = async (req, res) => {
-    const { userId } = req.body; // For logged-in users
-    const visitorId = req.headers.authorization?.replace("Bearer ", ""); // For guest users
-    const { itemId } = req.body; // ID of the service to be removed
+
+/**
+ * Remove an item from a user or visitor cart.
+ */
+export const removeFromCart = async (req, res) => {
+    const { itemId } = req.body;
+    const userId = req.user?.id;
+    const visitorId = req.visitorId;
 
     try {
-        // Logic for logged-in users
+        // Handle cart for logged-in users
         if (userId) {
             const cart = await CartModel.findOne({ userId });
             if (!cart) {
                 return res.status(404).json({ success: false, message: "Cart not found." });
             }
 
-            // Remove the item from the cart
-            cart.items = cart.items.filter((item) => item.itemId.toString() !== itemId);
-
-            // Recalculate the total price
-            cart.totalPrice = cart.items.reduce(
-                (sum, item) => sum + item.price * item.quantity,
-                0
-            );
+            removeItemFromCart(cart, itemId);
 
             await cart.save();
-            return res.status(200).json({ success: true, message: "Item removed from cart.", cart });
+            return res.status(200).json({
+                success: true,
+                message: `Item removed from user cart.`,
+                cart,
+            });
         }
 
-        // Logic for visitors (guest users)
+        // Handle cart for visitors
         if (visitorId) {
             const visitor = await VisitorModel.findOne({ visitorId });
-
             if (!visitor || !visitor.sessionData.cart) {
-                return res.status(404).json({ success: false, message: "Cart not found." });
+                return res.status(404).json({ success: false, message: "Visitor cart not found." });
             }
 
-            // Remove the item from the visitor's cart
-            visitor.sessionData.cart = visitor.sessionData.cart.filter(
-                (item) => item.itemId.toString() !== itemId
-            );
-
-            // Recalculate the total price
-            const totalPrice = visitor.sessionData.cart.reduce(
-                (sum, item) => sum + item.price * item.quantity,
-                0
-            );
+            removeItemFromCart(visitor.sessionData, itemId);
 
             await visitor.save();
             return res.status(200).json({
                 success: true,
-                message: "Item removed from cart.",
-                cart: { items: visitor.sessionData.cart, totalPrice },
+                message: `Item removed from visitor cart.`,
+                cart: visitor.sessionData.cart,
             });
         }
 
         return res.status(400).json({ success: false, message: "Either userId or visitorId is required." });
     } catch (error) {
-        console.error("removeItemFromCart - Error:", error.message);
+        console.error("removeFromCart - Error:", error.message);
         return res.status(500).json({ success: false, message: "Failed to remove item from cart.", error: error.message });
     }
 };
-// Fetch cart for logged-in users or visitors
-export const fetchCart = async (req, res) => {
-    const { userId } = req.body; // For logged-in users
-    const visitorId = req.headers.authorization?.replace("Bearer ", ""); // For guest users
 
-    try {
-        // Fetch cart for logged-in users
-        if (userId) {
-            const cart = await CartModel.findOne({ userId });
-            if (!cart || cart.items.length === 0) {
-                return res.status(200).json({ success: true, message: "Cart is empty.", cart: { items: [], totalPrice: 0 } });
-            }
-            return res.status(200).json({ success: true, cart });
-        }
+/**
+ * Utility to update (add or increment) items in a cart.
+ */
+const updateCart = async (cart, service, quantity) => {
+    const existingItem = cart.items?.find((item) => item.itemId.toString() === service._id.toString());
 
-        // Fetch cart for visitors (guest users)
-        if (visitorId) {
-            const visitor = await VisitorModel.findOne({ visitorId });
-
-            if (!visitor) {
-                return res.status(404).json({ success: false, message: "Visitor not found." });
-            }
-
-            const cart = visitor.sessionData.cart || [];
-            const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-            return res.status(200).json({ success: true, cart: { items: cart, totalPrice } });
-        }
-
-        return res.status(400).json({ success: false, message: "Either userId or visitorId is required." });
-    } catch (error) {
-        console.error("fetchCart - Error:", error.message);
-        return res.status(500).json({ success: false, message: "Failed to fetch cart.", error: error.message });
+    if (existingItem) {
+        // Increment quantity if the item already exists in the cart
+        existingItem.quantity += quantity;
+    } else {
+        // Otherwise, add a new item to the cart
+        cart.items.push({
+            itemId: service._id,
+            name: service.name,
+            price: service.price,
+            quantity,
+        });
     }
+
+    // Recalculate the total price
+    cart.totalPrice = cart.items.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+    );
+
+    return cart;
+};
+
+/**
+ * Utility to remove items from a cart.
+ */
+const removeItemFromCart = (cart, itemId) => {
+    // Filter out the item to be removed
+    cart.items = cart.items.filter((item) => item.itemId.toString() !== itemId);
+
+    // Recalculate the total price
+    cart.totalPrice = cart.items.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+    );
 };
