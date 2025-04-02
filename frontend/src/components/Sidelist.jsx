@@ -2,42 +2,66 @@ import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 
 const Sidelist = () => {
-    const [isOpen, setIsOpen] = useState(false); // State to track if the menu is open
+    const [isOpen, setIsOpen] = useState(false); // State to track menu open/close
 
+    // Toggle the sidelist menu
     const toggleSidelist = () => {
-        setIsOpen(!isOpen); // Toggle the open/close state
+        setIsOpen((prev) => !prev); // Toggle menu open state
     };
 
     return (
         <div className="relative">
             {/* Button to toggle the sidelist */}
-            <button
-                onClick={toggleSidelist}
-                className="fixed bottom-5 right-5 bg-primary text-white p-3 rounded-full shadow-md focus:outline-none"
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
+            {!isOpen && (
+                <button
+                    onClick={toggleSidelist}
+                    className="fixed bottom-5 right-5 bg-primary text-white p-3 rounded-full shadow-md focus:outline-none"
                 >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M4 6h16M4 12h16m-7 6h7"
-                    />
-                </svg>
-            </button>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-6 w-6"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M4 6h16M4 12h16m-7 6h7"
+                        />
+                    </svg>
+                </button>
+            )}
 
             {/* Sidelist container */}
             {isOpen && (
                 <div className="fixed bottom-0 right-0 bg-white w-64 shadow-lg rounded-t-lg pb-5">
-                    <div className="p-4 border-b">
+                    {/* Menu Header with Close Button */}
+                    <div className="p-4 border-b flex justify-between items-center">
                         <h3 className="text-lg font-medium text-primary">Menu</h3>
+                        <button
+                            onClick={toggleSidelist}
+                            className="text-gray-500 hover:text-primary focus:outline-none"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-6 w-6"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M6 18L18 6M6 6l12 12"
+                                />
+                            </svg>
+                        </button>
                     </div>
 
+                    {/* Menu Items */}
                     <ul className="flex flex-col items-end p-4 space-y-4">
                         {/* Contact page */}
                         <li>
@@ -101,4 +125,4 @@ const Sidelist = () => {
     );
 };
 
-export default Sidelist;// side options
+export default Sidelist;
