@@ -29,11 +29,6 @@ const App = () => {
         <VisitorProvider> {/* Wrap your application with VisitorProvider */}
             <AppContextProvider>
                 <CartContextProvider>
-                    <UserProvider>
-                        <Route path="/my-appointments" element={<MyAppointments />} />
-                        <Route path="/my-profile" element={<MyProfile />} />
-                    </UserProvider>
-
                         <div className='mx-2 sm:mx-[5%] lg:mx-[10%]'>
                     {/* Toast notifications */}
                     <ToastContainer
@@ -74,6 +69,10 @@ const App = () => {
                     </div>
 {/* Your existing routes                     <Nav />*/}
                 </div>
+                    <UserProvider>
+                        <Route path="/my-appointments" element={<MyAppointments />} />
+                        <Route path="/my-profile" element={<MyProfile />} />
+                    </UserProvider>
 
                 </CartContextProvider>
         </AppContextProvider>
