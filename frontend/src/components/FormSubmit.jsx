@@ -11,9 +11,9 @@ const FormSubmit = async (formData, isRegistering) => {
                 password: formData.password, // Add the password field
             });
         } else {
-            // Use the authService to log in the user
+            // Use the authService to log in the user with phone instead of email
             response = await authService.loginUser({
-                email: formData.email, // Assuming email is part of the login form
+                phone: formData.phone, // Use phone for login
                 password: formData.password,
             });
         }

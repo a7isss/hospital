@@ -76,15 +76,15 @@ const registerUser = async (req, res) => {
 };
 
 const loginUser = async (req, res) => {
-    const { email, password } = req.body;
+    const { phone, password } = req.body;
 
     // Validate input data
-    if (!email || !password) {
+    if (!phone || !password) {
         return res.status(400).json({ success: false, message: 'Missing credentials' });
     }
 
-    // Find the user by email
-    const user = await UserModel.findOne({ email });
+    // Find the user by phone
+    const user = await UserModel.findOne({ phone });
     if (!user) {
         return res.status(404).json({ success: false, message: 'User not found' });
     }
