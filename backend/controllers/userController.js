@@ -12,10 +12,7 @@ const razorpayInstance = new razorpay({
     key_secret: process.env.RAZORPAY_KEY_SECRET,
 })
 
-if (!process.env.JWT_SECRET) {
-    console.error('JWT_SECRET is undefined. Check your environment configuration.');
-}
-console.log('JWT_SECRET:', process.env.JWT_SECRET);
+
 // Fetch a single service by ID
 export const getServiceById = async (req, res) => {
     const { id } = req.params; // Extract the ID from request parameters
@@ -82,6 +79,10 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     const { phone, password } = req.body;
+    if (!process.env.JWT_SECRET) {
+        console.error('JWT_SECRET is undefined. Check your environment configuration.');
+    }
+    console.log('JWT_SECRET:', process.env.JWT_SECRET);
 
     if (!phone || !password) {
         return res.status(400).json({ success: false, message: 'Missing credentials' });
@@ -102,7 +103,7 @@ const loginUser = async (req, res) => {
     // Generate access token and refresh token
     const payload = { id: user._id, role: user.role }; // Include only necessary claims
     const accessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' }); // 1 hour
-    const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' }); // 7 days
+    const refreshToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' }); // 7 days
 
     res.status(200).json({
         success: true,
