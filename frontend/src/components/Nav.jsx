@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import Sidelist from './Sidelist'; // Import the Sidelist component
+import Sidelist from '../components/Sidelist'; // Import the Sidelist component
 
 const Nav = () => {
     const navItems = [
