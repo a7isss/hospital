@@ -28,23 +28,23 @@ const Login = () => {
 
   // Handle form submission
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent default form submission
+
+    console.log("isRegistering:", isRegistering); // Debugging to confirm whether logging in or registering
 
     try {
-      // Submit the form using the custom `FormSubmit` component logic
+      // Call FormSubmit with the right API endpoint based on isRegistering
       const responseData = await FormSubmit(formData, isRegistering);
 
       // Log in the user using AppContext (if in logging-in mode)
       if (!isRegistering) {
-        await logInUser(responseData); // Assume logInUser updates token/userData into AppContext
+        await logInUser(responseData); // Assume logInUser updates token/userData in AppContext
       }
 
-      console.log(responseData); // Handle success response (optional debug)
-
-      // Redirect to the home page after successful login/registration
-      navigate("/");
+      console.log(responseData); // Debugging the success response
+      navigate("/"); // Redirect to home page after successful login/registration
     } catch (error) {
-      console.error("Submission failed:", error); // Handle error response
+      console.error("Submission failed:", error); // Handle and log error response
     }
   };
 
@@ -114,11 +114,12 @@ const Login = () => {
           </button>
         </form>
 
-        {/* Toggle between Login and Register */}
+        {/* Toggle between login and register */}
         <p className="mt-4">
           {isRegistering ? t("Already have an account?") : t("Need an account?")}
           <button
-              onClick={() => setIsRegistering(!isRegistering)}
+              type="button" // Avoid accidental form submission
+              onClick={() => setIsRegistering(!isRegistering)} // Toggle the form state
               className="text-blue-500 ml-1"
           >
             {isRegistering ? t("Login Here") : t("Register Here")}
