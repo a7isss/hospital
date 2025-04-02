@@ -5,7 +5,17 @@ import { AppContext } from "./AppContext";
 export const UserContext = createContext();
 
 const UserProvider = ({ children }) => {
-    const { token, setToken, userData, handleSessionExpiry } = useContext(AppContext); // Consume AppContext
+    // Use fallback in case AppContext is not properly initialized
+    const appContext = useContext(AppContext) || {};
+
+    // Safely destructure properties with default values
+    const {
+        token = null,
+        setToken = () => {},
+        userData = null,
+        handleSessionExpiry = () => {}
+    } = appContext;
+
     const [user, setUser] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
