@@ -1,4 +1,4 @@
-import axiosInstance from "../utils/axiosInstance";
+import axiosInstance from "../utils/axiosInstance.js";
 const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/user/`;
 
 const authService = {
