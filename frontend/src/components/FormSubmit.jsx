@@ -1,4 +1,4 @@
-import authService from "../services/authService.js";
+import authService from "../services/authService";
 const FormSubmit = async (formData, isRegistering) => {
     try {
         let response;
