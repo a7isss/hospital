@@ -12,49 +12,55 @@ const UserProvider = ({ children }) => {
         setToken = () => {},
         userData = null,
         handleSessionExpiry = () => {},
-        fetchUserData, // Fetch user data from AppContext
+        fetchUserData = () => {},
+        logInUser: logInUserFromAppContext = () => {},
+        registerUser: registerUserFromAppContext = () => {}
     } = appContext;
 
-    const [user, setUser] = useState(null);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [user, setUser] = useState(null); // Local state for user info
+    const [isAuthenticated, setIsAuthenticated] = useState(false); // Local state for authentication status
 
+    // Sync with AppContext's `userData` and `token`
     useEffect(() => {
         console.log("UserContext -> AppContext Values Changed:", { token, userData });
 
+        // Sync user state from AppContext's userData
         if (token && userData) {
-            setUser(userData); // Sync user state with AppContext's userData
+            setUser(userData);
             setIsAuthenticated(true);
         } else {
-            console.warn("Token or userData is missing. Resetting user state.");
-            setUser(null); // Clear user state when logged out
+            setUser(null);
             setIsAuthenticated(false);
         }
     }, [token, userData]);
 
+    // Handle user login
     const logInUser = async (payload) => {
+        console.log("UserContext -> logInUser -> Initiating login...");
         try {
-            // Assume AppContext handles the login logic
-            console.log("UserContext -> Logging in user...");
-            await fetchUserData(); // Notify AppContext to fetch user data
+            // Delegate login to AppContext
+            await logInUserFromAppContext(payload);
         } catch (error) {
-            console.error("UserContext -> Error during user login:", error);
-            handleSessionExpiry(); // Clear session on error
+            console.error("UserContext -> logInUser -> Error:", error);
+            handleSessionExpiry(); // Clear session on login failure
         }
     };
 
+    // Handle user registration
     const registerUser = async (payload) => {
+        console.log("UserContext -> registerUser -> Initiating registration...");
         try {
-            // AppContext should handle token saving
-            console.log("UserContext -> Registering user...");
-            await fetchUserData(); // Reload user data
+            // Delegate registration to AppContext
+            await registerUserFromAppContext(payload);
         } catch (error) {
-            console.error("UserContext -> Error during user registration:", error);
-            handleSessionExpiry();
+            console.error("UserContext -> registerUser -> Error:", error);
+            handleSessionExpiry(); // Clear session on registration failure
         }
     };
 
+    // Handle user logout
     const logOutUser = () => {
-        console.log("UserContext -> Logging out user...");
+        console.log("UserContext -> logOutUser -> Logging out...");
         setToken(null); // Clear token via AppContext
         setUser(null); // Clear user state
         setIsAuthenticated(false);

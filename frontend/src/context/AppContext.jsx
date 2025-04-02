@@ -56,18 +56,18 @@ const AppContextProvider = ({ children }) => {
             setError(null); // Clear any previous errors
             setLoading(true);
             console.log("AppContext -> Logging in user...");
-            const response = await authService.loginUser(payload); // Get token and user data from API
+            const { token: newToken, refreshToken } = await authService.loginUser(payload); // Login and get tokens
 
-            // Save token to state and storage
-            const token = response.token;
-            if (!token || authService.isTokenExpired(token)) {
-                console.warn("AppContext -> LogInUser -> Received expired or invalid token.");
+            // Handle session and fetch user data
+            if (!newToken || authService.isTokenExpired(newToken)) {
+                console.warn("AppContext -> logInUser -> Received expired or invalid token.");
                 handleSessionExpiry();
                 return;
             }
-            setToken(token); // Save token to AppContext state
-            // Fetch user data
-            await fetchUserData();
+
+            // Save tokens via authService (already handled inside authService)
+            setToken(newToken);
+            await fetchUserData(); // Fetch and set user data after successful login
         } catch (error) {
             console.error("AppContext -> logInUser -> Error:", error);
             setError("Failed to log in. Please check your credentials.");
@@ -82,18 +82,18 @@ const AppContextProvider = ({ children }) => {
             setError(null); // Clear any previous errors
             setLoading(true);
             console.log("AppContext -> Registering user...");
-            const response = await authService.registerUser(payload); // Get token and user data from API
+            const { token: newToken, refreshToken } = await authService.registerUser(payload); // Register and get tokens
 
-            // Save token to state and storage
-            const token = response.token;
-            if (!token || authService.isTokenExpired(token)) {
-                console.warn("AppContext -> RegisterUser -> Received expired or invalid token.");
+            // Handle session and fetch user data
+            if (!newToken || authService.isTokenExpired(newToken)) {
+                console.warn("AppContext -> registerUser -> Received expired or invalid token.");
                 handleSessionExpiry();
                 return;
             }
-            setToken(token); // Save token to AppContext state
-            // Fetch user data
-            await fetchUserData();
+
+            // Save tokens via authService (already handled inside authService)
+            setToken(newToken);
+            await fetchUserData(); // Fetch and set user data after successful registration
         } catch (error) {
             console.error("AppContext -> registerUser -> Error:", error);
             setError("Failed to register. Please try again.");
@@ -102,58 +102,9 @@ const AppContextProvider = ({ children }) => {
         }
     };
 
-    // Fetch globally available doctors
-    const fetchDoctors = async () => {
-        const token = authService.getToken();
-        if (!token || authService.isTokenExpired(token)) {
-            handleSessionExpiry(); // Handle expired or missing token
-            return;
-        }
-        try {
-            setError(null);
-            setLoading(true);
-            const { data } = await authService.getDoctors(); // Adjust API
-            setDoctors(data.doctors);
-        } catch (err) {
-            console.error("Error fetching doctors:", err);
-            setError("Unable to fetch doctors.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Fetch globally available services
-    const fetchServices = async () => {
-        const token = authService.getToken();
-        if (!token || authService.isTokenExpired(token)) {
-            handleSessionExpiry(); // Handle expired or missing token
-            return;
-        }
-        try {
-            setError(null); // Reset error state
-            setServicesLoading(true);
-            const { data } = await authService.getServices(); // Adjust API
-            setServices(data.services || []);
-        } catch (err) {
-            console.error("Error fetching services:", err);
-            setError("Unable to fetch services.");
-        } finally {
-            setServicesLoading(false);
-        }
-    };
-
-    // Clear session when token is invalid or user logs out
-    const clearSession = () => {
-        console.log("AppContext -> Clearing session...");
-        authService.logoutUser(); // Clear token in authService
-        setToken(null); // Clear token state
-        setUserData(null); // Clear user data state
-    };
-
-    // Initialize user data fetch on mount
     useEffect(() => {
         console.log("AppContext -> Initializing fetchUserData...");
-        fetchUserData();
+        fetchUserData(); // Fetch user data on component load
     }, []);
 
     return (
@@ -166,9 +117,7 @@ const AppContextProvider = ({ children }) => {
                 fetchUserData,
                 logInUser,
                 registerUser,
-                clearSession,
-                fetchDoctors,
-                fetchServices,
+                clearSession: handleSessionExpiry, // Alias for clarity
                 services,
                 doctors,
                 currencySymbol,
