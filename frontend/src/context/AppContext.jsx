@@ -29,22 +29,30 @@ const AppContextProvider = ({ children }) => {
     // Fetch the current user's data
     const fetchUserData = async () => {
         const token = authService.getToken();
+        console.log("AppContext -> fetchUserData -> Token:", token);
         if (!token || authService.isTokenExpired(token)) {
-            handleSessionExpiry(); // Handle token expiration or absence
+            console.warn("AppContext -> fetchUserData -> Token is invalid or expired. Logging out.");
+            handleSessionExpiry();
             return;
         }
         try {
-            setError(null); // Reset any previous errors
+            setError(null);
             setLoading(true);
-            const { user } = await authService.getProfile(); // Profile fetch handles tokenExpiry
+            const { user } = await authService.getProfile();
+            console.log("AppContext -> fetchUserData -> Fetched user:", user);
             setUserData(user);
         } catch (err) {
-            console.error("Error fetching user data:", err);
-            handleSessionExpiry(); // Catch errors related to invalid/expired tokens
+            console.error("AppContext -> fetchUserData -> Error fetching user data:", err);
+            handleSessionExpiry();
         } finally {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        console.log("AppContext -> Initializing fetchUserData...");
+        fetchUserData();
+    }, []);
 
     // Fetch globally available doctors
     const fetchDoctors = async () => {
