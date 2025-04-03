@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import useAuthStore from "./store/authStore";
-import Navbar from "./components/Navbar";
+import Header from "./components/Header.jsx";
 import Home from "./pages/Home";
 import Partners from "./pages/Partners";
 import Login from "./pages/Login";
@@ -19,6 +19,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
+import Nav from "./components/Nav"; // Import Nav component
 
 // i18n language initialization
 i18n.use(initReactI18next).init({
@@ -83,8 +84,9 @@ const App = () => {
     }, [initializeVisitor, fetchUserData, fetchServices, isAuthenticated]);
 
     return (
-        <div className="mx-2 sm:mx-[5%] lg:mx-[10%]">
-            {/* Toast Notifications for user feedback */}
+        // Container for the entire app
+        <div className="flex flex-col h-screen">
+            {/* Toast Notifications */}
             <ToastContainer
                 position={
                     document.documentElement.getAttribute("dir") === "rtl"
@@ -101,40 +103,69 @@ const App = () => {
                 pauseOnHover
             />
 
-            {/* Navbar */}
-            <Navbar />
+            {/* Header Component, including Navbar and Footer */}
+            <Header />
 
-            {/* Loading Indicator */}
-            {loading && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full text-white"></div>
-                </div>
-            )}
+            {/* Main Content */}
+            <div className="flex-1">
+                {/* Loading Indicator */}
+                {loading && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full text-white"></div>
+                    </div>
+                )}
 
-            {/* Error Boundary */}
-            {error && (
-                <div className="text-center text-red-600 font-semibold bg-red-50 py-4">
-                    {`An error occurred: ${error}`}
-                </div>
-            )}
+                {/* Error Indicator */}
+                {error && (
+                    <div className="text-center text-red-600 font-semibold bg-red-50 py-4">
+                        {`An error occurred: ${error}`}
+                    </div>
+                )}
 
-            {/* Main Routes */}
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/subscriptions" element={<Subscriptions />} />
-                <Route path="/services" element={<Services />} />
-                <Route path="/partners" element={<Partners />} />
-                <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/" />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/appointment/:id" element={<Appointment />} />
-                <Route path="/my-appointments" element={isAuthenticated ? <MyAppointments /> : <Navigate to="/login" />} />
-                <Route path="/my-profile" element={isAuthenticated ? <MyProfile /> : <Navigate to="/login" />} />
-                <Route path="/service/:id" element={<Service />} />
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/doctors" element={<Doctors />} />
-                <Route path="*" element={<Navigate to="/" />} /> {/* Redirect invalid routes to home */}
-            </Routes>
+                {/* Application Routes */}
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/subscriptions" element={<Subscriptions />} />
+                    <Route path="/services" element={<Services />} />
+                    <Route path="/partners" element={<Partners />} />
+                    <Route
+                        path="/login"
+                        element={
+                            !isAuthenticated ? <Login /> : <Navigate to="/" />
+                        }
+                    />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route
+                        path="/appointment/:id"
+                        element={<Appointment />}
+                    />
+                    <Route
+                        path="/my-appointments"
+                        element={
+                            isAuthenticated ? (
+                                <MyAppointments />
+                            ) : (
+                                <Navigate to="/login" />
+                            )
+                        }
+                    />
+                    <Route
+                        path="/my-profile"
+                        element={
+                            isAuthenticated ? (
+                                <MyProfile />
+                            ) : (
+                                <Navigate to="/login" />
+                            )
+                        }
+                    />
+                    <Route path="/service/:id" element={<Service />} />
+                    <Route path="/cart" element={<Cart />} />
+                    <Route path="/doctors" element={<Doctors />} />
+                    <Route path="*" element={<Navigate to="/" />} />
+                </Routes>
+            </div>
         </div>
     );
 };
