@@ -1,87 +1,83 @@
-import React, { useEffect } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
-import useAuthStore from "../store/authStore";
-import Header from "../components/Header";
-import Home from "../pages/Home";
-import Partners from "../pages/Partners";
-import Login from "../pages/Login";
-import About from "../pages/About";
-import Contact from "../pages/Contact";
-import Appointment from "../pages/Appointment";
-import MyAppointments from "../pages/MyAppointments";
-import MyProfile from "../pages/MyProfile";
-import Service from "../pages/Service";
-import Services from "../pages/Services";
-import Cart from "../pages/Cart";
-import Subscriptions from "../pages/Subscriptions";
-import Doctors from "../components/Doctors";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import React, { useState, useEffect } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { assets } from '../assets/assets';
+import cartIcon from "../assets/cart.svg"; // Cart icon asset
+import useAuthStore from "../store/authStore"; // Auth store
 
-const App = () => {
-    const {
-        initializeVisitor,
-        fetchUserData,
-        fetchServices,
-        isAuthenticated,
-        loading,
-        error,
-    } = useAuthStore((state) => ({
-        initializeVisitor: state.initializeVisitor,
-        fetchUserData: state.fetchUserData,
-        fetchServices: state.fetchServices,
-        isAuthenticated: state.isAuthenticated,
-        loading: state.loading,
-        error: state.error,
-    }));
+const Header = () => {
+    const { t } = useTranslation();
+    const navigate = useNavigate();
+
+    const cart = useAuthStore((state) => state.cart);
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const userData = useAuthStore((state) => state.userData);
+    const visitorId = useAuthStore((state) => state.visitorId);
+    const logOutUser = useAuthStore((state) => state.logOutUser);
+    const initializeVisitor = useAuthStore((state) => state.initializeVisitor);
+    const loading = useAuthStore((state) => state.loading);
+
+    const [showMenu, setShowMenu] = useState(false);
+
+    const totalCartItems = cart.reduce((acc, item) => acc + item.quantity, 0);
 
     useEffect(() => {
-        const initializeApp = async () => {
-            await initializeVisitor();
-            if (isAuthenticated) await fetchUserData();
-            await fetchServices();
-        };
-        initializeApp();
-    }, [initializeVisitor, fetchUserData, fetchServices, isAuthenticated]);
+        if (!isAuthenticated && !visitorId) {
+            initializeVisitor();
+        }
+    }, [isAuthenticated, visitorId, initializeVisitor]);
 
     return (
-        <div className="flex flex-col h-screen">
-            {/* Toast Notifications */}
-            <ToastContainer autoClose={5000} />
+        <header className="bg-gray-100 shadow-md sticky top-0 z-50">
+            <div className="flex items-center justify-between py-4 px-6">
+                {/* Logo */}
+                <img
+                    src={assets.logo}
+                    alt="App Logo"
+                    className="cursor-pointer w-44"
+                    onClick={() => navigate("/")}
+                />
 
-            {/* Header Section */}
-            <Header />
+                {/* Desktop Navigation */}
+                <ul className="hidden md:flex gap-6 items-center text-sm font-medium">
+                    <NavLink to="/" className="hover:text-primary">{t("home")}</NavLink>
+                    <NavLink to="/partners" className="hover:text-primary">{t("partners")}</NavLink>
+                    <NavLink to="/services" className="hover:text-primary">{t("services")}</NavLink>
+                    <NavLink to="/about" className="hover:text-primary">{t("about")}</NavLink>
+                    <NavLink to="/contact" className="hover:text-primary">{t("contact")}</NavLink>
+                    <NavLink to="/subscriptions" className="hover:text-primary">{t("subscriptions")}</NavLink>
+                </ul>
 
-            {/* Main Content */}
-            <main className="flex-1 p-4">
-                {loading && <div className="text-center">Loading...</div>}
-                {error && <div className="text-center text-red-500">{error}</div>}
+                {/* Cart Button */}
+                <button
+                    onClick={() => navigate("/cart")}
+                    className="relative flex items-center hover:text-primary"
+                    disabled={loading}
+                >
+                    <img src={cartIcon} alt="Cart Icon" className="w-6 h-6 object-contain" />
+                    {!loading && totalCartItems > 0 && (
+                        <span className="absolute top-0 -right-4 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                            {totalCartItems}
+                        </span>
+                    )}
+                </button>
 
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/subscriptions" element={<Subscriptions />} />
-                    <Route path="/services" element={<Services />} />
-                    <Route path="/partners" element={<Partners />} />
-                    <Route
-                        path="/login"
-                        element={!isAuthenticated ? <Login /> : <Navigate to="/" />}
-                    />
-                    <Route path="/about" element={<About />} />
-                    <Route path="/contact" element={<Contact />} />
-                    <Route path="/appointment/:id" element={<Appointment />} />
-                    <Route path="/my-appointments" element={isAuthenticated ? <MyAppointments /> : <Navigate to="/login" />} />
-                    <Route path="/my-profile" element={isAuthenticated ? <MyProfile /> : <Navigate to="/login" />} />
-                    <Route path="/cart" element={<Cart />} />
-                    <Route path="*" element={<Navigate to="/" />} />
-                </Routes>
-            </main>
-
-            {/* Sticky Footer */}
-            <footer className="bg-gray-200 py-4 text-center">
-                <p>© 2025 YourApp. All rights reserved.</p>
-            </footer>
-        </div>
+                {/* Auth Section */}
+                {isAuthenticated && userData ? (
+                    <div>
+                        <span className="text-sm font-medium">{userData.name}</span>
+                        <button onClick={() => logOutUser()} className="ml-4 text-sm text-red-500 hover:underline">
+                            {t("logout")}
+                        </button>
+                    </div>
+                ) : (
+                    <button onClick={() => navigate("/login")} className="text-sm text-primary hover:underline">
+                        {t("login")}
+                    </button>
+                )}
+            </div>
+        </header>
     );
 };
 
-export default App;
+export default Header;
