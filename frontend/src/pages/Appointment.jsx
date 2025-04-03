@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Navigate } from 'react-router-dom';
 import useAuthStore from '../store/authStore'; // Zustand's authStore
 import { assets } from '../assets/assets';
 import RelatedDoctors from '../components/RelatedDoctors';
