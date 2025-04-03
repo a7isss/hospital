@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios"; // Import Axios for API calls
+import axios from "axios"; // Use Axios directly for unprotected routes
 import { toast } from "react-toastify"; // Notifications
 import doctorImage2 from "../assets/doc1.png"; // Placeholder image for services
 
@@ -7,21 +7,22 @@ const ServiceCards = () => {
     const [services, setServices] = useState([]); // State to store services
     const [loading, setLoading] = useState(false); // Loading state
 
-    // Function to fetch services from the server
+    // Function to fetch services from the unprotected visitor route
     const fetchServices = async () => {
         setLoading(true);
         try {
-            const response = await axios.get("/api/visitor/services"); // Call the unprotected route
-            setServices(response.data); // Store services in state
+            // Call the unprotected endpoint
+            const response = await axios.get("/api/visitor/services");
+            setServices(response.data); // Store the fetched services in state
         } catch (error) {
             console.error("Error fetching services:", error.message);
             toast.error("Failed to fetch services. Please try again later.");
         } finally {
-            setLoading(false); // Reset loading state
+            setLoading(false); // Reset the loading state
         }
     };
 
-    // Fetch services on component mount
+    // Fetch services when the component mounts
     useEffect(() => {
         fetchServices();
     }, []);
