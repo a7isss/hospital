@@ -1,5 +1,49 @@
-import { v4 as uuidv4 } from "uuid"; // Generate unique visitor IDs
+import { v4 as uuidv4 } from "uuid"; // Generate UUID for visitorId
 import { VisitorModel, ServiceModel } from "../models/models.js";
+
+// ============================
+// Middleware: Ensure Visitor Session
+// ============================
+export const ensureVisitorSession = async (req, res, next) => {
+    try {
+        // Extract visitorId from headers
+        let visitorId = req.headers["x-visitor-id"];
+
+        // Check for a valid visitor session
+        if (visitorId) {
+            const visitor = await VisitorModel.findOne({ visitorId });
+            if (visitor) {
+                req.visitorId = visitorId; // Attach visitorId for other routes
+                return next(); // Proceed if visitorId is valid
+            } else {
+                console.log("Invalid visitorId provided; creating new visitor session.");
+            }
+        }
+
+        // Generate a new visitorId if none found or invalid
+        visitorId = uuidv4();
+        console.log("No valid visitorId provided. Generated new visitorId:", visitorId);
+
+        // Create a new visitor session in the database
+        await VisitorModel.create({
+            visitorId,
+            sessionData: { cart: [] }, // Initialize with empty cart
+        });
+
+        // Pass the new visitorId to request and add it to response headers
+        req.visitorId = visitorId;
+        res.setHeader("x-visitor-id", visitorId);
+
+        next(); // Continue to the next middleware/route
+    } catch (error) {
+        console.error("Error ensuring visitor session:", error.message);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error ensuring visitor session.",
+            error: error.message,
+        });
+    }
+};
 
 // ============================
 // Create a New Visitor Session
@@ -21,7 +65,7 @@ export const createVisitorSession = async (req, res) => {
         console.error("Error creating visitor session:", error.message);
         res.status(500).json({
             success: false,
-            message: "Internal server error while creating visitor session.",
+            message: "Internal server error creating visitor session.",
             error: error.message,
         });
     }
@@ -127,13 +171,11 @@ export const deleteVisitorSession = async (req, res) => {
 // ============================
 export const getAllServices = async (req, res) => {
     try {
-        // Fetch all available services
         const services = await ServiceModel.find({});
         if (!services || services.length === 0) {
             return res.status(404).json({
                 success: false,
                 message: "No services found.",
-                data: [],
             });
         }
 
@@ -146,38 +188,7 @@ export const getAllServices = async (req, res) => {
         console.error("Error fetching services:", error.message);
         res.status(500).json({
             success: false,
-            message: "Error fetching services.",
-            error: error.message,
-        });
-    }
-};
-
-// ============================
-// Get Visitor Cart
-// ============================
-export const getVisitorCart = async (req, res) => {
-    const { visitorId } = req.params;
-
-    try {
-        const visitor = await VisitorModel.findOne({ visitorId });
-        if (!visitor || !visitor.sessionData.cart) {
-            return res.status(404).json({
-                success: false,
-                message: "Cart not found for the given visitor.",
-                data: { cart: [], totalPrice: 0 },
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Cart fetched successfully.",
-            data: visitor.sessionData.cart,
-        });
-    } catch (error) {
-        console.error("Error fetching visitor cart:", error.message);
-        res.status(500).json({
-            success: false,
-            message: "Error fetching visitor cart.",
+            message: "Internal server error fetching services.",
             error: error.message,
         });
     }

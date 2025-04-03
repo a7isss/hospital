@@ -26,14 +26,6 @@ axiosInstance.interceptors.request.use(
             config.headers.Authorization = `Bearer ${token}`;
         }
 
-        // Add visitorId if managing visitor session and x-visitor-id is not already set
-        if (!config.headers["x-visitor-id"]) {
-            const visitorId = localStorage.getItem("visitorId");
-            if (visitorId) {
-                config.headers["x-visitor-id"] = visitorId;
-            }
-        }
-
         return config; // Return the modified config
     },
     (error) => {
@@ -44,9 +36,7 @@ axiosInstance.interceptors.request.use(
 
 // Add a response interceptor to handle errors globally
 axiosInstance.interceptors.response.use(
-    (response) => {
-        return response; // Return the response if no error
-    },
+    (response) => response, // Return the response if no error
     async (error) => {
         const originalRequest = error.config;
 
