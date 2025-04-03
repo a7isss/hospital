@@ -1,8 +1,8 @@
 import React from 'react';
-import Header from '../components/Header';
 import { useTranslation } from 'react-i18next';
 import WhatsAppChat from '../components/WhatsAppChat';
 import useAuthStore from '../store/authStore';
+import ServiceCards from '../components/ServiceCards'; // Import the ServiceCards component
 
 const Home = () => {
     const { t } = useTranslation(); // For translations
@@ -46,6 +46,14 @@ const Home = () => {
 
             {/* WhatsApp Chat Component */}
             <WhatsAppChat />
+
+            {/* Service Cards Component */}
+            <div style={{ padding: '20px' }}>
+                <h2 style={{ textAlign: 'center', marginBottom: '20px', fontSize: '24px', color: '#333' }}>
+                    {t('our_services')} {/* You can add a translation key or replace with static text */}
+                </h2>
+                <ServiceCards /> {/* Insert ServiceCards here */}
+            </div>
         </div>
     );
 };
