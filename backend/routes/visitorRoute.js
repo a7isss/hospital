@@ -1,4 +1,5 @@
 import express from "express";
+import userRouter from "./userRoute.js";
 import {
     createVisitorSession,
     getVisitorSession,
@@ -17,6 +18,7 @@ visitorRouter.get("/:visitorId", getVisitorSession); // Get visitor session by I
 visitorRouter.put("/:visitorId", updateVisitorSession); // Update visitor session data
 visitorRouter.delete("/:visitorId", deleteVisitorSession); // Delete visitor session
 visitorRouter.get("/services", getAllServices);
+userRouter.get("/services", getAllServices);
 
 // Visitor cart routes
 visitorRouter.get("/:visitorId/cart", ensureVisitorSession, getVisitorCart); // Get visitor cart
