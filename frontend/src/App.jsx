@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
-import useAuthStore from "./store/authStore"; // Zustand's global state
+import { Routes, Route, Navigate } from "react-router-dom"; // Fixed: Added 'Navigate'
+import useAuthStore from "./store/authStore";
 import Navbar from "./components/Navbar";
 import Nav from "./components/Nav.jsx";
 import Home from "./pages/Home";
@@ -37,16 +37,13 @@ const App = () => {
         error: state.error,
     }));
 
-    const navigate = useNavigate();
-
-    // Initialize visitor and fetch necessary data on app load
     useEffect(() => {
         const initializeApp = async () => {
-            await initializeVisitor(); // Initialize visitor ID (for unauthenticated users)
+            await initializeVisitor(); // Initialize visitor ID
             if (isAuthenticated) {
-                await fetchUserData(); // Fetch user data for authenticated users
+                await fetchUserData(); // Fetch user data
             }
-            await fetchServices(); // Fetch globally available services
+            await fetchServices(); // Fetch services
         };
 
         initializeApp();
