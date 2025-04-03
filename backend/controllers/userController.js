@@ -8,7 +8,7 @@ import logger from "../middleware/logger.js"; // Assumes a logger utility is imp
 
 
 // Controller function to fetch all services
-const getAllServices = async (req, res) => {
+const getallServices = async (req, res) => {
     try {
         const services = await ServiceModel.find({}); // Fetch all services from the database
         res.status(200).json({
@@ -27,9 +27,10 @@ const getAllServices = async (req, res) => {
 };
 
 module.exports = {
-    getAllServices,
+    getallServices,
     // Export other controllers if necessary
 };
+
 // Register a User (Upgraded)
 const registerUser = async (req, res) => {
     const { name, phone, age, password } = req.body;
