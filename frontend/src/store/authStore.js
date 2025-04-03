@@ -72,19 +72,31 @@ const useAuthStore = create((set, get) => ({
     // ====================
     initializeVisitorCart: async () => {
         const { visitorId } = get();
-        if (!visitorId) return; // Ensure visitor ID is present
 
-        set({ loading: true });
+        if (!visitorId) return; // Ensure the visitor ID is available before proceeding
+
+        set({ loading: true }); // Show loading indicator
         try {
-            const cart = await authService.fetchCartFromServer(visitorId); // Fetch cart from backend
-            set({ cart: cart.items, totalPrice: cart.totalPrice, error: null });
+            // Fetch the cart from the server using the updated authService method
+            const cart = await authService.fetchCartFromServer(visitorId);
+
+            // Update the state with the fetched cart
+            set({
+                cart, // Array of cart items
+                totalPrice: cart.reduce((acc, item) => acc + item.price * item.quantity, 0), // Calculate total price
+                error: null, // Clear any previous errors
+            });
         } catch (error) {
-            set({ error: error.message, cart: [], totalPrice: 0 });
+            // Handle error (e.g., if cart is not found)
+            set({
+                cart: [], // Reset cart to empty
+                totalPrice: 0, // Reset total price
+                error: error.message, // Set the error message
+            });
         } finally {
-            set({ loading: false });
+            set({ loading: false }); // Hide loading indicator
         }
     },
-
     loadCart: () => {
         const { cart, totalPrice } = authService.loadCart(); // Local storage cart loading
         set({ cart, totalPrice });

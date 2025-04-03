@@ -95,9 +95,17 @@ const authService = {
     // Cart Management
     // ==================
     fetchCartFromServer: async (visitorId) => {
-        return await authService.makeAuthRequest("GET", `get/${visitorId}`, null, CART_URL); //Cart-related endpoint
+        try {
+            // Call the updated getVisitorCart endpoint
+            const response = await axiosInstance.get(
+                `${import.meta.env.VITE_BACKEND_URL}/api/visitor/${visitorId}/cart`
+            );
+            return response.data.cart; // Return the cart data only
+        } catch (error) {
+            console.error("Failed to fetch visitor's cart from server:", error.message);
+            throw error; // Propagate the error to handle it in `authStore`
+        }
     },
-
     saveCartToServer: async (visitorId, cartData) => {
         return await authService.makeAuthRequest("POST", "save", { visitorId, cartData }, CART_URL);
     },
