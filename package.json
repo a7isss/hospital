@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "@measured/puck": "^0.18.2",
+    "madge": "^8.0.0",
     "typescript": "^5.8.2"
   },
   "devDependencies": {
