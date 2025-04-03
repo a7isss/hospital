@@ -14,8 +14,6 @@ const Home = () => {
 
     return (
         <div>
-            <Header />
-
             {/* User/Visitor Information */}
             <div style={{ textAlign: 'right', margin: '10px' }}>
                 {isAuthenticated ? (
