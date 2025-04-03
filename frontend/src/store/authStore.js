@@ -16,10 +16,128 @@ const useAuthStore = create((set, get) => ({
     appointments: [], // List of user's appointments
     currencySymbol: "₹", // Global currency symbol (default to ₹)
     backendUrl: import.meta.env.VITE_BACKEND_URL, // Backend API URL
+    // ====================
+    // Cart States
+    // ====================
+    cart: [],
+    totalPrice: 0,
 
     // ====================
     // Actions and Methods
     // ====================
+// Watcher: Reload cart when visitorId changes
+    initializeVisitorCartWatcher: () => {
+        // Run this effect as a watcher when visitorId changes
+        const { visitorId } = get();
+        if (visitorId) {
+            get().loadCart(); // Load cart for the newly initialized visitor
+            console.log("authStore -> Visitor cart initialized for visitorId:", visitorId);
+        }
+    },
+    // =========================
+    // Cart Operations
+    // =========================
+
+    // Load Cart from Local Storage
+    loadCart: () => {
+        const cartKey = get().getCartKey(); // Key depends on visitorId or userData
+        try {
+            const savedCart = localStorage.getItem(cartKey);
+            const savedPrice = localStorage.getItem(`${cartKey}_totalPrice`);
+
+            set({
+                cart: savedCart ? JSON.parse(savedCart) : [],
+                totalPrice: savedPrice ? parseFloat(savedPrice) : 0,
+            });
+            console.log("authStore -> Cart loaded successfully:", { cartKey });
+        } catch (error) {
+            console.error("authStore -> Error loading cart:", error);
+            set({ cart: [], totalPrice: 0 });
+        }
+    },
+
+    // Save Cart to Local Storage
+    saveCart: () => {
+        const { cart, totalPrice } = get();
+        const cartKey = get().getCartKey();
+
+        try {
+            localStorage.setItem(cartKey, JSON.stringify(cart));
+            localStorage.setItem(`${cartKey}_totalPrice`, totalPrice.toString());
+        } catch (error) {
+            console.error("authStore -> Error saving cart:", error);
+        }
+    },
+
+    // Add Item to Cart
+    addToCart: (item) => {
+        if (!item?.price || !item?.itemId) return; // Validate required fields
+
+        set((state) => {
+            const existingItem = state.cart.find((i) => i.itemId === item.itemId);
+            const updatedCart = existingItem
+                ? state.cart.map((i) =>
+                    i.itemId === item.itemId
+                        ? { ...i, quantity: i.quantity + 1 }
+                        : i
+                )
+                : [...state.cart, { ...item, quantity: 1 }];
+
+            const newTotalPrice = updatedCart.reduce(
+                (total, i) => total + i.price * i.quantity,
+                0
+            );
+
+            return { cart: updatedCart, totalPrice: newTotalPrice };
+        });
+
+        get().saveCart(); // Save cart to local storage
+    },
+
+    // Update Item Quantity
+    updateCartQuantity: (itemId, newQuantity) => {
+        set((state) => {
+            const updatedCart = state.cart.map((item) =>
+                item.itemId === itemId ? { ...item, quantity: newQuantity } : item
+            );
+
+            const newTotalPrice = updatedCart.reduce(
+                (total, i) => total + i.price * i.quantity,
+                0
+            );
+
+            return { cart: updatedCart, totalPrice: newTotalPrice };
+        });
+
+        get().saveCart(); // Save cart to local storage
+    },
+
+    // Remove Item from Cart
+    removeFromCart: (itemId) => {
+        set((state) => {
+            const updatedCart = state.cart.filter((item) => item.itemId !== itemId);
+
+            const newTotalPrice = updatedCart.reduce(
+                (total, i) => total + i.price * i.quantity,
+                0
+            );
+
+            return { cart: updatedCart, totalPrice: newTotalPrice };
+        });
+
+        get().saveCart(); // Save changes to local storage
+    },
+
+    // Recalculate Cart Total
+    recalculateTotalPrice: () => {
+        const { cart } = get();
+        const newTotalPrice = cart.reduce(
+            (total, item) => total + item.price * item.quantity,
+            0
+        );
+
+        set({ totalPrice: newTotalPrice });
+    },
 
     // Set functions for managing state
     setToken: (token) => set({ token }),
@@ -33,16 +151,26 @@ const useAuthStore = create((set, get) => ({
 
     // Handle session expiration
     handleSessionExpiry: () => {
-        console.warn("authStore -> Handling session expiry.");
-        authService.logoutUser(); // Remove tokens and session data
-        set({ token: null, userData: null, isAuthenticated: false, subscriptions: [], appointments: [] });
-        get().initializeVisitor(); // Fallback to visitor mode
+        authService.logoutUser();
+        set({
+            token: null,
+            userData: null,
+            isAuthenticated: false,
+            subscriptions: [],
+            appointments: [],
+            cart: [],
+            totalPrice: 0,
+        });
+        get().initializeVisitor();
     },
+
 
     // Initialize visitor (for non-authenticated users)
     initializeVisitor: async () => {
-        if (get().visitorId) {
-            return; // If already initialized, skip
+        const { visitorId } = get();
+        if (visitorId) {
+            // No need to reinitialize if visitorId already exists
+            return;
         }
 
         try {
@@ -52,13 +180,13 @@ const useAuthStore = create((set, get) => ({
                 localStorage.setItem("visitorID", newVisitorId);
                 set({ visitorId: newVisitorId });
                 console.log("authStore -> Visitor initialized with ID:", newVisitorId);
+                get().initializeVisitorCartWatcher(); // Load cart for new visitor
             }
         } catch (error) {
             console.error("authStore -> Failed to initialize visitor:", error);
             set({ error: "Failed to initialize a visitor session." });
         }
     },
-
     // Fetch current user data from the backend
     fetchUserData: async () => {
         const token = get().token;

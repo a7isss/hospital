@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { CartContext } from "../context/CartContext"; // Keeping CartContext as-is for cart handling
 import { assets } from "../assets/assets"; // Assets like logo
 import cartIcon from "../assets/cart.svg"; // Cart icon asset
 import useAuthStore from "../store/authStore"; // Import Zustand authStore
@@ -10,18 +9,14 @@ const Navbar = () => {
     const { t } = useTranslation(); // For i18n translations
     const navigate = useNavigate(); // Navigation hook
 
-    const { cart } = CartContext(); // Fetch cart state from CartContext
-
-    // Access Zustand authStore
-    const {
-        token,
-        userData,
-        visitorId,
-        isAuthenticated,
-        logOutUser,
-        initializeVisitor,
-        loading,
-    } = useAuthStore();
+    // Access cart and auth states/methods from authStore
+    const cart = useAuthStore((state) => state.cart);
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const userData = useAuthStore((state) => state.userData);
+    const visitorId = useAuthStore((state) => state.visitorId);
+    const logOutUser = useAuthStore((state) => state.logOutUser);
+    const initializeVisitor = useAuthStore((state) => state.initializeVisitor);
+    const loading = useAuthStore((state) => state.loading);
 
     const [showMenu, setShowMenu] = useState(false); // State to toggle dropdown visibility
 
@@ -87,6 +82,7 @@ const Navbar = () => {
             <button
                 onClick={handleCartClick}
                 className="relative flex items-center hover:text-primary"
+                disabled={loading} // Disable if cart is loading
             >
                 {/* Cart icon */}
                 <img
@@ -95,7 +91,7 @@ const Navbar = () => {
                     className="w-6 h-6 object-contain"
                 />
                 {/* Cart item count badge */}
-                {totalCartItems > 0 && (
+                {!loading && totalCartItems > 0 && (
                     <span className="absolute top-0 -right-4 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                         {totalCartItems}
                     </span>
@@ -110,30 +106,72 @@ const Navbar = () => {
                     <span className="font-bold text-primary">{userData?.name}</span>
                     <button
                         onClick={handleLogout}
-                        className="text-red-500 text-xs mt-1 hover:text-red-700"
+                        className="text-xs text-red-500 hover:underline mt-1"
                     >
                         {t("logout")}
                     </button>
                 </div>
             ) : (
-                // If visitor or unauthenticated user
-                <div className="flex items-center gap-4">
-                    {loading ? (
-                        <span className="text-gray-500 text-sm">{t("loading")}</span>
-                    ) : (
-                        <>
-                            <button
-                                onClick={handleLogin}
-                                className="bg-white text-gray-800 border border-gray-300 px-4 py-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none"
-                            >
-                                {t("login")}
-                            </button>
-                            <span className="text-gray-500 text-sm">
-                                Visitor ID: {visitorId || t("loading")}
-                            </span>
-                        </>
-                    )}
+                // If user is not logged in (visitor mode)
+                <div className="flex items-center">
+                    <button
+                        onClick={handleLogin}
+                        className="bg-primary text-white px-4 py-2 rounded-md shadow-md hover:bg-primary-dark"
+                    >
+                        {t("login")}
+                    </button>
                 </div>
+            )}
+
+            {/* Mobile Menu Toggle */}
+            <div className="md:hidden">
+                <button
+                    onClick={() => setShowMenu((prev) => !prev)}
+                    className="text-gray-800 hover:text-primary"
+                >
+                    ☰
+                </button>
+            </div>
+
+            {/* Mobile Menu */}
+            {showMenu && (
+                <ul className="md:hidden flex flex-col gap-2 bg-gray-50 p-4 absolute top-16 right-0 shadow-lg">
+                    <NavLink to="/" className="hover:text-primary">
+                        {t("home")}
+                    </NavLink>
+                    <NavLink to="/Partners" className="hover:text-primary">
+                        {t("Partners")}
+                    </NavLink>
+                    <NavLink to="/services" className="hover:text-primary">
+                        {t("services")}
+                    </NavLink>
+                    <NavLink to="/about" className="hover:text-primary">
+                        {t("about")}
+                    </NavLink>
+                    <NavLink to="/contact" className="hover:text-primary">
+                        {t("contact")}
+                    </NavLink>
+                    <NavLink to="/subscriptions" className="hover:text-primary">
+                        {t("subscriptions")}
+                    </NavLink>
+
+                    {/* Login/Logout Button in Mobile Menu */}
+                    {isAuthenticated ? (
+                        <button
+                            onClick={handleLogout}
+                            className="text-left text-red-500 hover:underline mt-2"
+                        >
+                            {t("logout")}
+                        </button>
+                    ) : (
+                        <button
+                            onClick={handleLogin}
+                            className="text-left bg-primary text-white px-4 py-2 rounded-md shadow-md hover:bg-primary-dark"
+                        >
+                            {t("login")}
+                        </button>
+                    )}
+                </ul>
             )}
         </nav>
     );
