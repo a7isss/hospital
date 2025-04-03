@@ -2,43 +2,21 @@ import React from 'react';
 import Header from '../components/Header';
 import { useTranslation } from 'react-i18next';
 import WhatsAppChat from '../components/WhatsAppChat';
-import useAuthStore from '../store/authStore'; // Import Zustand auth store hook
+import useAuthStore from '../store/authStore';
 
 const Home = () => {
     const { t } = useTranslation(); // For translations
-    const {
-        token,
-        userData,
-        logInUser,
-        logOutUser,
-        handleSessionExpiry,
-        isAuthenticated
-    } = useAuthStore();
+    const { isAuthenticated, userData, visitorId, logOutUser } = useAuthStore(); // Access authentication and visitor state
 
-    const userName = userData?.name || t('user'); // Fallback user name from translation
-
-    const handleLogin = async () => {
-        // Demo payload for login
-        const demoPayload = { email: 'demo@example.com', password: 'password123' };
-
-        try {
-            await logInUser(demoPayload); // Trigger login via Zustand store
-            console.log("Home -> User successfully logged in.");
-        } catch (error) {
-            console.error("Home -> Error during login:", error);
-            handleSessionExpiry(); // Handle session expiry in case of failure
-        }
-    };
-
-    const handleLogout = () => {
-        logOutUser(); // Trigger logout via Zustand store
-    };
+    const userName = isAuthenticated
+        ? userData?.name || t('user') // Display authenticated user's name
+        : t('visitor'); // Display fallback for visitors
 
     return (
         <div>
             <Header />
 
-            {/* User Information / Login Buttons */}
+            {/* User/Visitor Information */}
             <div style={{ textAlign: 'right', margin: '10px' }}>
                 {isAuthenticated ? (
                     <div>
@@ -46,7 +24,7 @@ const Home = () => {
 
                         {/* Logout Button */}
                         <button
-                            onClick={handleLogout}
+                            onClick={logOutUser} // Log the user out
                             style={{
                                 padding: '10px 20px',
                                 marginLeft: '10px',
@@ -62,20 +40,9 @@ const Home = () => {
                         </button>
                     </div>
                 ) : (
-                    <button
-                        onClick={handleLogin}
-                        style={{
-                            padding: '10px 20px',
-                            fontSize: '16px',
-                            cursor: 'pointer',
-                            backgroundColor: '#007BFF', // Bootstrap `primary` color
-                            color: '#fff',
-                            border: 'none',
-                            borderRadius: '5px',
-                        }}
-                    >
-                        {t('login')}
-                    </button>
+                    <div>
+                        <span>{t('welcome')}, {userName}</span>
+                    </div>
                 )}
             </div>
 

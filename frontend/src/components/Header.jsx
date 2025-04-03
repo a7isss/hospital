@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { assets } from '../assets/assets';
@@ -6,26 +6,37 @@ import cartIcon from "../assets/cart.svg"; // Cart icon asset
 import useAuthStore from "../store/authStore"; // Auth store
 
 const Header = () => {
-    const { t } = useTranslation();
+    const { t } = useTranslation(); // For translations
     const navigate = useNavigate();
 
-    const cart = useAuthStore((state) => state.cart);
-    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-    const userData = useAuthStore((state) => state.userData);
-    const visitorId = useAuthStore((state) => state.visitorId);
-    const logOutUser = useAuthStore((state) => state.logOutUser);
-    const initializeVisitor = useAuthStore((state) => state.initializeVisitor);
-    const loading = useAuthStore((state) => state.loading);
+    // Extract relevant state and actions from authStore
+    const {
+        cart,                      // Cart items
+        isAuthenticated,           // User authentication status
+        userData,                  // User data if authenticated
+        visitorId,                 // Visitor ID if not authenticated
+        logoutUser,                // Logout action
+        initializeVisitorCart,     // Ensure visitor session and cart initialization
+        loading,                   // Global loading state
+    } = useAuthStore((state) => ({
+        cart: state.cart,
+        isAuthenticated: state.isAuthenticated,
+        userData: state.userData,
+        visitorId: state.visitorId,
+        logoutUser: state.logoutUser,
+        initializeVisitorCart: state.initializeVisitorCart,
+        loading: state.loading,
+    }));
 
-    const [showMenu, setShowMenu] = useState(false);
-
+    // Total number of items in the cart
     const totalCartItems = cart.reduce((acc, item) => acc + item.quantity, 0);
 
+    // Automatically initialize visitor cart if no visitorId exists and the user isn't authenticated
     useEffect(() => {
         if (!isAuthenticated && !visitorId) {
-            initializeVisitor();
+            initializeVisitorCart(); // Ensure visitor cart is ready
         }
-    }, [isAuthenticated, visitorId, initializeVisitor]);
+    }, [isAuthenticated, visitorId, initializeVisitorCart]);
 
     return (
         <header className="bg-gray-100 shadow-md sticky top-0 z-50">
@@ -62,16 +73,24 @@ const Header = () => {
                     )}
                 </button>
 
-                {/* Auth Section */}
+                {/* Authentication Section */}
                 {isAuthenticated && userData ? (
-                    <div>
+                    // Show user name and logout button if authenticated
+                    <div className="flex items-center gap-2">
                         <span className="text-sm font-medium">{userData.name}</span>
-                        <button onClick={() => logOutUser()} className="ml-4 text-sm text-red-500 hover:underline">
+                        <button
+                            onClick={() => logoutUser()} // Trigger logout
+                            className="text-sm text-red-500 hover:underline"
+                        >
                             {t("logout")}
                         </button>
                     </div>
                 ) : (
-                    <button onClick={() => navigate("/login")} className="text-sm text-primary hover:underline">
+                    // Show login button if not authenticated
+                    <button
+                        onClick={() => navigate("/login")}
+                        className="text-sm text-primary hover:underline"
+                    >
                         {t("login")}
                     </button>
                 )}

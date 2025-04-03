@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import useAuthStore from "./store/authStore";
-import Header from "./components/Header.jsx";
+import Header from "./components/Header";
 import Home from "./pages/Home";
 import Partners from "./pages/Partners";
 import Login from "./pages/Login";
@@ -38,14 +38,14 @@ i18n.use(initReactI18next).init({
 
 const App = () => {
     const {
-        initializeVisitor,
+        initializeVisitorCart,
         fetchUserData,
         fetchServices,
         isAuthenticated,
         loading,
         error,
     } = useAuthStore((state) => ({
-        initializeVisitor: state.initializeVisitor,
+        initializeVisitorCart: state.initializeVisitorCart,
         fetchUserData: state.fetchUserData,
         fetchServices: state.fetchServices,
         isAuthenticated: state.isAuthenticated,
@@ -58,9 +58,9 @@ const App = () => {
             try {
                 console.log("Initializing application...");
 
-                // Ensure visitor mode is initialized
-                await initializeVisitor();
-                console.log("Visitor initialized.");
+                // Ensure visitor cart is initialized
+                await initializeVisitorCart();
+                console.log("Visitor cart initialized.");
 
                 // If authenticated, fetch user data
                 if (isAuthenticated) {
@@ -68,7 +68,7 @@ const App = () => {
                     await fetchUserData();
                 }
 
-                // Fetch services for the app
+                // Fetch available services for the app
                 console.log("Fetching services...");
                 await fetchServices();
 
@@ -79,14 +79,14 @@ const App = () => {
         };
 
         initializeApp();
-    }, [initializeVisitor, fetchUserData, fetchServices, isAuthenticated]);
+    }, [initializeVisitorCart, fetchUserData, fetchServices, isAuthenticated]);
 
     return (
         <div className="flex flex-col h-screen">
             {/* Toast Notifications */}
             <ToastContainer autoClose={5000} />
 
-            {/* Header (Primary Navigation at the Top) */}
+            {/* Header (Primary Navigation) */}
             <Header />
 
             {/* Content Area */}
@@ -114,31 +114,20 @@ const App = () => {
                     <Route path="/cart" element={<Cart />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/contact" element={<Contact />} />
-                    <Route
-                        path="/login"
-                        element={!isAuthenticated ? <Login /> : <Navigate to="/" />}
-                    />
-                    <Route
-                        path="/appointment/:id"
-                        element={<Appointment />}
-                    />
-                    <Route
-                        path="/my-appointments"
-                        element={
-                            isAuthenticated ? <MyAppointments /> : <Navigate to="/login" />
-                        }
-                    />
-                    <Route
-                        path="/my-profile"
-                        element={
-                            isAuthenticated ? <MyProfile /> : <Navigate to="/login" />
-                        }
-                    />
-                    <Route path="*" element={<Navigate to="/" />} />
+                    <Route path="/appointment" element={<Appointment />} />
+                    <Route path="/my-appointments" element={<MyAppointments />} />
+                    <Route path="/profile" element={<Navigate to="/login" />} />
+                    <Route path="/login" element={<Login />} />
+                    {!isAuthenticated && (
+                        <Route path="/my-profile" element={<Navigate to="/login" />} />
+                    )}
+                    {isAuthenticated && (
+                        <Route path="/my-profile" element={<MyProfile />} />
+                    )}
                 </Routes>
             </main>
 
-            {/* Sticky Footer (Navigation at the Bottom) */}
+            {/* Footer Component (Optional Navigation Bar) */}
             <Nav />
         </div>
     );

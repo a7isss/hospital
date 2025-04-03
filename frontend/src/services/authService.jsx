@@ -1,172 +1,139 @@
 import axiosInstance from "../utils/axiosInstance.js";
 
 const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/user/`;
+const CART_URL = `${import.meta.env.VITE_BACKEND_URL}/api/cart/`;
 
 const authService = {
-    // Utility functions for token management
+    // ==================
+    // Token Management
+    // ==================
     getToken: () => localStorage.getItem("token"),
     setToken: (token) => localStorage.setItem("token", token),
     clearToken: () => localStorage.removeItem("token"),
-
-    // Refresh token management
     getRefreshToken: () => localStorage.getItem("refreshToken"),
     setRefreshToken: (refreshToken) => localStorage.setItem("refreshToken", refreshToken),
     clearRefreshToken: () => localStorage.removeItem("refreshToken"),
-
-    // Helper to check token expiry
     isTokenExpired: (token) => {
         if (!token) return true;
         try {
-            const { exp } = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
-            return Date.now() >= exp * 1000; // Compare current time to expiry
+            const { exp } = JSON.parse(atob(token.split('.')[1]));
+            return Date.now() >= exp * 1000;
         } catch (error) {
-            console.error("Failed to decode or validate token:", error);
-            return true; // Treat as expired if decoding fails
+            console.error("Failed to decode token:", error);
+            return true;
         }
     },
 
-    // Login
+    // ==================
+    // Reusable Requests
+    // ==================
+    makeAuthRequest: async (method, endpoint, data = null, baseURL = API_URL) => {
+        const token = authService.getToken();
+        if (!token || authService.isTokenExpired(token)) {
+            throw new Error("Authentication failed. Please log in again.");
+        }
+        try {
+            const response = await axiosInstance({
+                method,
+                url: `${baseURL}${endpoint}`,
+                data,
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            return response.data;
+        } catch (err) {
+            console.error(`Error with request to ${endpoint}:`, err);
+            throw err;
+        }
+    },
+
+    // ==================
+    // Authentication Methods
+    // ==================
     loginUser: async (payload) => {
-        const response = await axiosInstance.post(`${API_URL}/login`, payload);
+        const response = await axiosInstance.post(`${API_URL}login`, payload);
         if (response.data.token) {
-            authService.setToken(response.data.token); // Save access token
+            authService.setToken(response.data.token);
             if (response.data.refreshToken) {
-                authService.setRefreshToken(response.data.refreshToken); // Save refresh token
+                authService.setRefreshToken(response.data.refreshToken);
             }
         }
         return response.data;
     },
 
-    // Register
     registerUser: async (payload) => {
         const response = await axiosInstance.post(`${API_URL}register`, payload);
         if (response.data.token) {
-            authService.setToken(response.data.token); // Save access token
+            authService.setToken(response.data.token);
             if (response.data.refreshToken) {
-                authService.setRefreshToken(response.data.refreshToken); // Save refresh token
+                authService.setRefreshToken(response.data.refreshToken);
             }
         }
         return response.data;
     },
 
-    // Silent refresh to get a new token
     refreshToken: async () => {
         const refreshToken = authService.getRefreshToken();
         if (!refreshToken) {
-            throw new Error("Refresh token is missing. Please log in again.");
+            throw new Error("No refresh token available. Please log in again.");
         }
-        try {
-            const response = await axiosInstance.post(`${API_URL}refresh-token`, { refreshToken });
-            authService.setToken(response.data.token); // Save new access token
-            return response.data;
-        } catch (err) {
-            console.error("Failed to refresh token:", err);
-            authService.logoutUser(); // Clear session if refresh fails
-            throw err;
-        }
+        const response = await axiosInstance.post(`${API_URL}refresh-token`, { refreshToken });
+        authService.setToken(response.data.token);
+        return response.data;
     },
 
-    // Logout
     logoutUser: () => {
-        authService.clearToken(); // Clear access token
-        authService.clearRefreshToken(); // Clear refresh token
+        authService.clearToken();
+        authService.clearRefreshToken();
     },
 
-    // Logout from all devices
     logoutAllDevices: async () => {
-        const token = authService.getToken();
-        if (!token) throw new Error("User is not logged in.");
+        await authService.makeAuthRequest("POST", "logout/all", {});
+        authService.logoutUser();
+    },
+
+    // ==================
+    // Cart Management
+    // ==================
+    fetchCartFromServer: async (visitorId) => {
+        return await authService.makeAuthRequest("GET", `get/${visitorId}`, null, CART_URL); //Cart-related endpoint
+    },
+
+    saveCartToServer: async (visitorId, cartData) => {
+        return await authService.makeAuthRequest("POST", "save", { visitorId, cartData }, CART_URL);
+    },
+
+    loadCart: () => {
+        const cartKey = localStorage.getItem("visitorID") || "guest_cart";
         try {
-            await axiosInstance.post(`${API_URL}logout/all`, {}, { headers: { Authorization: `Bearer ${token}` } });
-            authService.logoutUser(); // Clear tokens locally
-        } catch (err) {
-            console.error("Error during logout from all devices:", err);
-            throw err;
+            return {
+                cart: JSON.parse(localStorage.getItem(cartKey)) || [],
+                totalPrice: parseFloat(localStorage.getItem(`${cartKey}_totalPrice`)) || 0,
+            };
+        } catch (error) {
+            console.error("Error loading cart:", error);
+            return { cart: [], totalPrice: 0 };
         }
     },
 
-    // Enable Two-Factor Authentication (2FA)
-    enable2FA: async () => {
-        const token = authService.getToken();
-        if (!token) throw new Error("User is not logged in.");
+    saveCart: (cart, totalPrice) => {
+        const cartKey = localStorage.getItem("visitorID") || "guest_cart";
         try {
-            const response = await axiosInstance.post(`${API_URL}2fa/enable`, {}, { headers: { Authorization: `Bearer ${token}` } });
-            return response.data; // Contains QR code data or secret key
-        } catch (err) {
-            console.error("Error enabling 2FA:", err);
-            throw err;
+            localStorage.setItem(cartKey, JSON.stringify(cart));
+            localStorage.setItem(`${cartKey}_totalPrice`, totalPrice.toString());
+        } catch (error) {
+            console.error("Error saving cart:", error);
         }
     },
 
-    // Verify 2FA Code
-    verify2FACode: async (otp) => {
-        const token = authService.getToken();
-        if (!token) throw new Error("User is not logged in.");
-        try {
-            const response = await axiosInstance.post(`${API_URL}2fa/verify`, { otp }, { headers: { Authorization: `Bearer ${token}` } });
-            return response.data; // Successfully verified or not
-        } catch (err) {
-            console.error("Error verifying 2FA code:", err);
-            throw err;
-        }
+    // ==================
+    // Appointments and Services
+    // ==================
+    getServices: async () => {
+        return await authService.makeAuthRequest("GET", "services");
     },
 
-    // Request password reset
-    requestPasswordReset: async (email) => {
-        try {
-            const response = await axiosInstance.post(`${API_URL}password-reset/request`, { email });
-            return response.data; // Success message sent to email
-        } catch (err) {
-            console.error("Error requesting password reset:", err);
-            throw err;
-        }
-    },
-
-    // Reset password
-    resetPassword: async (payload) => {
-        try {
-            const response = await axiosInstance.post(`${API_URL}password-reset/reset`, payload);
-            return response.data; // Success confirmation
-        } catch (err) {
-            console.error("Error resetting password:", err);
-            throw err;
-        }
-    },
-
-    // Verify user's email
-    verifyEmail: async (token) => {
-        try {
-            const response = await axiosInstance.post(`${API_URL}email/verify`, { token });
-            return response.data; // Successfully verified or not
-        } catch (err) {
-            console.error("Error verifying email:", err);
-            throw err;
-        }
-    },
-
-    // Fetch user profile (with token expiry validation)
-    getProfile: async () => {
-        const token = authService.getToken();
-        if (authService.isTokenExpired(token)) {
-            authService.clearToken();
-            throw new Error("Token expired. Please log in again.");
-        }
-        const response = await axiosInstance.get(`${API_URL}me`, { headers: { Authorization: `Bearer ${token}` } });
-        return response.data; // Return fetched profile data
-    },
-
-    // Fetch user roles and permissions
-    getUserRoles: async () => {
-        const token = authService.getToken();
-        if (!token) throw new Error("User is not logged in.");
-        try {
-            const response = await axiosInstance.get(`${API_URL}roles`, { headers: { Authorization: `Bearer ${token}` } });
-            return response.data; // Return array of roles/permissions
-        } catch (err) {
-            console.error("Error fetching user roles:", err);
-            throw err;
-        }
+    getAppointments: async () => {
+        return await authService.makeAuthRequest("GET", "appointments");
     },
 };
-
 export default authService;

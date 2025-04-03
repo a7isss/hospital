@@ -35,7 +35,7 @@ const Nav = () => {
                 <div className="flex items-stretch justify-between h-16 relative">
                     {/* Left-side navigation items */}
                     <div className="flex items-center space-x-4">
-                        {navItems.slice(0, 2).map((item) => (
+                        {navItems.map((item) => (
                             <NavLink
                                 key={item.id}
                                 to={item.path}
@@ -70,77 +70,39 @@ const Nav = () => {
                     <div className="flex items-center justify-center">
                         <button
                             onClick={toggleSidelist}
-                            className="bg-black text-white w-20 h-8 flex items-center justify-center shadow-md"
-                            style={{
-                                border: "1px solid white",
-                            }}
+                            className={`w-10 h-10 flex items-center justify-center shadow-md rounded-full ${
+                                isSidelistOpen ? "bg-red-600 text-white" : "bg-black text-white"
+                            }`}
+                            aria-label={isSidelistOpen ? t("Close Menu") : t("Open Menu")}
                         >
-                            <div className="space-x-1 flex">
-                                <div className="w-[2px] h-6 bg-white"></div>
-                                <div className="w-[2px] h-6 bg-white"></div>
-                                <div className="w-[2px] h-6 bg-white"></div>
-                            </div>
+                            {isSidelistOpen ? (
+                                <span className="text-lg">×</span> // Close icon
+                            ) : (
+                                <span className="text-lg">≡</span> // Menu icon
+                            )}
                         </button>
                     </div>
 
-                    {/* Right-side navigation items */}
-                    <div className="flex items-center space-x-4">
-                        {navItems.slice(2).map((item) => (
-                            <NavLink
-                                key={item.id}
-                                to={item.path}
-                                className={({ isActive }) =>
-                                    `flex flex-col items-center px-2 py-2 text-sm font-medium transition-colors ${
-                                        isActive
-                                            ? "text-primary"
-                                            : "text-gray-600 hover:text-primary"
-                                    }`
-                                }
-                            >
-                                <svg
-                                    className="w-6 h-6 mb-1"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d={item.icon}
-                                    />
-                                </svg>
-                                <span className="text-xs">{item.name}</span>
-                            </NavLink>
-                        ))}
-                    </div>
+                    {/* Sidelist */}
+                    {isSidelistOpen && (
+                        <div className="absolute bottom-16 left-0 right-0 bg-gray-50 border-t shadow-lg">
+                            <ul>
+                                {sidelistItems.map((item) => (
+                                    <li key={item.id} className="border-b">
+                                        <NavLink
+                                            to={item.path}
+                                            className="block px-4 py-2 text-sm hover:bg-gray-100"
+                                            onClick={toggleSidelist} // Close sidelist when an item is clicked
+                                        >
+                                            {item.name}
+                                        </NavLink>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </div>
             </div>
-
-            {/* Sidelist dropdown */}
-            {isSidelistOpen && (
-                <div className="fixed inset-x-0 bottom-0 z-20 transition-transform duration-300 bg-white border-t border-gray-200 shadow-md">
-                    <ul className="flex flex-row justify-around items-center h-16">
-                        {sidelistItems.map((item) => (
-                            <li key={item.id}>
-                                <NavLink
-                                    to={item.path}
-                                    className={({ isActive }) =>
-                                        `flex flex-col items-center px-4 py-2 text-sm font-medium transition-colors ${
-                                            isActive
-                                                ? "text-primary"
-                                                : "text-gray-600 hover:text-primary"
-                                        }`
-                                    }
-                                >
-                                    {item.name}
-                                </NavLink>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
         </nav>
     );
 };
