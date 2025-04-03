@@ -10,11 +10,9 @@ import Contact from "./pages/Contact";
 import Appointment from "./pages/Appointment";
 import MyAppointments from "./pages/MyAppointments";
 import MyProfile from "./pages/MyProfile";
-import Service from "./pages/Service";
 import Services from "./pages/Services";
 import Cart from "./pages/Cart";
 import Subscriptions from "./pages/Subscriptions";
-import Doctors from "./components/Doctors";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import i18n from "i18next";
@@ -84,45 +82,28 @@ const App = () => {
     }, [initializeVisitor, fetchUserData, fetchServices, isAuthenticated]);
 
     return (
-        // Container for the entire app
         <div className="flex flex-col h-screen">
             {/* Toast Notifications */}
-            <ToastContainer
-                position={
-                    document.documentElement.getAttribute("dir") === "rtl"
-                        ? "top-left"
-                        : "top-right"
-                }
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={document.documentElement.getAttribute("dir") === "rtl"}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-            />
+            <ToastContainer autoClose={5000} />
 
-            {/* Header Component, including Navbar and Footer */}
+            {/* Header (Top Navigation Bar) */}
             <Header />
 
-            {/* Main Content */}
-            <div className="flex-1">
+            {/* Main Content Area */}
+            <main className="flex-1">
                 {/* Loading Indicator */}
                 {loading && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                         <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full text-white"></div>
                     </div>
                 )}
-
                 {/* Error Indicator */}
                 {error && (
                     <div className="text-center text-red-600 font-semibold bg-red-50 py-4">
                         {`An error occurred: ${error}`}
                     </div>
                 )}
-
-                {/* Application Routes */}
+                {/* Page Routes */}
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/subscriptions" element={<Subscriptions />} />
@@ -130,42 +111,26 @@ const App = () => {
                     <Route path="/partners" element={<Partners />} />
                     <Route
                         path="/login"
-                        element={
-                            !isAuthenticated ? <Login /> : <Navigate to="/" />
-                        }
+                        element={!isAuthenticated ? <Login /> : <Navigate to="/" />}
                     />
                     <Route path="/about" element={<About />} />
                     <Route path="/contact" element={<Contact />} />
-                    <Route
-                        path="/appointment/:id"
-                        element={<Appointment />}
-                    />
+                    <Route path="/appointment/:id" element={<Appointment />} />
                     <Route
                         path="/my-appointments"
-                        element={
-                            isAuthenticated ? (
-                                <MyAppointments />
-                            ) : (
-                                <Navigate to="/login" />
-                            )
-                        }
+                        element={isAuthenticated ? <MyAppointments /> : <Navigate to="/login" />}
                     />
                     <Route
                         path="/my-profile"
-                        element={
-                            isAuthenticated ? (
-                                <MyProfile />
-                            ) : (
-                                <Navigate to="/login" />
-                            )
-                        }
+                        element={isAuthenticated ? <MyProfile /> : <Navigate to="/login" />}
                     />
-                    <Route path="/service/:id" element={<Service />} />
                     <Route path="/cart" element={<Cart />} />
-                    <Route path="/doctors" element={<Doctors />} />
                     <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
-            </div>
+            </main>
+
+            {/* Sticky Footer (Bottom Navigation Bar) */}
+            <Nav />
         </div>
     );
 };
