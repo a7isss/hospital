@@ -39,15 +39,21 @@ const App = () => {
 
     useEffect(() => {
         const initializeApp = async () => {
-            await initializeVisitor(); // Initialize visitor ID
-            if (isAuthenticated) {
-                await fetchUserData(); // Fetch user data
+            try {
+                await initializeVisitor(); // Initialize visitor ID
+                if (isAuthenticated) {
+                    await fetchUserData(); // Fetch user data
+                }
+                await fetchServices(); // Fetch services
+            } catch (error) {
+                console.error("Error during app initialization:", error);
             }
-            await fetchServices(); // Fetch services
         };
 
+        // Await the promise to handle any asynchronous errors properly
         initializeApp();
     }, [initializeVisitor, fetchUserData, fetchServices, isAuthenticated]);
+
 
     return (
         <div className="mx-2 sm:mx-[5%] lg:mx-[10%]">
