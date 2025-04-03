@@ -8,7 +8,7 @@ import logger from "../middleware/logger.js"; // Assumes a logger utility is imp
 
 
 // Controller function to fetch all services
-const getallServices = async (req, res) => {
+export const getallServices = async (req, res) => {
     try {
         const services = await ServiceModel.find({}); // Fetch all services from the database
         res.status(200).json({

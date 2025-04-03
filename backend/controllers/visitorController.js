@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from "uuid"; // Use uuid to generate unique visitor IDs
 import { UserModel, VisitorModel, ServiceModel, CartModel, DoctorModel } from '../models/models.js';
 
 // Controller function to fetch all services
-const getAllServices = async (req, res) => {
+export const getAllServices = async (req, res) => {
     try {
         const services = await ServiceModel.find({}); // Fetch all services from the database
         res.status(200).json({
@@ -18,11 +18,6 @@ const getAllServices = async (req, res) => {
             error: error.message,
         });
     }
-};
-
-module.exports = {
-    getAllServices,
-    // Export other controllers if necessary
 };
 
 // Create a new visitor session
