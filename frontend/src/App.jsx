@@ -18,23 +18,7 @@ import "react-toastify/dist/ReactToastify.css";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import Nav from "./components/Nav"; // Import Nav component
-
-// i18n language initialization
-i18n.use(initReactI18next).init({
-    resources: {
-        en: {
-            translation: {
-                book_appointment: "Book Your Appointment",
-                with_trusted_doctors: "With Trusted Doctors",
-            },
-        },
-    },
-    lng: "ar", // Default language
-    fallbackLng: "ar", // Fallback language
-    interpolation: {
-        escapeValue: false, // React already escapes by default
-    },
-});
+import "./i18n"; // Import the i18n configuration
 
 const App = () => {
     const {
