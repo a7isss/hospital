@@ -113,3 +113,4 @@ const Sidelist = () => {
         </div>
     );
 };
+export default Sidelist;
