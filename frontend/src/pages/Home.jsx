@@ -1,22 +1,28 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import Header from '../components/Header';
 import { useTranslation } from 'react-i18next';
-import { AppContext } from '../context/AppContext'; // Access authentication state through AppContext
-import WhatsAppChat from '../components/WhatsAppChat'; // Import WhatsAppChat component
+import WhatsAppChat from '../components/WhatsAppChat';
+import useAuthStore from '../store/authStore'; // Import Zustand auth store hook
 
 const Home = () => {
-    const { t } = useTranslation();
-    const { token, userData, handleSessionExpiry, logInUser, logOutUser } = useContext(AppContext); // Access AppContext for authentication state
+    const { t } = useTranslation(); // For translations
+    const {
+        token,
+        userData,
+        logInUser,
+        logOutUser,
+        handleSessionExpiry,
+        isAuthenticated
+    } = useAuthStore();
 
-    const isAuthenticated = !!token; // Determine authentication state based on token existence
-    const userName = userData?.name || t('user'); // Fallback to a default translation if username is unavailable
+    const userName = userData?.name || t('user'); // Fallback user name from translation
 
     const handleLogin = async () => {
-        // Temporary hardcoded login payload for demonstration
+        // Demo payload for login
         const demoPayload = { email: 'demo@example.com', password: 'password123' };
 
         try {
-            await logInUser(demoPayload); // Log in the user via AppContext
+            await logInUser(demoPayload); // Trigger login via Zustand store
             console.log("Home -> User successfully logged in.");
         } catch (error) {
             console.error("Home -> Error during login:", error);
@@ -25,20 +31,20 @@ const Home = () => {
     };
 
     const handleLogout = () => {
-        logOutUser(); // Log out the user via AppContext
+        logOutUser(); // Trigger logout via Zustand store
     };
 
     return (
         <div>
             <Header />
 
-            {/* User Info or Login */}
+            {/* User Information / Login Buttons */}
             <div style={{ textAlign: 'right', margin: '10px' }}>
                 {isAuthenticated ? (
                     <div>
                         <span>{t('welcome')}, {userName}</span>
 
-                        {/* Button to log out */}
+                        {/* Logout Button */}
                         <button
                             onClick={handleLogout}
                             style={{
@@ -46,7 +52,7 @@ const Home = () => {
                                 marginLeft: '10px',
                                 fontSize: '16px',
                                 cursor: 'pointer',
-                                backgroundColor: '#DC3545', // Bootstrap danger color
+                                backgroundColor: '#DC3545', // Bootstrap `danger` color
                                 color: '#fff',
                                 border: 'none',
                                 borderRadius: '5px',
@@ -54,18 +60,6 @@ const Home = () => {
                         >
                             {t('logout')}
                         </button>
-
-                        {/* Space for additional options when logged in */}
-                        {/*
-                        <div>
-                            <button style={{ marginTop: '10px' }}>
-                                {t('extra_option_1')}
-                            </button>
-                            <button style={{ marginTop: '10px' }}>
-                                {t('extra_option_2')}
-                            </button>
-                        </div>
-                        */}
                     </div>
                 ) : (
                     <button
@@ -74,7 +68,7 @@ const Home = () => {
                             padding: '10px 20px',
                             fontSize: '16px',
                             cursor: 'pointer',
-                            backgroundColor: '#007BFF', // Bootstrap primary color
+                            backgroundColor: '#007BFF', // Bootstrap `primary` color
                             color: '#fff',
                             border: 'none',
                             borderRadius: '5px',
@@ -85,7 +79,7 @@ const Home = () => {
                 )}
             </div>
 
-            {/* WhatsApp Chat */}
+            {/* WhatsApp Chat Component */}
             <WhatsAppChat />
         </div>
     );

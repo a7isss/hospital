@@ -1,32 +1,55 @@
-import React, { useContext, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { CartContext } from "../context/CartContext";
-import { AppContext } from "../context/AppContext";
-import { assets } from "../assets/assets"; // Additional assets like logo
-import cartIcon from "../assets/cart.svg"; // Import cart.svg icon
+import { CartContext } from "../context/CartContext"; // Keeping CartContext as-is for cart handling
+import { assets } from "../assets/assets"; // Assets like logo
+import cartIcon from "../assets/cart.svg"; // Cart icon asset
+import useAuthStore from "../store/authStore"; // Import Zustand authStore
 
 const Navbar = () => {
-    const { t } = useTranslation(); // Localization with i18n
+    const { t } = useTranslation(); // For i18n translations
     const navigate = useNavigate(); // Navigation hook
 
-    const { cart } = useContext(CartContext); // CartContext: Handle cart states
-    const { token, logout, userData, logInUser } = useContext(AppContext); // AppContext: Handle user data and auth
+    const { cart } = CartContext(); // Fetch cart state from CartContext
 
-    const [showMenu, setShowMenu] = useState(false); // State: Toggling dropdown visibility
+    // Access Zustand authStore
+    const {
+        token,
+        userData,
+        visitorId,
+        isAuthenticated,
+        logOutUser,
+        initializeVisitor,
+        loading,
+    } = useAuthStore();
+
+    const [showMenu, setShowMenu] = useState(false); // State to toggle dropdown visibility
 
     // Calculate the total number of items in the cart
     const totalCartItems = cart.reduce((acc, item) => acc + item.quantity, 0);
 
-    // Handle cart navigation when cart icon is clicked
+    // Handle cart icon click
     const handleCartClick = () => {
-        navigate("/cart"); // Navigate to the cart page
+        navigate("/cart");
     };
 
-    // Handle Login Redirection
+    // Handle login navigation
     const handleLogin = () => {
-        navigate("/login"); // Redirect to login page
+        navigate("/login");
     };
+
+    // Handle logout
+    const handleLogout = () => {
+        logOutUser(); // Clear user data and switch to visitor mode
+        navigate("/");
+    };
+
+    // Initialize visitor mode if not authenticated
+    useEffect(() => {
+        if (!isAuthenticated && !visitorId) {
+            initializeVisitor();
+        }
+    }, [isAuthenticated, visitorId, initializeVisitor]);
 
     return (
         <nav className="flex items-center justify-between py-4 px-6">
@@ -55,9 +78,8 @@ const Navbar = () => {
                 <NavLink to="/contact" className="hover:text-primary">
                     {t("contact")}
                 </NavLink>
-                {/* New Subscriptions Page Link */}
                 <NavLink to="/subscriptions" className="hover:text-primary">
-                    {t("subscriptions")} {/* Localization using i18n */}
+                    {t("subscriptions")}
                 </NavLink>
             </ul>
 
@@ -66,13 +88,13 @@ const Navbar = () => {
                 onClick={handleCartClick}
                 className="relative flex items-center hover:text-primary"
             >
-                {/* Cart Icon */}
+                {/* Cart icon */}
                 <img
                     src={cartIcon}
                     alt="Cart Icon"
                     className="w-6 h-6 object-contain"
                 />
-                {/* Cart Item Count Badge */}
+                {/* Cart item count badge */}
                 {totalCartItems > 0 && (
                     <span className="absolute top-0 -right-4 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                         {totalCartItems}
@@ -80,24 +102,39 @@ const Navbar = () => {
                 )}
             </button>
 
-            {/* User Profile or Login */}
-            {
-                token && userData ? (
-                    // If user is logged in
-                    <div className="flex flex-col items-end text-sm">
-                        <span className="text-gray-800 font-medium">Welcome</span>
-                        <span className="font-bold text-primary">{userData.name}</span>
-                    </div>
-                ) : (
-                    // If user is not logged in
+            {/* Auth Section */}
+            {isAuthenticated && userData ? (
+                // If user is logged in
+                <div className="flex flex-col items-end text-sm">
+                    <span className="text-gray-800 font-medium">{t("welcome")}</span>
+                    <span className="font-bold text-primary">{userData?.name}</span>
                     <button
-                        onClick={handleLogin}
-                        className="bg-white text-gray-800 border border-gray-300 px-4 py-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none"
+                        onClick={handleLogout}
+                        className="text-red-500 text-xs mt-1 hover:text-red-700"
                     >
-                        {t("login")}
+                        {t("logout")}
                     </button>
-                )
-            }
+                </div>
+            ) : (
+                // If visitor or unauthenticated user
+                <div className="flex items-center gap-4">
+                    {loading ? (
+                        <span className="text-gray-500 text-sm">{t("loading")}</span>
+                    ) : (
+                        <>
+                            <button
+                                onClick={handleLogin}
+                                className="bg-white text-gray-800 border border-gray-300 px-4 py-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none"
+                            >
+                                {t("login")}
+                            </button>
+                            <span className="text-gray-500 text-sm">
+                                Visitor ID: {visitorId || t("loading")}
+                            </span>
+                        </>
+                    )}
+                </div>
+            )}
         </nav>
     );
 };

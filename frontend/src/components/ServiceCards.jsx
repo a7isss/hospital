@@ -1,14 +1,21 @@
-import React, { useContext, useState } from "react";
-import { AppContext } from "../context/AppContext"; // Context for global services and data
+import React, { useState, useEffect } from "react";
 import { CartContext } from "../context/CartContext"; // Context for cart operations
-import { toast } from "react-toastify";
-import curry from "../assets/curr.svg"; // Placeholder image for currency
+import { toast } from "react-toastify"; // Notifications
+import curry from "../assets/curr.svg"; // Placeholder for currency icon
 import doctorImage2 from "../assets/doc1.png"; // Placeholder image for services
+import useAuthStore from "../store/authStore"; // Import Zustand's authStore
 
 const Banner = () => {
-    const { services } = useContext(AppContext); // Get services from AppContext
-    const { addToCart } = useContext(CartContext); // Add to cart function from CartContext
+    const { addToCart } = CartContext(); // Add to cart functionality from CartContext
+    const { services, fetchServices, loading } = useAuthStore(); // Access to services, loading state, and fetchServices from authStore
     const [loadingStates, setLoadingStates] = useState({}); // Tracks loading state for each service
+
+    // Fetch services when the component mounts
+    useEffect(() => {
+        if (!services || services.length === 0) {
+            fetchServices(); // Fetch services from the backend using authStore
+        }
+    }, [services, fetchServices]);
 
     // Handles adding a service to the cart
     const handleAddToCart = async (service) => {
@@ -25,7 +32,7 @@ const Banner = () => {
                 itemId: service._id,
                 price: service.price,
                 name: service.name,
-                image: service.image || null, // Pass image or null as fallback
+                image: service.image || null, // Pass image or fallback to null
             });
 
             // Notify success
@@ -42,8 +49,13 @@ const Banner = () => {
 
     return (
         <div className="banner-container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-            {/* If services are available, display them */}
-            {services && services.length > 0 ? (
+            {/* Loading State */}
+            {loading ? (
+                <div className="text-center col-span-full">
+                    <p className="text-gray-500">{`Loading services...`}</p>
+                </div>
+            ) : services && services.length > 0 ? (
+                // Map through services and render individual service cards
                 services.map((service) => (
                     <div
                         key={service._id}
@@ -70,29 +82,34 @@ const Banner = () => {
                                 <img
                                     src={curry} // Use the imported currency image
                                     alt="Currency Icon"
-                                    className="h-[1.25em] w-[1.25em] mr-1 object-contain" // Presizes and aligns to match price font
+                                    className="h-[1.25em] w-[1.25em] mr-1 object-contain" // Resize and align to match price font
                                 />
-                                {service.price !== undefined ? service.price.toFixed(2) : "Price Not Available"}
+                                {service.price !== undefined
+                                    ? service.price.toFixed(2)
+                                    : "Price Not Available"}
                             </div>
 
                             {/* Add to Cart Button */}
                             <button
                                 onClick={() => handleAddToCart(service)}
-                                className={`w-full bg-primary text-white text-center px-4 py-2 rounded-md hover:bg-primary-dark transition 
-                                ${loadingStates[service._id] && "opacity-50 cursor-not-allowed"}`}
-                                disabled={loadingStates[service._id]} // Disable button while loading
+                                disabled={!!loadingStates[service._id]} // Disable the button while loading
+                                className={`px-4 py-2 rounded-md shadow text-white ${
+                                    !!loadingStates[service._id]
+                                        ? "bg-gray-400 cursor-not-allowed"
+                                        : "bg-primary hover:bg-primary-dark"
+                                }`}
                             >
-                                {loadingStates[service._id] ? (
-                                    <span className="loader border-t-white w-5 h-5"></span> // Spinner/Loader when loading
-                                ) : (
-                                    "Add to Cart" // Button text when not loading
-                                )}
+                                {/* Show loader if service is being added */}
+                                {loadingStates[service._id] ? "Adding..." : "Add to Cart"}
                             </button>
                         </div>
                     </div>
                 ))
             ) : (
-                <p className="text-center text-gray-500">No services available.</p>
+                // Empty state if no services are available
+                <div className="text-center col-span-full">
+                    <p className="text-gray-500">{`No services available.`}</p>
+                </div>
             )}
         </div>
     );
