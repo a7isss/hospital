@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, Navigate } from 'react-router-dom';
 import useAuthStore from '../store/authStore'; // Zustand's authStore
 import { assets } from '../assets/assets';
-import RelatedDoctors from '../components/RelatedDoctors';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next'; // Translation hook
 
@@ -189,7 +188,6 @@ const Appointment = () => {
         </div>
 
         {/* Related Doctors Section */}
-        <RelatedDoctors speciality={docInfo.speciality} docId={docId} />
       </div>
   ) : (
       <p className="text-center mt-10">{t('loading')}</p>
