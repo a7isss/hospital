@@ -1,34 +1,52 @@
-import { create } from 'zustand';
-import authService from '../services/authService';
-import axiosInstance from '../utils/axiosInstance';
+import { create } from "zustand";
+import authService from "../services/authService";
+import axiosInstance from "../utils/axiosInstance";
 
 const useAuthStore = create((set, get) => ({
     // State variables
     token: authService.getToken(), // Initialize token from local storage
-    userData: null, // User data
-    visitorId: localStorage.getItem("visitorID") || null, // Visitor ID (for unauthenticated users)
-    isAuthenticated: !!authService.getToken(), // Authenticated status based on token
-    loading: false, // Loading state
-    error: null, // Error state
-    services: [], // List of global services
-    doctors: [], // List of global doctors
-    currencySymbol: "₹", // Global currency symbol
+    userData: null, // Store user data globally
+    visitorId: localStorage.getItem("visitorID") || null, // Visitor's ID for non-authenticated users
+    isAuthenticated: !!authService.getToken(), // Check if the user is authenticated
+    loading: false, // Global loading state
+    error: null, // Global error state
+    services: [], // List of services from the API
+    doctors: [], // List of doctors from the API
+    subscriptions: [], // List of user's subscriptions
+    appointments: [], // List of user's appointments
+    currencySymbol: "₹", // Global currency symbol (default to ₹)
     backendUrl: import.meta.env.VITE_BACKEND_URL, // Backend API URL
+
+    // ====================
+    // Actions and Methods
+    // ====================
+
+    // Set functions for managing state
+    setToken: (token) => set({ token }),
+    setUserData: (user) => set({ userData: user }),
+    setLoading: (loading) => set({ loading }),
+    setError: (error) => set({ error }),
+    setServices: (services) => set({ services }),
+    setDoctors: (doctors) => set({ doctors }),
+    setSubscriptions: (subscriptions) => set({ subscriptions }),
+    setAppointments: (appointments) => set({ appointments }),
 
     // Handle session expiration
     handleSessionExpiry: () => {
         console.warn("authStore -> Handling session expiry.");
-        authService.logoutUser(); // Clear stored tokens
-        set({ token: null, userData: null, isAuthenticated: false });
-        get().initializeVisitor(); // Revert to visitor mode after logout
+        authService.logoutUser(); // Remove tokens and session data
+        set({ token: null, userData: null, isAuthenticated: false, subscriptions: [], appointments: [] });
+        get().initializeVisitor(); // Fallback to visitor mode
     },
 
-    // Initialize visitor (only for unauthenticated users)
+    // Initialize visitor (for non-authenticated users)
     initializeVisitor: async () => {
-        if (get().visitorId) return; // Skip if visitor ID already exists
+        if (get().visitorId) {
+            return; // If already initialized, skip
+        }
 
         try {
-            const response = await axiosInstance.post('/api/visitor/create');
+            const response = await axiosInstance.post("/api/visitor/create");
             const newVisitorId = response?.headers["x-visitor-id"];
             if (newVisitorId) {
                 localStorage.setItem("visitorID", newVisitorId);
@@ -36,18 +54,12 @@ const useAuthStore = create((set, get) => ({
                 console.log("authStore -> Visitor initialized with ID:", newVisitorId);
             }
         } catch (error) {
-            console.error("authStore -> Failed to initialize visitor session:", error);
+            console.error("authStore -> Failed to initialize visitor:", error);
+            set({ error: "Failed to initialize a visitor session." });
         }
     },
 
-    // Clear visitor data when switching to an authenticated session
-    clearVisitorData: () => {
-        console.warn("authStore -> Clearing visitor data.");
-        localStorage.removeItem("visitorID");
-        set({ visitorId: null });
-    },
-
-    // Fetch the current user's data
+    // Fetch current user data from the backend
     fetchUserData: async () => {
         const token = get().token;
         if (!token || authService.isTokenExpired(token)) {
@@ -55,9 +67,10 @@ const useAuthStore = create((set, get) => ({
             get().handleSessionExpiry();
             return;
         }
+
         try {
             set({ loading: true, error: null });
-            const { user } = await authService.getProfile(); // Fetch user profile from backend
+            const { user } = await authService.getProfile(); // Fetches user info from the API
             set({ userData: user, isAuthenticated: true });
             console.log("authStore -> Fetched user data:", user);
         } catch (error) {
@@ -68,25 +81,95 @@ const useAuthStore = create((set, get) => ({
         }
     },
 
-    // Log in a user
+    // Fetch services globally
+    fetchServices: async () => {
+        try {
+            set({ loading: true, error: null });
+            const response = await axiosInstance.get(`${get().backendUrl}/api/services`);
+            set({ services: response.data.services || [], error: null });
+        } catch (error) {
+            console.error("authStore -> Error fetching services:", error);
+            set({ error: "Failed to fetch services. Please try again later." });
+        } finally {
+            set({ loading: false });
+        }
+    },
+
+    // Fetch doctors globally
+    fetchDoctors: async () => {
+        try {
+            set({ loading: true, error: null });
+            const response = await axiosInstance.get(`${get().backendUrl}/api/doctors`);
+            set({ doctors: response.data.doctors || [], error: null });
+        } catch (error) {
+            console.error("authStore -> Error fetching doctors:", error);
+            set({ error: "Failed to fetch doctors. Please try again later." });
+        } finally {
+            set({ loading: false });
+        }
+    },
+
+    // Fetch subscriptions for authenticated users
+    fetchSubscriptions: async () => {
+        const { token, userData } = get();
+        if (!userData || !token) {
+            console.warn("authStore -> No authenticated user. Skipping subscriptions fetch.");
+            set({ subscriptions: [] });
+            return;
+        }
+
+        try {
+            set({ loading: true, error: null });
+            const response = await axiosInstance.get(`${get().backendUrl}/api/subscriptions`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            set({ subscriptions: response.data.subscriptions || [], error: null });
+        } catch (error) {
+            console.error("authStore -> Error fetching subscriptions:", error);
+            set({ error: "Failed to fetch subscriptions. Please try again later." });
+        } finally {
+            set({ loading: false });
+        }
+    },
+
+    // Fetch appointments for authenticated users
+    fetchAppointments: async () => {
+        const { token } = get();
+        if (!token) {
+            console.warn("authStore -> No authenticated user. Skipping appointments fetch.");
+            set({ appointments: [] });
+            return;
+        }
+
+        try {
+            set({ loading: true, error: null });
+            const response = await axiosInstance.get(`${get().backendUrl}/api/user/appointments`, {
+                headers: { token },
+            });
+            set({ appointments: response.data.appointments.reverse() || [] }); // Reverse to show latest first
+        } catch (error) {
+            console.error("authStore -> Error fetching appointments:", error);
+            set({ error: "Failed to fetch appointments. Please try again later." });
+        } finally {
+            set({ loading: false });
+        }
+    },
+
+    // Log user in
     logInUser: async (payload) => {
         try {
             set({ loading: true, error: null });
-            const { token } = await authService.loginUser(payload); // Log in via authService
-
+            const { token } = await authService.loginUser(payload); // Perform login
             if (!token || authService.isTokenExpired(token)) {
                 console.warn("authStore -> Received expired or invalid token.");
                 get().handleSessionExpiry();
                 return;
             }
 
-            // Store token and fetch user data
-            authService.setToken(token);
+            authService.setToken(token); // Store token
             set({ token, isAuthenticated: true });
 
-            // Clear visitor state post-login
-            get().clearVisitorData();
-
+            get().clearVisitorData(); // Clear visitor state after login
             await get().fetchUserData(); // Fetch authenticated user data
         } catch (error) {
             console.error("authStore -> Error during login:", error);
@@ -96,11 +179,11 @@ const useAuthStore = create((set, get) => ({
         }
     },
 
-    // Register a user
+    // Register a new user
     registerUser: async (payload) => {
         try {
             set({ loading: true, error: null });
-            const { token } = await authService.registerUser(payload); // Register via authService
+            const { token } = await authService.registerUser(payload); // Perform registration
 
             if (!token || authService.isTokenExpired(token)) {
                 console.warn("authStore -> Received expired or invalid token.");
@@ -108,43 +191,25 @@ const useAuthStore = create((set, get) => ({
                 return;
             }
 
-            // Store token and fetch user data
-            authService.setToken(token);
+            authService.setToken(token); // Store token for immediate login
             set({ token, isAuthenticated: true });
 
-            // Clear visitor state post-registration
-            get().clearVisitorData();
-
+            get().clearVisitorData(); // Clear visitor state after signup
             await get().fetchUserData(); // Fetch authenticated user data
         } catch (error) {
             console.error("authStore -> Error during registration:", error);
-            set({ error: "Failed to register. Please try again." });
+            set({ error: "Failed to register. Please try again later." });
         } finally {
             set({ loading: false });
         }
     },
 
-    // Log out the user
-    logOutUser: () => {
-        console.log("authStore -> Logging out user.");
-        authService.logoutUser(); // Clear all stored tokens
-        set({ token: null, userData: null, isAuthenticated: false });
-        get().initializeVisitor(); // Revert to visitor mode upon logout
+    // Clear visitor data when switching to an authenticated session
+    clearVisitorData: () => {
+        console.warn("authStore -> Clearing visitor data.");
+        localStorage.removeItem("visitorID");
+        set({ visitorId: null });
     },
-
-    // Fetch global services (e.g., for cart or display)
-    fetchServices: async () => {
-        try {
-            set({ servicesLoading: true });
-            const { data } = await axiosInstance.get('/api/services');
-            set({ services: data });
-            console.log("authStore -> Services fetched successfully.");
-        } catch (error) {
-            console.error("authStore -> Error fetching services:", error);
-        } finally {
-            set({ servicesLoading: false });
-        }
-    }
 }));
 
 export default useAuthStore;
