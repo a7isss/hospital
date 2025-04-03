@@ -44,6 +44,37 @@ export const ensureVisitorSession = async (req, res, next) => {
         });
     }
 };
+// ============================
+// Get Visitor's Cart
+// ============================
+export const getVisitorCart = async (req, res) => {
+    const { visitorId } = req.params; // Extract visitorId from the request params
+
+    try {
+        const visitor = await VisitorModel.findOne({ visitorId }); // Find the visitor by visitorId
+
+        if (!visitor || !visitor.sessionData.cart) {
+            return res.status(404).json({
+                success: false,
+                message: "Visitor cart not found.",
+            });
+        }
+
+        // Return the cart data
+        res.status(200).json({
+            success: true,
+            message: "Visitor cart fetched successfully.",
+            cart: visitor.sessionData.cart,
+        });
+    } catch (error) {
+        console.error("Error fetching visitor cart:", error.message);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error fetching visitor cart.",
+            error: error.message,
+        });
+    }
+};
 
 // ============================
 // Create a New Visitor Session
