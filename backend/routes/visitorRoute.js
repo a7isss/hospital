@@ -4,7 +4,8 @@ import {
     getVisitorSession,
     updateVisitorSession,
     deleteVisitorSession,
-    getVisitorCart
+    getVisitorCart,
+    getAllServices
 } from "../controllers/visitorController.js";
 import { ensureVisitorSession } from "../middleware/visitorId.js";
 
@@ -15,6 +16,7 @@ visitorRouter.post("/create", createVisitorSession); // Create a new visitor ses
 visitorRouter.get("/:visitorId", getVisitorSession); // Get visitor session by ID
 visitorRouter.put("/:visitorId", updateVisitorSession); // Update visitor session data
 visitorRouter.delete("/:visitorId", deleteVisitorSession); // Delete visitor session
+visitorRouter.get("/services", getAllServices);
 
 // Visitor cart routes
 visitorRouter.get("/:visitorId/cart", ensureVisitorSession, getVisitorCart); // Get visitor cart

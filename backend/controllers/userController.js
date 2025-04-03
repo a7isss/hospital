@@ -6,6 +6,30 @@ import { UserModel, VisitorModel, ServiceModel, CartModel, DoctorModel } from '.
 // Gateway Initialize
 import logger from "../middleware/logger.js"; // Assumes a logger utility is implemented
 
+
+// Controller function to fetch all services
+const getAllServices = async (req, res) => {
+    try {
+        const services = await ServiceModel.find({}); // Fetch all services from the database
+        res.status(200).json({
+            success: true,
+            message: "Services fetched successfully",
+            data: services,
+        });
+    } catch (error) {
+        console.error("Error fetching services:", error.message);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch services",
+            error: error.message,
+        });
+    }
+};
+
+module.exports = {
+    getAllServices,
+    // Export other controllers if necessary
+};
 // Register a User (Upgraded)
 const registerUser = async (req, res) => {
     const { name, phone, age, password } = req.body;
