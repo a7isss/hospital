@@ -25,12 +25,6 @@ const getallServices = async (req, res) => {
         });
     }
 };
-
-module.exports = {
-    getallServices,
-    // Export other controllers if necessary
-};
-
 // Register a User (Upgraded)
 const registerUser = async (req, res) => {
     const { name, phone, age, password } = req.body;
@@ -281,6 +275,7 @@ export {
     registerUser,
     getProfile,
     updateProfile,
+    getallServices,
 //    bookAppointment,
 //    listAppointment,
 //    cancelAppointment
