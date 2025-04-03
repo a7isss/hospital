@@ -1,26 +1,43 @@
 import express from "express";
-import userRouter from "./userRoute.js";
 import {
     createVisitorSession,
     getVisitorSession,
     updateVisitorSession,
     deleteVisitorSession,
     getVisitorCart,
-    getAllServices
+    getAllServices,
 } from "../controllers/visitorController.js";
-import { ensureVisitorSession } from "../middleware/visitorId.js";
 
 const visitorRouter = express.Router();
 
-// Visitor session routes
-visitorRouter.post("/create", createVisitorSession); // Create a new visitor session
-visitorRouter.get("/:visitorId", getVisitorSession); // Get visitor session by ID
-visitorRouter.put("/:visitorId", updateVisitorSession); // Update visitor session data
-visitorRouter.delete("/:visitorId", deleteVisitorSession); // Delete visitor session
-visitorRouter.get("/services", getAllServices);
-userRouter.get("/services", getAllServices);
+// ===============================
+// Visitor Session Management
+// ===============================
 
-// Visitor cart routes
-visitorRouter.get("/:visitorId/cart", ensureVisitorSession, getVisitorCart); // Get visitor cart
+// Create a new visitor session
+visitorRouter.post("/create", createVisitorSession);
+
+// Get a visitor session by visitorId
+visitorRouter.get("/:visitorId", getVisitorSession);
+
+// Update visitor session data (e.g., cart or other session-specific information)
+visitorRouter.put("/:visitorId", updateVisitorSession);
+
+// Delete a visitor session
+visitorRouter.delete("/:visitorId", deleteVisitorSession);
+
+// ===============================
+// Services Endpoint
+// ===============================
+
+// Fetch all available services
+visitorRouter.get("/services", getAllServices);
+
+// ===============================
+// Visitor Cart Management
+// ===============================
+
+// Get the current visitor's cart
+visitorRouter.get("/:visitorId/cart", getVisitorCart);
 
 export default visitorRouter;

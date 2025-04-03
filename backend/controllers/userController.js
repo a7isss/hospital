@@ -1,265 +1,185 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import appointmentModel from "../models/appointmentModel.js";
-import { v2 as cloudinary } from 'cloudinary'
-import { UserModel, VisitorModel, ServiceModel, CartModel, DoctorModel } from '../models/models.js';
-// Gateway Initialize
-import logger from "../middleware/logger.js"; // Assumes a logger utility is implemented
+import { v2 as cloudinary } from "cloudinary";
+import { UserModel, ServiceModel } from "../models/models.js";
+import logger from "../middleware/logger.js";
 
-
-// Register a User (Upgraded)
-const registerUser = async (req, res) => {
+// ================================
+// Register a New User
+// ================================
+export const registerUser = async (req, res) => {
     const { name, phone, age, password } = req.body;
 
-    // Validate input data
     if (!name || !phone || !age || !password) {
-        logger.warn("Register Attempt: Missing details");
-        return res.status(400).json({ success: false, message: "Missing details" });
+        logger.warn("Register Attempt: Missing required fields");
+        return res.status(400).json({
+            success: false,
+            message: "Please provide all required fields: name, phone, age, and password.",
+        });
     }
 
     try {
-        // Check if the user already exists
         const existingUser = await UserModel.findOne({ phone });
         if (existingUser) {
-            logger.info(`User Registration Reject: Phone ${phone} already exists`);
-            return res.status(400).json({ success: false, message: "User already exists" });
+            logger.info(`Registration Failed. User with phone ${phone} already exists.`);
+            return res.status(409).json({
+                success: false,
+                message: "A user with this phone number already exists.",
+            });
         }
 
-        // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create new user
-        const newUser = new UserModel({
+        const newUser = await UserModel.create({
             name,
             phone,
             age,
             password: hashedPassword,
         });
 
-        await newUser.save();
-
-        // Generate tokens
-        const payload = { id: newUser._id, role: newUser.role }; // Include useful claims
+        const payload = { id: newUser._id, role: newUser.role };
         const accessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" });
         const refreshToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-        logger.info(`User Registered Successfully: ${phone}`);
+        logger.info(`User Registered: ${phone}`);
         res.status(201).json({
             success: true,
-            message: "User registered successfully",
+            message: "User registered successfully.",
             token: accessToken,
             refreshToken,
         });
     } catch (error) {
-        logger.error("Error during registration:", error);
-        res.status(500).json({ success: false, message: "Internal Server Error" });
+        logger.error("Error during user registration:", error.message);
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error. Please try again later.",
+        });
     }
 };
 
-// Login User (Upgraded)
-const loginUser = async (req, res) => {
+// ================================
+// User Login
+// ================================
+export const loginUser = async (req, res) => {
     const { phone, password } = req.body;
 
-    // Validate presence of credentials
     if (!phone || !password) {
         logger.warn("Login Attempt: Missing credentials");
-        return res.status(400).json({ success: false, message: "Missing credentials" });
+        return res.status(400).json({
+            success: false,
+            message: "Please provide both phone and password.",
+        });
     }
 
     try {
-        // Find the user in the database
         const user = await UserModel.findOne({ phone });
         if (!user) {
-            logger.info(`Login Failed: Phone ${phone} not found`);
-            return res.status(404).json({ success: false, message: "User not found" });
+            logger.info(`Login Failed. User with phone ${phone} not found.`);
+            return res.status(404).json({
+                success: false,
+                message: "User not found. Please register first.",
+            });
         }
 
-        // Verify password
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            logger.info(`Login Failed: Incorrect password for Phone ${phone}`);
-            return res.status(401).json({ success: false, message: "Invalid credentials" });
+            logger.warn(`Login Failed. Incorrect password for user: ${phone}`);
+            return res.status(401).json({
+                success: false,
+                message: "Invalid credentials. Please try again.",
+            });
         }
 
-        // Generate tokens
-        const payload = { id: user._id, role: user.role }; // Include useful claims
-        const accessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" }); // 1 hour
-        const refreshToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "7d" }); // 7 days
+        const payload = { id: user._id, role: user.role };
+        const accessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" });
+        const refreshToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-        logger.info(`User Logged In Successfully: ${phone}`);
+        logger.info(`User Logged In: ${phone}`);
         res.status(200).json({
             success: true,
-            message: "Login successful",
+            message: "Login successful.",
             token: accessToken,
             refreshToken,
         });
     } catch (error) {
-        logger.error("Error during login:", error);
-        res.status(500).json({ success: false, message: "Internal Server Error" });
+        logger.error("Error during user login:", error.message);
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error. Please try again later.",
+        });
     }
 };
 
-// API to get user profile data
-const getProfile = async (req, res) => {
+// ================================
+// Get User Profile
+// ================================
+export const getProfile = async (req, res) => {
+    const { userId } = req.user; // Extracted from `authUser` middleware
+
     try {
-        const { userId } = req.body;
-        const userData = await UserModel.findById(userId).select('-password');
-        if (!userData) {
-            return res.status(404).json({ success: false, message: "User not found" });
+        const user = await UserModel.findById(userId).select("-password");
+        if (!user) {
+            logger.warn(`Profile Fetch Failed. User not found: ${userId}`);
+            return res.status(404).json({
+                success: false,
+                message: "User not found.",
+            });
         }
-        res.json({ success: true, userData });
+
+        res.status(200).json({
+            success: true,
+            message: "Profile fetched successfully.",
+            data: user,
+        });
     } catch (error) {
-        console.error("Error fetching profile:", error);
-        res.status(500).json({ success: false, message: error.message });
+        logger.error("Error fetching user profile:", error.message);
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error. Could not fetch profile.",
+        });
     }
 };
-// API to update user profile
-const updateProfile = async (req, res) => {
+
+// ================================
+// Update User Profile
+// ================================
+export const updateProfile = async (req, res) => {
+    const { userId } = req.user; // Extracted from `authUser` middleware
+    const { name, age } = req.body;
 
     try {
+        const updates = {};
+        if (name) updates.name = name;
+        if (age) updates.age = age;
 
-        const { userId, name, phone, address, dob, gender } = req.body
-        const imageFile = req.file
-
-        if (!name || !phone || !dob || !gender) {
-            return res.json({ success: false, message: "Data Missing" })
+        if (req.file) {
+            const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+                folder: "users",
+                public_id: `user_${userId}_profile`,
+            });
+            updates.profileImage = uploadResult.secure_url;
         }
 
-        await UserModel.findByIdAndUpdate(userId, { name, phone, address: JSON.parse(address), dob, gender })
-
-        if (imageFile) {
-
-            // upload image to cloudinary
-            const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" })
-            const imageURL = imageUpload.secure_url
-
-            await UserModel.findByIdAndUpdate(userId, { image: imageURL })
+        const updatedUser = await UserModel.findByIdAndUpdate(userId, updates, { new: true }).select("-password");
+        if (!updatedUser) {
+            logger.warn(`Profile Update Failed. User not found: ${userId}`);
+            return res.status(404).json({
+                success: false,
+                message: "User not found.",
+            });
         }
 
-        res.json({ success: true, message: 'Profile Updated' })
-
+        logger.info(`User Profile Updated: ${userId}`);
+        res.status(200).json({
+            success: true,
+            message: "Profile updated successfully.",
+            data: updatedUser,
+        });
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
+        logger.error("Error updating user profile:", error.message);
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error. Could not update profile.",
+        });
     }
-}
-
-// API to book appointment
-const bookAppointment = async (req, res) => {
-
-    try {
-
-        const { userId, docId, slotDate, slotTime } = req.body
-        const docData = await DoctorModel.findById(docId).select("-password")
-
-        if (!docData.available) {
-            return res.json({ success: false, message: 'Doctor Not Available' })
-        }
-
-        let slots_booked = docData.slots_booked
-
-        // checking for slot availablity 
-        if (slots_booked[slotDate]) {
-            if (slots_booked[slotDate].includes(slotTime)) {
-                return res.json({ success: false, message: 'Slot Not Available' })
-            }
-            else {
-                slots_booked[slotDate].push(slotTime)
-            }
-        } else {
-            slots_booked[slotDate] = []
-            slots_booked[slotDate].push(slotTime)
-        }
-
-        const userData = await UserModel.findById(userId).select("-password")
-
-        delete docData.slots_booked
-
-        const appointmentData = {
-            userId,
-            docId,
-            userData,
-            docData,
-            amount: docData.fees,
-            slotTime,
-            slotDate,
-            date: Date.now()
-        }
-
-        const newAppointment = new appointmentModel(appointmentData)
-        await newAppointment.save()
-
-        // save new slots data in docData
-        await DoctorModel.findByIdAndUpdate(docId, { slots_booked })
-
-        res.json({ success: true, message: 'Appointment Booked' })
-
-    } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
-    }
-
-}
-
-// API to cancel appointment
-const cancelAppointment = async (req, res) => {
-    try {
-
-        const { userId, appointmentId } = req.body
-        const appointmentData = await appointmentModel.findById(appointmentId)
-
-        // verify appointment user 
-        if (appointmentData.userId !== userId) {
-            return res.json({ success: false, message: 'Unauthorized action' })
-        }
-
-        await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true })
-
-        // releasing doctor slot 
-        const { docId, slotDate, slotTime } = appointmentData
-
-        const doctorData = await DoctorModel.findById(docId)
-
-        let slots_booked = doctorData.slots_booked
-
-        slots_booked[slotDate] = slots_booked[slotDate].filter(e => e !== slotTime)
-
-        await DoctorModel.findByIdAndUpdate(docId, { slots_booked })
-
-        res.json({ success: true, message: 'Appointment Cancelled' })
-
-    } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
-    }
-}
-
-// API to get user appointments for frontend my-appointments page
-const listAppointment = async (req, res) => {
-    try {
-
-        const { userId } = req.body
-        const appointments = await appointmentModel.find({ userId })
-
-        res.json({ success: true, appointments })
-
-    } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
-    }
-}
-
-
-
-
-export {
-    loginUser,
-    registerUser,
-    getProfile,
-    updateProfile,
-  //  getallServices,
-//    bookAppointment,
-//    listAppointment,
-//    cancelAppointment
-
-}
+};
