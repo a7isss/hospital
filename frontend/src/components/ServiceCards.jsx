@@ -6,18 +6,28 @@ import useAuthStore from "../store/authStore"; // Zustand's authStore
 
 const ServiceCards = () => {
     // Zustand state
-    const isAuthenticated = useAuthStore((state) => state.isAuthenticated); // Track if the user is logged in
-    const userData = useAuthStore((state) => state.userData); // Logged-in user data
-    const services = useAuthStore((state) => state.services); // Global services list
-    const fetchServices = useAuthStore((state) => state.fetchServices); // Method to fetch services
-    const loading = useAuthStore((state) => state.loading); // Loading state
+    const {
+        isAuthenticated,
+        userData,
+        services,
+        fetchServices,
+        loading,
+        addToCart,
+    } = useAuthStore((state) => ({
+        isAuthenticated: state.isAuthenticated, // Track if the user is logged in
+        userData: state.userData, // Logged-in user data
+        services: state.services, // Global services list
+        fetchServices: state.fetchServices, // Fetch services action
+        loading: state.loading, // Loading state
+        addToCart: state.addToCart, // Add to cart action
+    }));
 
     const [loadingStates, setLoadingStates] = useState({}); // Track loading state for each action
 
     // Fetch services when the component mounts
     useEffect(() => {
         if (!services || services.length === 0) {
-            fetchServices(); // Fetch global services from backend (via Zustand)
+            fetchServices(); // Fetch services only if they aren't already fetched
         }
     }, [services, fetchServices]);
 
@@ -31,9 +41,13 @@ const ServiceCards = () => {
                 return;
             }
 
-            // Logic to add the service to the cart
+            // Add the service to the cart using the `addToCart` action in authStore
+            addToCart(service);
+
+            // Notify success
             toast.success(`${service.name} added to the cart!`);
         } catch (error) {
+            // Notify failure
             toast.error(`Failed to add ${service.name} to the cart.`);
             console.error("Error adding service to the cart:", error);
         } finally {
@@ -48,101 +62,55 @@ const ServiceCards = () => {
                 <div className="text-center col-span-full">
                     <p className="text-gray-500">{`Loading services...`}</p>
                 </div>
-            ) : isAuthenticated && userData ? (
-                // Display personalized services for the logged-in user
-                <div className="col-span-full text-center">
-                    <h2 className="text-2xl font-bold">{`Welcome, ${userData.name}`}</h2>
-                    <p className="text-gray-700">{`These are your personalized services:`}</p>
+            ) : services && services.length > 0 ? (
+                // Display services
+                services.map((service) => (
+                    <div
+                        key={service._id}
+                        className="bg-white border border-gray-300 rounded-lg overflow-hidden flex flex-col items-stretch shadow hover:shadow-lg transition-shadow"
+                    >
+                        {/* Service image */}
+                        <div className="w-full flex items-center justify-center bg-gray-100">
+                            <img
+                                src={service.image || doctorImage2}
+                                alt={service.name}
+                                className="w-full object-contain"
+                            />
+                        </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-                        {services &&
-                            services.map((service) => (
-                                <div
-                                    key={service._id}
-                                    className="bg-white border border-gray-300 rounded-lg overflow-hidden flex flex-col items-stretch shadow hover:shadow-lg transition-shadow"
-                                >
-                                    {/* Service image */}
-                                    <div className="w-full flex items-center justify-center bg-gray-100">
-                                        <img
-                                            src={service.image || doctorImage2}
-                                            alt={service.name}
-                                            className="w-full object-contain"
-                                        />
-                                    </div>
-
-                                    {/* Service details */}
-                                    <div className="p-4 flex flex-col items-center">
-                                        <h3 className="text-lg font-semibold text-gray-800 text-center mb-2">
-                                            {service.name}
-                                        </h3>
-                                        <div className="flex items-center text-primary font-semibold text-lg mb-4">
-                                            <img
-                                                src={curry}
-                                                alt="currency"
-                                                className="h-5 w-5 mr-1"
-                                            />
-                                            {service.price}
-                                        </div>
-                                        <button
-                                            onClick={() => handleAddToCart(service)}
-                                            disabled={loadingStates[service._id]} // Disable when adding to the cart
-                                            className={`px-4 py-2 rounded-md shadow text-white ${
-                                                loadingStates[service._id]
-                                                    ? "bg-gray-400 cursor-not-allowed"
-                                                    : "bg-primary hover:bg-primary-dark"
-                                            }`}
-                                        >
-                                            {loadingStates[service._id]
-                                                ? "Adding..."
-                                                : "Add to Cart"}
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                    </div>
-                </div>
-            ) : (
-                // Render default services for unauthenticated users
-                services &&
-                services.length > 0 && (
-                    services.map((service) => (
-                        <div
-                            key={service._id}
-                            className="bg-white border border-gray-300 rounded-lg overflow-hidden flex flex-col items-stretch shadow hover:shadow-lg transition-shadow"
-                        >
-                            {/* Service image */}
-                            <div className="w-full flex items-center justify-center bg-gray-100">
+                        {/* Service details */}
+                        <div className="p-4 flex flex-col items-center">
+                            <h3 className="text-lg font-semibold text-gray-800">{service.name}</h3>
+                            <p className="text-gray-600 text-sm">
+                                {service.description || "No description available."}
+                            </p>
+                            <div className="flex items-center gap-2 mt-2">
                                 <img
-                                    src={service.image || doctorImage2}
-                                    alt={service.name}
-                                    className="w-full object-contain"
+                                    className="w-4 h-4"
+                                    src={curry}
+                                    alt="Currency"
                                 />
-                            </div>
-
-                            {/* Service details */}
-                            <div className="p-4 flex flex-col items-center">
-                                <h3 className="text-lg font-semibold text-gray-800 text-center mb-2">
-                                    {service.name}
-                                </h3>
-                                <div className="flex items-center text-primary font-semibold text-lg mb-4">
-                                    <img src={curry} alt="currency" className="h-5 w-5 mr-1" />
-                                    {service.price}
-                                </div>
-                                <button
-                                    onClick={() => handleAddToCart(service)}
-                                    disabled={loadingStates[service._id]} // Disable during loading
-                                    className={`px-4 py-2 rounded-md shadow text-white ${
-                                        loadingStates[service._id]
-                                            ? "bg-gray-400 cursor-not-allowed"
-                                            : "bg-primary hover:bg-primary-dark"
-                                    }`}
-                                >
-                                    {loadingStates[service._id] ? "Adding..." : "Add to Cart"}
-                                </button>
+                                <span className="text-gray-800 font-bold">{`${service.price || 0} USD`}</span>
                             </div>
                         </div>
-                    ))
-                )
+
+                        {/* Add to Cart Button */}
+                        <button
+                            onClick={() => handleAddToCart(service)}
+                            className={`w-full bg-primary hover:bg-primary-dark text-white py-2 px-4 rounded-b transition disabled:opacity-50 ${
+                                loadingStates[service._id] ? "cursor-not-allowed" : ""
+                            }`}
+                            disabled={loadingStates[service._id]} // Disable button while loading
+                        >
+                            {loadingStates[service._id] ? "Adding..." : "Add to Cart"}
+                        </button>
+                    </div>
+                ))
+            ) : (
+                // No services available
+                <div className="text-center col-span-full">
+                    <p className="text-gray-500">{`No services available.`}</p>
+                </div>
             )}
         </div>
     );
