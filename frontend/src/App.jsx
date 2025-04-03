@@ -37,9 +37,6 @@ i18n.use(initReactI18next).init({
         escapeValue: false, // React already escapes by default
     },
 });
-
-export default i18n;
-
 const App = () => {
     const {
         initializeVisitor,
