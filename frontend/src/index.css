@@ -69,3 +69,40 @@
 .ease-in-out {
     transition-timing-function: ease-in-out;
 }
+/* Sticky footer button styling */
+button {
+    transition: background-color 0.3s ease-in-out, transform 0.3s ease;
+}
+
+button:hover {
+    background-color: #e2e8f0; /* Lighter gray */
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+/* Animated sidelist (smooth slide and shadow) */
+ul {
+    animation: slide-up 0.3s ease-in-out;
+}
+
+@keyframes slide-up {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Touch-friendly elements for smaller screens */
+@media (max-width: 640px) {
+    ul {
+        padding: 1rem;
+    }
+
+    button {
+        width: 40px;
+        height: 40px;
+    }
+}
