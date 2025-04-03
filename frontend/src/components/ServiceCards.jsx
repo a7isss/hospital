@@ -1,58 +1,34 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios"; // Import Axios for API calls
 import { toast } from "react-toastify"; // Notifications
-import curry from "../assets/curr.svg"; // Currency icon placeholder
-import doctorImage2 from "../assets/doc1.png"; // Default placeholder image for services
-import useAuthStore from "../store/authStore"; // Zustand's authStore
+import doctorImage2 from "../assets/doc1.png"; // Placeholder image for services
 
 const ServiceCards = () => {
-    // Zustand state
-    const {
-        isAuthenticated,
-        userData,
-        services,
-        fetchServices,
-        loading,
-        addToCart,
-    } = useAuthStore((state) => ({
-        isAuthenticated: state.isAuthenticated, // Track if the user is logged in
-        userData: state.userData, // Logged-in user data
-        services: state.services, // Global services list
-        fetchServices: state.fetchServices, // Fetch services action
-        loading: state.loading, // Loading state
-        addToCart: state.addToCart, // Add to cart action
-    }));
+    const [services, setServices] = useState([]); // State to store services
+    const [loading, setLoading] = useState(false); // Loading state
 
-    const [loadingStates, setLoadingStates] = useState({}); // Track loading state for each action
-
-    // Fetch services when the component mounts
-    useEffect(() => {
-        if (!services || services.length === 0) {
-            fetchServices(); // Fetch services only if they aren't already fetched
+    // Function to fetch services from the server
+    const fetchServices = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get("/api/visitor/services"); // Call the unprotected route
+            setServices(response.data); // Store services in state
+        } catch (error) {
+            console.error("Error fetching services:", error.message);
+            toast.error("Failed to fetch services. Please try again later.");
+        } finally {
+            setLoading(false); // Reset loading state
         }
-    }, [services, fetchServices]);
+    };
+
+    // Fetch services on component mount
+    useEffect(() => {
+        fetchServices();
+    }, []);
 
     // Handles adding a service to the cart
-    const handleAddToCart = async (service) => {
-        setLoadingStates((prev) => ({ ...prev, [service._id]: true })); // Set loading state for the service
-        try {
-            // Ensure the service has a defined price
-            if (service.price === undefined) {
-                toast.error(`Price for ${service.name} is undefined.`);
-                return;
-            }
-
-            // Add the service to the cart using the `addToCart` action in authStore
-            addToCart(service);
-
-            // Notify success
-            toast.success(`${service.name} added to the cart!`);
-        } catch (error) {
-            // Notify failure
-            toast.error(`Failed to add ${service.name} to the cart.`);
-            console.error("Error adding service to the cart:", error);
-        } finally {
-            setLoadingStates((prev) => ({ ...prev, [service._id]: false })); // Remove loading for the service
-        }
+    const handleAddToCart = (service) => {
+        toast.success(`${service.name} added to the cart!`);
     };
 
     return (
@@ -66,7 +42,7 @@ const ServiceCards = () => {
                 // Display services
                 services.map((service) => (
                     <div
-                        key={service._id}
+                        key={service._id?.$oid || service._id}
                         className="bg-white border border-gray-300 rounded-lg overflow-hidden flex flex-col items-stretch shadow hover:shadow-lg transition-shadow"
                     >
                         {/* Service image */}
@@ -80,34 +56,27 @@ const ServiceCards = () => {
 
                         {/* Service details */}
                         <div className="p-4 flex flex-col items-center">
-                            <h3 className="text-lg font-semibold text-gray-800">{service.name}</h3>
-                            <p className="text-gray-600 text-sm">
+                            <h3 className="text-lg font-semibold text-gray-800 text-center">
+                                {service.name}
+                            </h3>
+                            <p className="text-gray-600 text-sm text-center">
                                 {service.description || "No description available."}
                             </p>
                             <div className="flex items-center gap-2 mt-2">
-                                <img
-                                    className="w-4 h-4"
-                                    src={curry}
-                                    alt="Currency"
-                                />
-                                <span className="text-gray-800 font-bold">{`${service.price || 0} USD`}</span>
+                                <span className="text-primary text-xl font-semibold">
+                                    {service.price} EGP
+                                </span>
+                                <button
+                                    onClick={() => handleAddToCart(service)}
+                                    className="bg-primary text-white px-4 py-2 rounded hover:bg-blue-700 transition-all"
+                                >
+                                    Add to Cart
+                                </button>
                             </div>
                         </div>
-
-                        {/* Add to Cart Button */}
-                        <button
-                            onClick={() => handleAddToCart(service)}
-                            className={`w-full bg-primary hover:bg-primary-dark text-white py-2 px-4 rounded-b transition disabled:opacity-50 ${
-                                loadingStates[service._id] ? "cursor-not-allowed" : ""
-                            }`}
-                            disabled={loadingStates[service._id]} // Disable button while loading
-                        >
-                            {loadingStates[service._id] ? "Adding..." : "Add to Cart"}
-                        </button>
                     </div>
                 ))
             ) : (
-                // No services available
                 <div className="text-center col-span-full">
                     <p className="text-gray-500">{`No services available.`}</p>
                 </div>
