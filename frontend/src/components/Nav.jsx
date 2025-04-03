@@ -1,6 +1,12 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import Sidelist from "../components/Sidelist"; // Import the Sidelist component
+import Sidelist from "../components/Sidelist";
+import {useTranslation} from "react-i18next"; // Import the Sidelist component
+
+
+const { t } = useTranslation();
+console.log('Translation loaded:', t); // Add debugging output here
+console.log(t('book_appointment')); // Check if this key works
 
 const Nav = () => {
     const navItems = [

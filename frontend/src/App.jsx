@@ -19,6 +19,26 @@ import Subscriptions from "./pages/Subscriptions";
 import Doctors from "./components/Doctors";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+
+i18n.use(initReactI18next).init({
+    resources: {
+        en: {
+            translation: {
+                book_appointment: 'Book Your Appointment',
+                with_trusted_doctors: 'With Trusted Doctors',
+            },
+        },
+    },
+    lng: 'en', // Default language
+    fallbackLng: 'en', // Fallback language
+    interpolation: {
+        escapeValue: false, // React already escapes by default
+    },
+});
+
+export default i18n;
 
 const App = () => {
     const {
@@ -40,7 +60,9 @@ const App = () => {
     useEffect(() => {
         const initializeApp = async () => {
             try {
+                console.log("Initializing visitor ID...");
                 await initializeVisitor(); // Initialize visitor ID
+                console.log("Visitor ID initialized.");
                 if (isAuthenticated) {
                     await fetchUserData(); // Fetch user data
                 }
