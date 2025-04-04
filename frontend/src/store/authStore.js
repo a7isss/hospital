@@ -156,8 +156,20 @@ const useAuthStore = create((set, get) => ({
     },
 
     // ====================
-    // Service and Appointment Management
+    // Users , Service and Appointment Management
     // ====================
+    fetchUserData: async () => {
+        set({ loading: true }); // Set loading state
+        try {
+            const userData = await authService.getUserData(); // Fetch user data
+            set({ userData, error: null }); // Update state with fetched user data
+        } catch (error) {
+            set({ error: error.message }); // Handle error
+        } finally {
+            set({ loading: false }); // Reset loading state
+        }
+    },
+
     fetchServices: async () => {
         set({ loading: true });
         try {

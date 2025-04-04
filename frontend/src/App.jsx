@@ -51,7 +51,7 @@ const App = () => {
                 // If authenticated, fetch user data
                 if (isAuthenticated) {
                     console.log("Fetching user data...");
-                    await fetchUserData();
+                    await fetchUserData(); // Call fetchUserData to get user details
                 }
 
                 // Fetch available services for the app

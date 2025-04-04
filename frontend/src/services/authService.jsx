@@ -143,5 +143,26 @@ const authService = {
     getAppointments: async () => {
         return await authService.makeAuthRequest("GET", "appointments");
     },
+
+
+    // ==================
+    // [fetch user data]
+    // ==================
+
+    getUserData: async () => {
+        const token = this.getToken(); // Get the token from local storage
+        if (!token) {
+            throw new Error("User is not authenticated.");
+        }
+        try {
+            const response = await axiosInstance.get(`${API_URL}profile`, {
+                headers: { Authorization: `Bearer ${token}` }, // Include the token in the request headers
+            });
+            return response.data; // Return the user data
+        } catch (error) {
+            console.error("Failed to fetch user data:", error);
+            throw error; // Propagate the error
+        }
+    },
 };
 export default authService;
