@@ -8,7 +8,6 @@ import doctorRouter from "./routes/doctorRoute.js";
 import adminRouter from "./routes/adminRoute.js";
 import cartRouter from "./routes/cartRouter.js";
 import { UserModel, VisitorModel, ServiceModel, CartModel, DoctorModel } from './models/models.js';
-import visitorRouter from "./routes/visitorRoute.js";
 
 // App config
 const app = express();
@@ -71,7 +70,6 @@ app.use("/api/user", userRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/doctor", doctorRouter);
 app.use("/api/cart", cartRouter);
-app.use("/api/visitor", visitorRouter);
 // Add the cartRouter here
 //app.use("/api/visitor", visitorRouter);
 
