@@ -15,7 +15,7 @@ i18n
     },
     backend: {
       loadPath: '/locales/{{lng}}.json', // Correct path for Vercel
-      debug: true, // Enable backend debugging
+      debug: false, // Enable backend debugging
     },
     detection: {
       order: ['localStorage', 'cookie', 'navigator', 'htmlTag'], // Detect language from these sources
