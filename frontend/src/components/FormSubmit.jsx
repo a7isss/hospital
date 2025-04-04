@@ -1,6 +1,7 @@
+// FormSubmit.jsx
 import authService from "../services/authService";
 
-const FormSubmit = async (formData, isRegistering) => {
+const FormSubmit = async (formData, isRegistering, authStore) => {
     try {
         let response;
         if (isRegistering) {
@@ -17,6 +18,10 @@ const FormSubmit = async (formData, isRegistering) => {
                 phone: formData.phone, // Use phone for login
                 password: formData.password,
             });
+
+            // Update the Zustand store after successful login
+            const userData = await authService.getUserData(); // Fetch user details post-login
+            authStore.loginUser({ userData }); // Update the store with user data and authentication status
         }
         return response.data; // Return the response data
     } catch (error) {
