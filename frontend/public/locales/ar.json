@@ -105,8 +105,10 @@
   "Your_Cart_Is_Empty": "لم تضف منتجات",
   "Browse_Our_Services":"تصفح خدماتنا",
   "Total_Price": "الاجمالي",
-  "Add_to_Cart":"احجز موعدك",
+  "Add_to_Cart": "احجز موعدك",
   "subscriptions": "الاشتراكات",
-"our_services":"خدماتنا"
-  
+"our_services": "خدماتنا",
+  "partners": "شركاء لهم",
+  "visitor": "هلا بالضيف",
+  "welcome": "مرحبا و"
 }
