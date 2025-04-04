@@ -1,55 +1,41 @@
 import React, { useEffect, useState } from "react";
-import useVisitorStore from "../store/visitorStore"; // Import visitorStore for default behavior
-import useAuthStore from "../store/authStore"; // Import authStore for authenticated users
 import { toast } from "react-toastify";
-import doctorImage2 from "../assets/doc1.png";
+import Fetcher from "../services/Fetcher"; // Import the Fetcher service
+import doctorImage2 from "../assets/doc1.png"; // Fallback image
 
 const ServiceCards = () => {
-    const [services, setServices] = useState([]); // Local state to unify services display
-    const [loading, setLoading] = useState(false); // Load indicator for both visitor and auth flows
-    const [error, setError] = useState(null); // Error handling
+    const [services, setServices] = useState([]); // Local state for fetched services
+    const [loading, setLoading] = useState(false); // Loading state
+    const [error, setError] = useState(null); // Error state
 
-    const { visitorId, generateVisitorId, fetchServices: fetchVisitorServices } = useVisitorStore();
-    const { isAuthenticated, fetchServices: fetchAuthServices } = useAuthStore();
-
-    // Fetch services from the appropriate store depending on the user's state
+    // Fetch services using Fetcher
     const fetchServices = async () => {
         setLoading(true);
-        setError(null);
+        setError(null); // Reset error state
         try {
-            if (isAuthenticated) {
-                console.log("Fetching services for authenticated user...");
-                const fetchedServices = await fetchAuthServices(); // Fetch authStore services
-                setServices(fetchedServices);
-            } else {
-                console.log("Fetching services for visitor...");
-                generateVisitorId(); // Ensure visitorId exists for unauthenticated requests
-                const fetchedServices = await fetchVisitorServices();
-                setServices(fetchedServices);
-            }
+            console.log("Fetching services using Fetcher...");
+            const fetchedServices = await Fetcher.fetchServices(); // Use Fetcher to fetch all services
+            setServices(fetchedServices);
         } catch (err) {
             console.error("Error fetching services:", err.message);
             toast.error("Failed to fetch services. Please try again later.");
-            setError("Failed to load services.");
+            setError("Failed to load services. Please try again later."); // Display user-friendly error
         } finally {
-            setLoading(false);
+            setLoading(false); // End loading state
         }
     };
 
-    // Fetch services when the component mounts or authentication state changes
+    // Fetch services when the component mounts
     useEffect(() => {
         fetchServices();
-    }, [isAuthenticated]); // Re-fetch if the user logs in or out
+    }, []);
 
     const handleAddToCart = (service) => {
-        console.log(
-            isAuthenticated
-                ? `Adding service to authenticated user's cart: ${service.name}`
-                : `Adding service to visitor's cart with ID ${visitorId}: ${service.name}`
-        );
+        console.log(`Adding service to cart: ${service.name}`);
         toast.success(`${service.name} added to the cart!`);
     };
 
+    // Render Services
     return (
         <div className="banner-container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
             {loading ? (
@@ -65,12 +51,12 @@ const ServiceCards = () => {
             ) : (
                 services.map((service) => (
                     <div
-                        key={service._id?.$oid || service._id}
+                        key={service._id}
                         className="bg-white border border-gray-300 rounded-lg overflow-hidden shadow hover:shadow-lg transition-shadow"
                     >
                         <div className="w-full flex items-center justify-center bg-gray-100">
                             <img
-                                src={service.image || doctorImage2}
+                                src={service.image || doctorImage2} // Use fetched Cloudinary URL or fallback
                                 alt={service.name}
                                 className="w-full object-contain"
                             />
@@ -78,17 +64,13 @@ const ServiceCards = () => {
                         <div className="p-4 flex flex-col items-center">
                             <h3 className="text-lg font-semibold text-gray-800">{service.name}</h3>
                             <p className="text-gray-600 text-sm">{service.description}</p>
-                            <div className="flex items-center gap-2 mt-2">
-                                <span className="text-primary text-xl font-semibold">
-                                    {service.price} EGP
-                                </span>
-                                <button
-                                    onClick={() => handleAddToCart(service)}
-                                    className="bg-primary text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-                                >
-                                    Add to Cart
-                                </button>
-                            </div>
+                            <p className="text-gray-900 font-bold mt-2">Price: ₹{service.price}</p>
+                            <button
+                                onClick={() => handleAddToCart(service)}
+                                className="mt-4 bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600"
+                            >
+                                Add to Cart
+                            </button>
                         </div>
                     </div>
                 ))
