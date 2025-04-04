@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import ServiceCards from "../components/ServiceCards";
+import ServiceCards from "../components/ServiceCards"; // Importing ServiceCards component
 import { toast } from "react-toastify";
 import useAuthStore from "../store/authStore"; // Zustand's authStore
 
@@ -69,7 +69,7 @@ const Services = () => {
 
         {/* Render Services */}
         {!loading && !error && services.length > 0 && (
-            <ServiceCards services={services} />
+            <ServiceCards services={services} /> // Using ServiceCards component
         )}
       </div>
   );
