@@ -40,7 +40,6 @@ const Home = () => {
                 <h2 style={{ textAlign: 'center', marginBottom: '20px', fontSize: '24px', color: '#333' }}>
                     {t('our_services')}
                 </h2>
-                <ServiceCards /> {/* Insert ServiceCards here */}
             </div>
         </div>
     );
