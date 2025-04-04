@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import WhatsAppChat from "../components/WhatsAppChat";
 import useAuthStore from "../store/authStore"; // Auth store for authenticated users
 import useVisitorStore from "../store/visitorStore"; // Visitor store for visitors
 import ServiceCards from "../components/ServiceCards"; // ServiceCards to display services
@@ -44,13 +43,7 @@ const Home = () => {
                 <span>
                     {t("welcome")}, {isAuthenticated ? userName : t("visitor")}
                 </span>
-            </div>
 
-            {/* WhatsApp Chat Component */}
-            <WhatsAppChat />
-
-            {/* Service Cards Section */}
-            <div style={{ padding: "20px" }}>
                 <h2
                     style={{
                         textAlign: "center",

@@ -1,8 +1,7 @@
 import React, { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-
 import useAuthStore from "./store/authStore";
-import useVisitorStore from "./store/visitorStore"; // Import visitorStore
+import useVisitorStore from "./store/visitorStore";
 import Header from "./components/Header";
 import Home from "./pages/Home";
 import Partners from "./pages/Partners";
@@ -120,6 +119,7 @@ const App = () => {
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
             </main>
+
         </div>
     );
 };

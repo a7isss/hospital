@@ -1,41 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { toast } from "react-toastify";
-import Fetcher from "../services/Fetcher"; // Import the Fetcher service
+import useVisitorStore from "../store/visitorStore"; // Import visitorStore
 import doctorImage2 from "../assets/doc1.png"; // Fallback image
 
 const ServiceCards = () => {
-    const [services, setServices] = useState([]); // Local state for fetched services
-    const [loading, setLoading] = useState(false); // Loading state
-    const [error, setError] = useState(null); // Error state
-
-    // Fetch services using Fetcher
-    const fetchServices = async () => {
-        setLoading(true);
-        setError(null); // Reset error state
-        try {
-            console.log("Fetching services using Fetcher...");
-            const fetchedServices = await Fetcher.fetchServices(); // Use Fetcher to fetch all services
-            setServices(fetchedServices);
-        } catch (err) {
-            console.error("Error fetching services:", err.message);
-            toast.error("Failed to fetch services. Please try again later.");
-            setError("Failed to load services. Please try again later."); // Display user-friendly error
-        } finally {
-            setLoading(false); // End loading state
-        }
-    };
+    // Subscribe to visitorStore's state and actions
+    const { services, fetchServices, loading, error } = useVisitorStore();
 
     // Fetch services when the component mounts
     useEffect(() => {
         fetchServices();
-    }, []);
+    }, [fetchServices]);
 
     const handleAddToCart = (service) => {
         console.log(`Adding service to cart: ${service.name}`);
         toast.success(`${service.name} added to the cart!`);
     };
 
-    // Render Services
+    // Render services
     return (
         <div className="banner-container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
             {loading ? (
@@ -56,7 +38,7 @@ const ServiceCards = () => {
                     >
                         <div className="w-full flex items-center justify-center bg-gray-100">
                             <img
-                                src={service.image || doctorImage2} // Use fetched Cloudinary URL or fallback
+                                src={service.image || doctorImage2} // Use service image or fallback
                                 alt={service.name}
                                 className="w-full object-contain"
                             />

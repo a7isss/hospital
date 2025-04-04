@@ -1,15 +1,26 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { assets } from '../assets/assets';
+import { assets } from "../assets/assets";
 import cartIcon from "../assets/cart.svg"; // Cart icon asset
+import useVisitorStore from "../store/visitorStore"; // Import visitorStore for cart and visitor logic
 
 const Header = () => {
     const { t } = useTranslation(); // For translations
     const navigate = useNavigate();
 
-    // Total number of items in the cart (assuming you still want to show the cart)
-    const totalCartItems = 0; // Set this to a static value or remove if not needed
+    // Access visitorStore state and actions
+    const { cart, generateVisitorId, visitorId } = useVisitorStore();
+
+    // Ensure the visitorId is initialized
+    useEffect(() => {
+        if (!visitorId) {
+            generateVisitorId();
+        }
+    }, [visitorId, generateVisitorId]);
+
+    // Calculate total cart item count
+    const totalCartItems = cart.reduce((acc, item) => acc + item.quantity, 0);
 
     return (
         <header className="bg-gray-100 shadow-md sticky top-0 z-50">
@@ -44,9 +55,6 @@ const Header = () => {
                         </span>
                     )}
                 </button>
-
-                {/* Removed Authentication Section */}
-                {/* This section is removed to eliminate state awareness */}
             </div>
         </header>
     );
