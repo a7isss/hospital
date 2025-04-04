@@ -1,5 +1,6 @@
 import axios from "axios";
 import authService from "../services/authService";
+import useVisitorStore from "../store/visitorStore";
 
 // Create an Axios instance
 const axiosInstance = axios.create();
@@ -8,63 +9,47 @@ const axiosInstance = axios.create();
 axiosInstance.interceptors.request.use(
     async (config) => {
         const token = authService.getToken();
+        const { visitorId, generateVisitorId } = useVisitorStore.getState();
 
-        // Automatically attempt to refresh token if expired
-        if (token && authService.isTokenExpired(token)) {
-            try {
-                const { token: newToken } = await authService.refreshToken(); // Refresh if expired
-                if (newToken) {
-                    config.headers.Authorization = `Bearer ${newToken}`;
+        // Handle authenticated user token
+        if (token) {
+            if (authService.isTokenExpired(token)) {
+                try {
+                    const { token: newToken } = await authService.refreshToken();
+                    if (newToken) {
+                        config.headers.Authorization = `Bearer ${newToken}`;
+                    }
+                } catch (error) {
+                    console.error("axiosInstance -> Token refresh failed:", error);
+                    authService.logoutUser();
+                    throw error;
                 }
-            } catch (error) {
-                console.error("axiosInstance -> Token refresh failed:", error);
-                authService.logoutUser(); // Clear local session on failure
-                throw error; // Reject the request with the error
+            } else {
+                config.headers.Authorization = `Bearer ${token}`;
             }
-        } else if (token) {
-            // Attach valid token
-            config.headers.Authorization = `Bearer ${token}`;
+        } else {
+            // Handle visitor ID for unauthenticated requests
+            let id = visitorId;
+            if (!id) {
+                id = generateVisitorId();
+            }
+            config.headers["x-visitor-id"] = id; // Add visitorId to headers
         }
 
-        return config; // Return the modified config
+        return config;
     },
     (error) => {
         console.error("axiosInstance -> Request error:", error);
-        return Promise.reject(error); // Forward the error
+        return Promise.reject(error);
     }
 );
 
 // Add a response interceptor to handle errors globally
 axiosInstance.interceptors.response.use(
     (response) => response, // Return the response if no error
-    async (error) => {
-        const originalRequest = error.config;
-
-        // Check if error comes from an expired access token and refresh failed
-        if (
-            error.response &&
-            error.response.status === 401 && // Unauthorized
-            !originalRequest._retry // Avoid infinite loops
-        ) {
-            originalRequest._retry = true; // Mark the request for retry
-
-            // Attempt to refresh token
-            try {
-                const { token } = await authService.refreshToken(); // Get a new token
-                if (token) {
-                    authService.setToken(token); // Save the new token
-                    originalRequest.headers.Authorization = `Bearer ${token}`; // Update the request headers
-                    return axiosInstance(originalRequest); // Retry the request
-                }
-            } catch (refreshError) {
-                console.error("axiosInstance -> Token refresh failed during response interception:", refreshError);
-                authService.logoutUser(); // Clear session if token refresh fails
-                return Promise.reject(refreshError); // Forward refresh error
-            }
-        }
-
+    (error) => {
         console.error("axiosInstance -> Response error:", error);
-        return Promise.reject(error); // Forward other errors
+        return Promise.reject(error);
     }
 );
 

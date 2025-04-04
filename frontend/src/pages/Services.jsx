@@ -1,53 +1,57 @@
-import React, { useEffect } from "react";
-import ServiceCards from "../components/ServiceCards"; // Importing ServiceCards component
+import React, { useEffect, useState } from "react";
+import ServiceCards from "../components/ServiceCards";
 import { toast } from "react-toastify";
-import useAuthStore from "../store/authStore"; // Zustand's authStore
+import useAuthStore from "../store/authStore"; // Handles authenticated users
+import useVisitorStore from "../store/visitorStore"; // Handles visitors
 
 const Services = () => {
-  const {
-    backendUrl,
-    services,
-    setServices,
-    loading,
-    setLoading,
-    error,
-    setError,
-  } = useAuthStore((state) => ({
-    backendUrl: state.backendUrl,
-    services: state.services,
-    setServices: state.setServices,
-    loading: state.loading,
-    setLoading: state.setLoading,
-    error: state.error,
-    setError: state.setError,
+  const { isAuthenticated, services: authServices, fetchServices: fetchAuthServices } = useAuthStore(
+      (state) => ({
+        isAuthenticated: state.isAuthenticated,
+        services: state.services,
+        fetchServices: state.fetchServices, // Fetch services for authenticated users
+      })
+  );
+
+  const { fetchServices: fetchVisitorServices } = useVisitorStore((state) => ({
+    fetchServices: state.fetchServices, // Fetch services for visitors
   }));
 
-  // Fetch services using Zustand for global state management
-  const fetchServices = async () => {
-    try {
-      setLoading(true); // Set loading state globally
-      const response = await fetch(`${backendUrl}/api/services`);
-      const data = await response.json();
+  const [services, setServices] = useState([]); // Local state to display services
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-      if (response.ok) {
-        setServices(data.services || []); // Populate global services state
-        setError(null); // Clear error message upon success
+  // Fetch services based on user state (visitor or authenticated)
+  const fetchServices = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      if (isAuthenticated) {
+        // Authenticated user services
+        console.log("Fetching authenticated user services...");
+        await fetchAuthServices(); // Updates global authStore state
+        setServices(authServices); // Use services from authStore
       } else {
-        throw new Error(data.message || "Failed to load services.");
+        // Visitor services (default)
+        console.log("Fetching visitor services...");
+        const visitorServices = await fetchVisitorServices();
+        setServices(visitorServices); // Use visitorStore's services
       }
     } catch (err) {
       console.error("Error fetching services:", err);
-      setError("Failed to load services. Try again later."); // Update global error state
-      toast.error("Error fetching services. Please try again.");
+      setError("Failed to load services. Please try again later.");
+      toast.error("Error fetching services. Please try again later.");
     } finally {
-      setLoading(false); // Reset loading state globally
+      setLoading(false);
     }
   };
 
   // Fetch services on component mount
   useEffect(() => {
-    if (services.length === 0) fetchServices(); // Fetch only if not already loaded
-  }, []);
+    fetchServices();
+    // We include `isAuthenticated` in the dependency array to re-fetch services if the auth state changes
+  }, [isAuthenticated]);
 
   return (
       <div className="container mx-auto px-6 py-8">
@@ -69,7 +73,7 @@ const Services = () => {
 
         {/* Render Services */}
         {!loading && !error && services.length > 0 && (
-            <ServiceCards services={services} /> // Using ServiceCards component
+            <ServiceCards services={services} />
         )}
       </div>
   );

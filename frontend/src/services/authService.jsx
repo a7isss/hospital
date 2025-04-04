@@ -1,7 +1,7 @@
 import axiosInstance from "../utils/axiosInstance.js";
+import useVisitorStore from "../store/visitorStore";
 
 const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/user/`;
-const CART_URL = `${import.meta.env.VITE_BACKEND_URL}/api/cart/`;
 
 const authService = {
     // ==================
@@ -25,7 +25,7 @@ const authService = {
     },
 
     // ==================
-    // Reusable Requests
+    // Reusable Requests only for Authenticated Users
     // ==================
     makeAuthRequest: async (method, endpoint, data = null, baseURL = API_URL) => {
         const token = authService.getToken();
@@ -49,8 +49,8 @@ const authService = {
     // ==================
     // Authentication Methods
     // ==================
-    loginUser: async (payload) => {
-        const response = await axiosInstance.post(`${API_URL}login`, payload);
+    loginUser: async (credentials) => {
+        const response = await axiosInstance.post(`${API_URL}login`, credentials);
         if (response.data.token) {
             authService.setToken(response.data.token);
             if (response.data.refreshToken) {
@@ -60,8 +60,8 @@ const authService = {
         return response.data;
     },
 
-    registerUser: async (payload) => {
-        const response = await axiosInstance.post(`${API_URL}register`, payload);
+    registerUser: async (userDetails) => {
+        const response = await axiosInstance.post(`${API_URL}register`, userDetails);
         if (response.data.token) {
             authService.setToken(response.data.token);
             if (response.data.refreshToken) {
@@ -86,57 +86,16 @@ const authService = {
         authService.clearRefreshToken();
     },
 
-    logoutAllDevices: async () => {
+    logoutFromAllDevices: async () => {
         await authService.makeAuthRequest("POST", "logout/all", {});
         authService.logoutUser();
     },
 
     // ==================
-    // Cart Management
-    // ==================
-    fetchCartFromServer: async (visitorId) => {
-        try {
-            // Call the updated getVisitorCart endpoint
-            const response = await axiosInstance.get(
-                `${import.meta.env.VITE_BACKEND_URL}/api/visitor/${visitorId}/cart`
-            );
-            return response.data.cart; // Return the cart data only
-        } catch (error) {
-            console.error("Failed to fetch visitor's cart from server:", error.message);
-            throw error; // Propagate the error to handle it in `authStore`
-        }
-    },
-    saveCartToServer: async (visitorId, cartData) => {
-        return await authService.makeAuthRequest("POST", "save", { visitorId, cartData }, CART_URL);
-    },
-
-    loadCart: () => {
-        const cartKey = localStorage.getItem("visitorID") || "guest_cart";
-        try {
-            return {
-                cart: JSON.parse(localStorage.getItem(cartKey)) || [],
-                totalPrice: parseFloat(localStorage.getItem(`${cartKey}_totalPrice`)) || 0,
-            };
-        } catch (error) {
-            console.error("Error loading cart:", error);
-            return { cart: [], totalPrice: 0 };
-        }
-    },
-
-    saveCart: (cart, totalPrice) => {
-        const cartKey = localStorage.getItem("visitorID") || "guest_cart";
-        try {
-            localStorage.setItem(cartKey, JSON.stringify(cart));
-            localStorage.setItem(`${cartKey}_totalPrice`, totalPrice.toString());
-        } catch (error) {
-            console.error("Error saving cart:", error);
-        }
-    },
-
-    // ==================
-    // Appointments and Services
+    // Authenticated-Only Operations
     // ==================
     getServices: async () => {
+        // Fetch services specifically for authenticated users
         return await authService.makeAuthRequest("GET", "services");
     },
 
@@ -144,25 +103,21 @@ const authService = {
         return await authService.makeAuthRequest("GET", "appointments");
     },
 
-
-    // ==================
-    // [fetch user data]
-    // ==================
-
     getUserData: async () => {
-        const token = this.getToken(); // Get the token from local storage
+        const token = authService.getToken();
         if (!token) {
             throw new Error("User is not authenticated.");
         }
         try {
             const response = await axiosInstance.get(`${API_URL}profile`, {
-                headers: { Authorization: `Bearer ${token}` }, // Include the token in the request headers
+                headers: { Authorization: `Bearer ${token}` },
             });
-            return response.data; // Return the user data
-        } catch (error) {
-            console.error("Failed to fetch user data:", error);
-            throw error; // Propagate the error
+            return response.data; // Returns user details.
+        } catch (err) {
+            console.error("getUserData -> Error fetching user data:", err);
+            throw err;
         }
     },
 };
+
 export default authService;

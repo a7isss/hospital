@@ -1,27 +1,46 @@
 import { create } from "zustand";
+import axiosInstance from "../utils/axiosInstance";
 import { v4 as uuidv4 } from "uuid";
 
-// Zustand store for visitor management
 const useVisitorStore = create((set, get) => ({
-    visitorId: localStorage.getItem("visitorID") || null, // Fetch visitor ID from localStorage or initialize as null
+    visitorId: localStorage.getItem("visitorID") || null,
 
     // Generate and persist a visitor ID
     generateVisitorId: () => {
-        let visitorId = get().visitorId; // Check if there's already a visitor ID
+        let visitorId = get().visitorId;
 
         if (!visitorId) {
-            visitorId = uuidv4(); // Generate new UUID using uuid library
-            localStorage.setItem("visitorID", visitorId); // Save to localStorage
-            set({ visitorId }); // Update state
+            visitorId = uuidv4();
+            localStorage.setItem("visitorID", visitorId);
+            set({ visitorId });
         }
 
-        return visitorId; // Return the newly created or existing visitor ID
+        return visitorId;
     },
 
-    // Clear visitor ID (for logout or session reset)
+    // Load services (example for unprotected APIs)
+    fetchServices: async () => {
+        try {
+            const response = await axiosInstance.get("/api/services"); // No token needed
+            return response.data;
+        } catch (error) {
+            console.error("visitorStore -> fetchServices failed:", error);
+            throw error;
+        }
+    },
+
+    // Manage visitor-specific state
+    cart: [],
+    addToCart: (item) =>
+        set((state) => ({
+            cart: [...state.cart, item],
+        })),
+    clearCart: () => set({ cart: [] }),
+
+    // Clear visitor ID (logout or reset)
     clearVisitorId: () => {
-        localStorage.removeItem("visitorID"); // Remove from localStorage
-        set({ visitorId: null }); // Clear from state
+        localStorage.removeItem("visitorID");
+        set({ visitorId: null, cart: [] });
     },
 }));
 

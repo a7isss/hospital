@@ -1,38 +1,52 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios"; // For unprotected API requests
-import useVisitorStore from "../store/visitorStore"; // Import the visitor store
+import useVisitorStore from "../store/visitorStore"; // Import visitorStore for default behavior
+import useAuthStore from "../store/authStore"; // Import authStore for authenticated users
 import { toast } from "react-toastify";
 import doctorImage2 from "../assets/doc1.png";
 
 const ServiceCards = () => {
-    const [services, setServices] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [services, setServices] = useState([]); // Local state to unify services display
+    const [loading, setLoading] = useState(false); // Load indicator for both visitor and auth flows
+    const [error, setError] = useState(null); // Error handling
 
-    const { visitorId, generateVisitorId } = useVisitorStore(); // Access visitor ID and generator from store
+    const { visitorId, generateVisitorId, fetchServices: fetchVisitorServices } = useVisitorStore();
+    const { isAuthenticated, fetchServices: fetchAuthServices } = useAuthStore();
 
-    useEffect(() => {
-        // Ensure visitor ID exists
-        generateVisitorId();
-
-        // Fetch services after ensuring visitor ID
-        const fetchServices = async () => {
-            setLoading(true);
-            try {
-                const response = await axios.get("/api/visitor/services"); // Unprotected endpoint
-                setServices(response.data); // Populate services
-            } catch (error) {
-                console.error("Error fetching services:", error.message);
-                toast.error("Failed to fetch services. Please try again later.");
-            } finally {
-                setLoading(false);
+    // Fetch services from the appropriate store depending on the user's state
+    const fetchServices = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            if (isAuthenticated) {
+                console.log("Fetching services for authenticated user...");
+                const fetchedServices = await fetchAuthServices(); // Fetch authStore services
+                setServices(fetchedServices);
+            } else {
+                console.log("Fetching services for visitor...");
+                generateVisitorId(); // Ensure visitorId exists for unauthenticated requests
+                const fetchedServices = await fetchVisitorServices();
+                setServices(fetchedServices);
             }
-        };
+        } catch (err) {
+            console.error("Error fetching services:", err.message);
+            toast.error("Failed to fetch services. Please try again later.");
+            setError("Failed to load services.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    // Fetch services when the component mounts or authentication state changes
+    useEffect(() => {
         fetchServices();
-    }, [generateVisitorId]);
+    }, [isAuthenticated]); // Re-fetch if the user logs in or out
 
     const handleAddToCart = (service) => {
-        console.log("Adding service to cart for visitor:", visitorId);
+        console.log(
+            isAuthenticated
+                ? `Adding service to authenticated user's cart: ${service.name}`
+                : `Adding service to visitor's cart with ID ${visitorId}: ${service.name}`
+        );
         toast.success(`${service.name} added to the cart!`);
     };
 
@@ -40,7 +54,13 @@ const ServiceCards = () => {
         <div className="banner-container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
             {loading ? (
                 <div className="text-center col-span-full">
-                    <p className="text-gray-500">{`Loading services...`}</p>
+                    <p className="text-gray-500">Loading services...</p>
+                </div>
+            ) : error ? (
+                <div className="text-center text-red-500 col-span-full">{error}</div>
+            ) : services.length === 0 ? (
+                <div className="text-center text-gray-500 col-span-full">
+                    No services available at the moment.
                 </div>
             ) : (
                 services.map((service) => (
