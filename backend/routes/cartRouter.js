@@ -2,7 +2,6 @@ import express from "express";
 import {
     addToCart,
     removeFromCart,
-    fetchCart,
 } from "../controllers/cartController.js";
 import authUser from "../middleware/authUser.js"; // Middleware for logged-in users
 
