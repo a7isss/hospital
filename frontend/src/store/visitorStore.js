@@ -17,15 +17,20 @@ const useVisitorStore = create((set, get) => ({
 
         return visitorId;
     },
+    // State variables for services
+    services: [],
+    loading: false,
+    error: null,
 
-    // Load services (example for unprotected APIs)
+    // Fetch services from the API and update the store
     fetchServices: async () => {
+        set({ loading: true });
         try {
-            const response = await axiosInstance.get("/api/services"); // No token needed
-            return response.data;
+            const response = await axiosInstance.get("/api/services"); // No token required
+            set({ services: response.data.services, loading: false, error: null }); // Update services state
         } catch (error) {
-            console.error("visitorStore -> fetchServices failed:", error);
-            throw error;
+            console.error("visitorStore -> fetchServices failed:", error.message);
+            set({ loading: false, error: error.message });
         }
     },
 

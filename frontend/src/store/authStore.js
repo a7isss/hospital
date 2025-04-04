@@ -11,7 +11,6 @@ const useAuthStore = create((set, get) => ({
     isAuthenticated: !!authService.getToken(), // Whether the user is authenticated
     loading: false, // Global loading state
     error: null, // Global error states
-    services: [], // List of services fetched from the API
     subscriptions: [], // List of user's subscriptions
     appointments: [], // List of appointments
     cart: [], // User or visitor's cart
@@ -167,18 +166,6 @@ const useAuthStore = create((set, get) => ({
             set({ error: error.message }); // Handle error
         } finally {
             set({ loading: false }); // Reset loading state
-        }
-    },
-
-    fetchServices: async () => {
-        set({ loading: true });
-        try {
-            const services = await authService.getServices(); // Fetch list of services
-            set({ services, error: null });
-        } catch (error) {
-            set({ error: error.message });
-        } finally {
-            set({ loading: false });
         }
     },
 
