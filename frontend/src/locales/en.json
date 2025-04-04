@@ -1,4 +1,4 @@
-export const locales = {
+{
     "book_appointment": "Book Appointment",
     "with_100+_trusted_doctors": "With 100+ Trusted Doctors",
     "company": "Company",
@@ -70,4 +70,4 @@ export const locales = {
     "birthday": "Birthday:",
     "save_information": "Save Information",
     "edit": "Edit"
-  };
+  }
