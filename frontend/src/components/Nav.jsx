@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -22,6 +22,20 @@ const Nav = () => {
         setIsSidelistOpen((prev) => !prev);
     };
 
+    // Close sidelist on Escape key press
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === "Escape" && isSidelistOpen) {
+                setIsSidelistOpen(false);
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [isSidelistOpen]);
+
     return (
         <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10">
             <div className="max-w-2xl mx-auto px-4">
@@ -32,6 +46,7 @@ const Nav = () => {
                             <NavLink
                                 to={item.path}
                                 key={item.id}
+                                aria-label={item.name} // Added aria-label
                                 className={({ isActive }) =>
                                     `flex flex-col items-center px-4 py-2 text-sm font-medium transition-colors ${
                                         isActive ? "text-primary" : "text-gray-600 hover:text-primary"
@@ -61,10 +76,9 @@ const Nav = () => {
                     <div className="flex items-center justify-center flex-none relative">
                         <button
                             onClick={toggleSidelist}
+                            aria-label={isSidelistOpen ? "Close menu" : "Open menu"} // Added aria-label
                             className={`w-10 h-10 flex items-center justify-center shadow-md rounded-lg  
-                            ${
-                                isSidelistOpen ? "bg-gray-300" : "bg-white"
-                            } transition-all duration-300 ease-in-out`}
+                            ${isSidelistOpen ? "bg-gray-300" : "bg-white"} transition-all duration-300 ease-in-out`}
                         >
                             {/* Button Icon */}
                             <svg
@@ -92,9 +106,10 @@ const Nav = () => {
                                     <li key={item.id}>
                                         <NavLink
                                             to={item.path}
+                                            aria-label={item.name} // Added aria-label
                                             className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
                                         >
-                                            {it.name}
+                                            {item.name}
                                         </NavLink>
                                     </li>
                                 ))}
