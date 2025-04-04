@@ -16,11 +16,13 @@ import Subscriptions from "./pages/Subscriptions";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import i18n from "i18next";
-import { initReactI18next } from "react-i18next";
+import { initReactI18next, useTranslation } from "react-i18next"; // Import useTranslation
 import Nav from "./components/Nav"; // Import Nav component
 import "./i18n"; // Import the i18n configuration
 
 const App = () => {
+    const { t } = useTranslation(); // Use the translation hook
+
     const {
         initializeVisitorCart,
         fetchUserData,
