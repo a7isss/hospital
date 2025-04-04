@@ -1,127 +1,65 @@
-import React, { useState } from "react";
-import useAuthStore from "../store/authStore"; // Zustand's global state (authStore)
+import React, { useEffect } from "react";
 import { toast } from "react-toastify";
-import currIcon from "../assets/curr.svg";
+import useAuthStore from "../store/authStore"; // Handles authenticated users
+import useVisitorStore from "../store/visitorStore"; // Handles visitors
+import Card from "../components/Card"; // Single service card component
 
-const Card = ({ service }) => {
-    const {
-        isAuthenticated,
-        visitorId,
-        userData,
-        currencySymbol,
-    } = useAuthStore((state) => ({
-        isAuthenticated: state.isAuthenticated, // Authentication status
-        visitorId: state.visitorId, // Visitor ID (for unauthenticated users)
-        userData: state.userData, // User data for authenticated users
-        currencySymbol: state.currencySymbol || "₹", // Default to ₹ if not set
-    }));
+const Services = () => {
+    const { isAuthenticated, fetchServices: fetchAuthServices, services: authServices } = useAuthStore(
+        (state) => ({
+            isAuthenticated: state.isAuthenticated,
+            fetchServices: state.fetchServices,
+            services: state.services,
+        })
+    );
 
-    const [loading, setLoading] = useState(false); // Track loading state for the service
+    const { fetchServices: fetchVisitorServices, services: visitorServices } = useVisitorStore(
+        (state) => ({
+            fetchServices: state.fetchServices,
+            services: state.services,
+        })
+    );
 
-    const handleAddToCart = async () => {
-        setLoading(true); // Set loading state
-        try {
-            // Ensure the service has a defined price
-            if (service.price === undefined) {
-                toast.error(`Price for ${service.name} is undefined.`);
-                return;
+    // Fetch services based on authentication state
+    useEffect(() => {
+        const fetchServices = async () => {
+            try {
+                if (isAuthenticated) {
+                    await fetchAuthServices(); // Fetch services for authenticated users
+                } else {
+                    await fetchVisitorServices(); // Fetch services for visitors
+                }
+            } catch (err) {
+                console.error("Error fetching services:", err);
+                toast.error("Failed to load services. Please try again later.");
             }
+        };
 
-            // Determine the cart key (user-specific or visitor-specific)
-            const cartKey = isAuthenticated
-                ? `cart_user_${userData?.id}`
-                : `cart_visitor_${visitorId}`;
+        fetchServices();
+    }, [isAuthenticated, fetchAuthServices, fetchVisitorServices]);
 
-            // Load the existing cart from localStorage
-            const existingCart = JSON.parse(localStorage.getItem(cartKey) || "[]");
-            const existingService = existingCart.find((item) => item.itemId === service._id);
-
-            // Update cart with the service item
-            let updatedCart;
-            if (existingService) {
-                existingService.quantity += 1; // Increment quantity if item already exists
-                updatedCart = [...existingCart];
-            } else {
-                updatedCart = [
-                    ...existingCart,
-                    {
-                        itemId: service._id,
-                        name: service.name,
-                        price: service.price,
-                        image: service.image || null, // Pass image or null as fallback
-                        quantity: 1,
-                    },
-                ];
-            }
-
-            // Calculate updated total price
-            const totalPrice = updatedCart.reduce(
-                (sum, item) => sum + item.price * item.quantity,
-                0
-            );
-
-            // Save updated cart and total price to localStorage
-            localStorage.setItem(cartKey, JSON.stringify(updatedCart));
-            localStorage.setItem(`${cartKey}_totalPrice`, totalPrice.toString());
-
-            // Notify success
-            toast.success(`${service.name} added to the cart!`);
-        } catch (error) {
-            // Notify error
-            toast.error(`Failed to add ${service.name} to the cart.`);
-            console.error("Error adding service to the cart:", error);
-        } finally {
-            // Reset loading state
-            setLoading(false);
-        }
-    };
+    // Select the appropriate services list based on the user's authentication state
+    const services = isAuthenticated ? authServices : visitorServices;
 
     return (
-        <div className="relative bg-white border border-gray-300 rounded-lg overflow-hidden shadow hover:shadow-lg transition-shadow">
-            {/* Service Image */}
-            <div className="w-full h-[200px] bg-gray-100 flex items-center justify-center">
-                <img
-                    src={service.image || "https://via.placeholder.com/150"}
-                    alt={service.name}
-                    className="w-full object-contain h-full"
-                />
-            </div>
+        <div className="container mx-auto px-6 py-8">
+            {/* Page Heading */}
+            <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">Our Services</h1>
 
-            {/* Transparent White Area with Service Details */}
-            <div className="absolute bottom-0 left-0 right-0 bg-white bg-opacity-80 p-4 flex flex-col items-center rounded-b-lg">
-                {/* Service Name */}
-                <h3 className="text-lg font-semibold text-gray-800 text-center mb-2">
-                    {service.name}
-                </h3>
-
-                {/* Service Price */}
-                <p className="text-primary font-semibold text-lg mb-4 flex items-center gap-1">
-                    <img
-                        src={currIcon}
-                        alt="Currency Icon"
-                        className="h-[1em] w-auto object-contain"
-                    />
-                    {service.price !== undefined
-                        ? `${currencySymbol}${service.price.toFixed(2)}`
-                        : "Price Not Available"}
-                </p>
-
-                {/* Add to Cart Button */}
-                <button
-                    onClick={handleAddToCart}
-                    className={`w-full bg-primary text-white text-center px-4 py-2 rounded-md hover:bg-primary-dark transition 
-              ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
-                    disabled={loading} // Disable button while loading
-                >
-                    {loading ? (
-                        <span className="loader border-t-white w-5 h-5 rounded-full border-2 border-gray-400 animate-spin"></span>
-                    ) : (
-                        "Add to Cart"
-                    )}
-                </button>
+            {/* Services Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {services && services.length > 0 ? (
+                    services.map((service) => (
+                        <Card key={service._id} service={service} /> // Render a Card for each service
+                    ))
+                ) : (
+                    <p className="text-center text-gray-500 col-span-full">
+                        No services available at the moment.
+                    </p>
+                )}
             </div>
         </div>
     );
 };
 
-export default Card;
+export default Services;
